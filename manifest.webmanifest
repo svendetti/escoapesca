@@ -1,0 +1,19 @@
+{
+  "name": "EscoAPesca",
+  "short_name": "EscoAPesca",
+  "description": "Trova pescatori compatibili e organizza uscite di pesca nel Lazio.",
+  "lang": "it-IT",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#03101b",
+  "theme_color": "#03101b",
+  "icons": [
+    {
+      "src": "assets/logo-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
