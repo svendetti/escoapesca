@@ -2,7 +2,7 @@
 
 ## Ottimizzazione SEO e prestazioni
 
-La build pubblica è una pagina HTML diretta e non utilizza iframe. Il peso di `index.html` è sceso da circa 107 KB a circa 74,6 KB. Sono stati inoltre applicati:
+La build pubblica è una pagina HTML statica; il solo questionario beta è incorporato da Tally con caricamento differito. Sono stati inoltre applicati:
 
 - title, description, canonical, Open Graph, Twitter Card e JSON-LD;
 - `robots.txt`, `sitemap.xml` e manifest PWA;
@@ -11,8 +11,8 @@ La build pubblica è una pagina HTML diretta e non utilizza iframe. Il peso di `
 - sospensione del rendering 3D quando la scena è fuori schermo;
 - riduzione di pixel ratio e particelle senza alterare la composizione;
 - contenuti leggibili anche se JavaScript o le animazioni non partono;
-- attribuzione UTM e funnel dimostrativo salvati esclusivamente in locale;
-- Content Security Policy dimostrativa.
+- propagazione di `utm_source`, `utm_medium` e `utm_campaign` al questionario Tally;
+- Content Security Policy limitata alle dipendenze effettivamente utilizzate.
 
 I Core Web Vitals reali devono essere misurati nuovamente dopo il deploy HTTPS, perché hosting, CDN, compressione e latenza non sono simulabili con il file locale.
 
@@ -46,27 +46,26 @@ python -m http.server 8765
 
 Poi aprire `http://127.0.0.1:8765/`.
 
-## Dati dimostrativi
+## Pubblicazione e contatti
 
-- Dominio: `www.escoapesca-demo.it`
-- Email beta: `beta@escoapesca-demo.it`
-- Email privacy: `privacy@escoapesca-demo.it`
-- Titolare: `EscoAPesca — progetto beta`
+- Sito: `https://svendetti.github.io/escoapesca/`
+- Modulo pubblico: `https://tally.so/r/zxoGMR`
+- Email beta e privacy: `devillsit@gmail.com`
+- Titolare del trattamento: Simone Vendetti
 
-Questi valori sono intenzionalmente fittizi e devono essere sostituiti prima della pubblicazione.
+L'informativa completa è disponibile in `privacy.html` e viene collegata sia dalla landing sia dal consenso nel questionario.
 
 ## Form
 
-Il form è funzionante in modalità demo: valida i campi e salva la richiesta nel `localStorage` del browser con la chiave `escoapesca_demo_leads`. Non invia dati a servizi esterni.
+Il form Tally è operativo e divide la candidatura in tre passaggi: profilo, uscita ideale e consenso finale. Le risposte vengono registrate nell'account Tally collegato al progetto; la landing non conserva copie nel browser.
 
-Prima della pubblicazione bisogna:
+Prima di avviare campagne a pagamento bisogna ancora:
 
-1. collegare un endpoint reale;
-2. sostituire i contatti dimostrativi;
-3. inserire l'informativa privacy definitiva;
-4. configurare analytics e tracciamento con le scelte privacy appropriate;
-5. verificare dominio e handle social;
-6. rimuovere la dicitura “dati demo”.
+1. verificare con un professionista il testo privacy rispetto all'uso effettivo dei dati;
+2. configurare eventuali analytics e conversioni con le scelte privacy appropriate;
+3. decidere dominio e handle social definitivi;
+4. configurare notifiche e routine di risposta ai candidati;
+5. eseguire un test completo con una candidatura reale autorizzata.
 
 Consultare anche `DEPLOYMENT.md` per cache, compressione e header di produzione.
 
