@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://svendetti.github.io/escoapesca/sitemap.xml
+Sitemap: https://www.escoapesca.it/sitemap.xml

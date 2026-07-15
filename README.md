@@ -48,7 +48,8 @@ Poi aprire `http://127.0.0.1:8765/`.
 
 ## Pubblicazione e contatti
 
-- Sito: `https://svendetti.github.io/escoapesca/`
+- Sito principale: `https://www.escoapesca.it/`
+- URL GitHub Pages di origine: `https://svendetti.github.io/escoapesca/`
 - Modulo pubblico: `https://tally.so/r/zxoGMR`
 - Email beta e privacy: `devillsit@gmail.com`
 - Titolare del trattamento: Simone Vendetti
