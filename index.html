@@ -565,6 +565,8 @@
   .tally-frame-wrap { position: relative; min-height: 720px; overflow: hidden; border-radius: 18px; background: rgba(3,16,27,.42); }
   .tally-frame-wrap iframe { position: relative; z-index: 2; display: block; width: 100%; min-height: 720px; border: 0; background: var(--deep); color-scheme: dark; opacity: 0; transition: opacity .35s ease; }
   .tally-shell.is-loaded .tally-frame-wrap iframe { opacity: 1; }
+  .tally-shell.is-loaded .tally-frame-wrap,
+  .tally-shell.is-loaded .tally-frame-wrap iframe { min-height: 0; }
   .tally-loader { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .7rem; color: var(--ink-faint); font-size: .72rem; transition: opacity .25s ease,visibility .25s ease; }
   .tally-loader span { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--aqua); border-radius: 50%; animation: tally-spin .8s linear infinite; }
   .tally-shell.is-loaded .tally-loader { opacity: 0; visibility: hidden; }
