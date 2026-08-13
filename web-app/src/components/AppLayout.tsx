@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { requireSupabase } from "../lib/supabase";
-import logoUrl from "../assets/logo-escoapesca.svg";
+import logoUrl from "../assets/logo-escoapesca.svg?url";
 
 export function AppLayout() {
   const { user, configured } = useAuth();
