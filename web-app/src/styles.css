@@ -160,3 +160,85 @@ legend { color: var(--ocean-dark); font-size: 1.15rem; font-weight: 850; padding
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Identità condivisa con www.escoapesca.it */
+:root {
+  color: #eafdfb;
+  background: #03101b;
+  color-scheme: dark;
+  font-family: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --ink: #eafdfb;
+  --muted: rgba(234, 253, 251, .68);
+  --ocean: #68f5da;
+  --ocean-dark: #eafdfb;
+  --foam: rgba(104, 245, 218, .12);
+  --signal: #d8ff5f;
+  --line: rgba(156, 235, 225, .16);
+  --white: rgba(7, 27, 41, .88);
+  --danger: #ff8793;
+  --success: #8df2bd;
+}
+
+body {
+  background:
+    radial-gradient(circle at 72% 0%, rgba(47, 143, 255, .18), transparent 30rem),
+    linear-gradient(180deg, #061825 0%, #03101b 42%, #020b13 100%);
+}
+
+a { color: var(--ocean); text-underline-offset: 3px; }
+.app-shell { background: radial-gradient(circle at 18% 42%, rgba(104, 245, 218, .045), transparent 24rem); }
+.topbar { backdrop-filter: blur(18px); background: rgba(3, 16, 27, .88); }
+.brand { color: var(--ink); font: 500 1.08rem "Outfit", sans-serif; letter-spacing: -.045em; }
+.brand img { filter: drop-shadow(0 0 12px rgba(104, 245, 218, .18)); height: 40px; width: 40px; }
+.brand > span { align-items: baseline; display: inline-flex; }
+.brand b { color: var(--ocean); font-weight: 500; }
+.brand i { background: var(--signal); border-radius: 50%; box-shadow: 0 0 10px rgba(216, 255, 95, .3); height: 5px; margin-left: .22rem; width: 5px; }
+.topbar nav a, .link-button { color: var(--muted); font-weight: 500; }
+.topbar nav a.active { color: var(--ink); text-decoration-color: var(--ocean); }
+
+h1 { color: var(--ink); font-family: "Outfit", sans-serif; font-weight: 500; letter-spacing: -.05em; }
+h2, legend { color: var(--ink); font-family: "Outfit", sans-serif; font-weight: 500; }
+.eyebrow { color: var(--ocean); font-weight: 500; letter-spacing: .16em; }
+.welcome > p, .auth-card > p, .profile-heading p { color: var(--muted); }
+
+.button { border-radius: 999px; font-weight: 600; }
+.button-primary { background: linear-gradient(135deg, var(--signal), #a8ff3e); box-shadow: 0 12px 40px rgba(216, 255, 95, .14); color: #0b1b14; }
+.button-primary:hover:not(:disabled) { background: linear-gradient(135deg, var(--signal), #a8ff3e); box-shadow: 0 16px 46px rgba(216, 255, 95, .22); filter: brightness(1.04); }
+.button-secondary { background: rgba(104, 245, 218, .05); border-color: rgba(104, 245, 218, .24); color: var(--ink); }
+
+.auth-card {
+  backdrop-filter: blur(18px);
+  background: rgba(7, 27, 41, .82);
+  border-color: var(--line);
+  border-radius: 26px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, .24);
+}
+
+input, select, textarea {
+  background: rgba(3, 16, 27, .72);
+  border-color: rgba(156, 235, 225, .2);
+}
+input:focus, select:focus, textarea:focus { border-color: var(--ocean); box-shadow: 0 0 0 3px rgba(104, 245, 218, .12); }
+
+fieldset {
+  backdrop-filter: blur(12px);
+  background: rgba(7, 27, 41, .76);
+  border-color: var(--line);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .12);
+}
+
+.completion-badge { background: rgba(216, 255, 95, .1); color: var(--signal); }
+.completion-badge.complete { background: rgba(104, 245, 218, .1); color: var(--success); }
+.choice-chip span, .trip-type-card > span { background: rgba(255, 255, 255, .035); border-color: var(--line); font-weight: 500; }
+.choice-chip.selected span, .trip-type-card.selected > span { background: var(--foam); border-color: var(--ocean); color: var(--ink); }
+.sticky-save { background: linear-gradient(to top, #03101b 72%, transparent); }
+.avatar { background: var(--foam); border-color: #03101b; color: var(--ocean); }
+.success-mark { background: rgba(104, 245, 218, .12); color: var(--success); }
+
+.notice-error { background: rgba(255, 107, 122, .1); border-color: rgba(255, 135, 147, .4); color: #ffc0c6; }
+.notice-success { background: rgba(104, 245, 218, .09); border-color: rgba(104, 245, 218, .34); color: #b8ffea; }
+.notice-info { background: rgba(47, 143, 255, .1); border-color: rgba(104, 245, 218, .24); color: #c7f9f1; }
+.config-warning { background: #3b350d; border-color: #68601e; color: #fff1a6; }
+
+footer { border-top: 1px solid var(--line); margin-top: 2rem; }

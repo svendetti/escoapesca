@@ -4,11 +4,17 @@ import "../src/styles.css";
 export const metadata = {
   title: "EscoAPesca Beta",
   description: "Trova pescatori compatibili nel Lazio.",
+  themeColor: "#03101b",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="it">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap" />
+      </head>
       <body>{children}</body>
     </html>
   );

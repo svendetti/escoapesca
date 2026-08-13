@@ -16,7 +16,7 @@ export function AppLayout() {
       <header className="topbar">
         <Link className="brand" to="/" aria-label="EscoAPesca home">
           <img src="/logo-escoapesca.svg" alt="" />
-          <span>EscoAPesca</span>
+          <span>EscoA<b>Pesca</b><i aria-hidden="true" /></span>
         </Link>
         {user && (
           <nav aria-label="Navigazione principale">
