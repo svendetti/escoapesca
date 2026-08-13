@@ -1,5 +1,18 @@
 # EscoAPesca — landing 3D
 
+## Stato del repository
+
+Questo repository è la sorgente unica della landing pubblica di EscoAPesca. Il workspace contiene inoltre gli asset locali di validazione della Beta Lazio.
+
+- La landing statica resta pubblicata su `www.escoapesca.it` tramite GitHub Pages.
+- I materiali in `social-launch-kit` e `social-calendar` supportano l'acquisizione dei primi utenti.
+- Lo STEP 3 della Beta è implementato in `web-app/`: registrazione, login, recupero password e profilo pescatore. È collegato al progetto Supabase dedicato `EscoAPesca Beta` e pubblicato separatamente dalla landing; l'attivazione di `app.escoapesca.it` attende i record DNS OVH e i redirect Auth definitivi.
+- La SPA resta separata dalla landing e proseguirà in modo incrementale.
+- Le dipendenze locali in `.tools` servono esclusivamente alla generazione dei contenuti media e non fanno parte dello stack applicativo.
+- Il modello dati Supabase/PostgreSQL e l'ordine delle migrazioni sono documentati in `database/OPERATIONS.md`.
+
+La metrica primaria della Beta è il numero di uscite reali organizzate tra pescatori che non si conoscevano prima tramite EscoAPesca.
+
 ## Ottimizzazione SEO e prestazioni
 
 La build pubblica è una pagina HTML statica; il solo questionario beta è incorporato da Tally con caricamento differito. Sono stati inoltre applicati:
@@ -64,7 +77,7 @@ Prima di avviare campagne a pagamento bisogna ancora:
 
 1. verificare con un professionista il testo privacy rispetto all'uso effettivo dei dati;
 2. configurare eventuali analytics e conversioni con le scelte privacy appropriate;
-3. decidere dominio e handle social definitivi;
+3. uniformare i contatti e gli handle social definitivi;
 4. configurare notifiche e routine di risposta ai candidati;
 5. eseguire un test completo con una candidatura reale autorizzata.
 
