@@ -10,9 +10,12 @@ export function LoginPage() {
   const { user, configured } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const routeState = location.state as { from?: string; authError?: string | null } | null;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => routeState?.authError
+    ? "Il link email non è più valido. Richiedi un nuovo link di conferma e usa quello più recente."
+    : null);
   const [submitting, setSubmitting] = useState(false);
 
   if (user) return <Navigate to="/profilo" replace />;
@@ -29,8 +32,7 @@ export function LoginPage() {
       });
       if (authError) throw authError;
 
-      const from = (location.state as { from?: string } | null)?.from;
-      navigate(from ?? "/profilo", { replace: true });
+      navigate(routeState?.from ?? "/profilo", { replace: true });
     } catch (caught) {
       setError(readableError(caught));
     } finally {

@@ -20,7 +20,9 @@ export type LoadedProfile = {
   completedAt: string | null;
 };
 
-export async function loadCatalogs() {
+let catalogsPromise: Promise<{ techniques: CatalogItem[]; availability: CatalogItem[] }> | null = null;
+
+async function fetchCatalogs() {
   const client = requireSupabase();
   const [techniquesResult, availabilityResult] = await Promise.all([
     client.from("fishing_techniques").select("id, slug, name").order("sort_order"),
@@ -42,6 +44,16 @@ export async function loadCatalogs() {
       label: item.label,
     })) satisfies CatalogItem[],
   };
+}
+
+export function loadCatalogs() {
+  if (!catalogsPromise) {
+    catalogsPromise = fetchCatalogs().catch((error) => {
+      catalogsPromise = null;
+      throw error;
+    });
+  }
+  return catalogsPromise;
 }
 
 export async function loadProfile(userId: string): Promise<LoadedProfile> {
@@ -119,7 +131,7 @@ export async function uploadProfilePhoto(userId: string, file: File) {
 }
 
 export async function downloadProfilePhoto(key: string) {
-  const { data, error } = await requireSupabase().storage.from("profile-photos").download(key);
+  const { data, error } = await requireSupabase().storage.from("profile-photos").createSignedUrl(key, 3600);
   if (error) throw error;
-  return URL.createObjectURL(data);
+  return data.signedUrl;
 }

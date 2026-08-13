@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { requireSupabase } from "../lib/supabase";
 import logoUrl from "../assets/logo-escoapesca.svg?url";
@@ -6,10 +7,13 @@ import logoUrl from "../assets/logo-escoapesca.svg?url";
 export function AppLayout() {
   const { user, configured } = useAuth();
   const navigate = useNavigate();
+  const [signingOut, setSigningOut] = useState(false);
 
   async function signOut() {
-    await requireSupabase().auth.signOut();
-    navigate("/accedi");
+    if (signingOut) return;
+    setSigningOut(true);
+    await requireSupabase().auth.signOut({ scope: "local" });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -26,10 +30,14 @@ export function AppLayout() {
         </Link>
         {user && (
           <nav aria-label="Navigazione principale">
-            <NavLink to="/crea-uscita">Crea uscita</NavLink>
+            <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/crea-uscita">
+              <span className="nav-label-wide">Crea uscita</span>
+              <span className="nav-label-short">Crea</span>
+            </NavLink>
             <NavLink to="/profilo">Profilo</NavLink>
-            <button className="link-button" type="button" onClick={() => void signOut()}>
-              Esci
+            <button className="link-button" disabled={signingOut} type="button" onClick={() => void signOut()}>
+              {signingOut ? "…" : "Esci"}
             </button>
           </nav>
         )}

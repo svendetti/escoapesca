@@ -51,8 +51,9 @@ export function RegisterPage() {
 
     setSubmitting(true);
     try {
+      const email = values.email.trim();
       const { data, error } = await requireSupabase().auth.signUp({
-        email: values.email.trim(),
+        email,
         password: values.password,
         options: {
           emailRedirectTo: `${window.location.origin}/profilo`,
@@ -69,9 +70,10 @@ export function RegisterPage() {
       });
       if (error) throw error;
 
+      sessionStorage.setItem("escoapesca:pending-email", email);
       navigate(data.session ? "/profilo" : "/controlla-email", {
         replace: true,
-        state: { email: values.email.trim() },
+        state: { email },
       });
     } catch (caught) {
       setServerError(readableError(caught));

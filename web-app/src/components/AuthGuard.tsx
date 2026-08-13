@@ -7,6 +7,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   if (loading) return <div className="page-status">Caricamento…</div>;
-  if (!user) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />;
+  if (!user) {
+    const authError = new URLSearchParams(location.hash.slice(1)).get("error_code");
+    return (
+      <Navigate to="/accedi" replace state={{ from: location.pathname, authError }} />
+    );
+  }
   return children;
 }

@@ -100,9 +100,12 @@ export function ProfilePage() {
     setSaving(true);
     try {
       await saveProfile(values);
-      if (photoFile) await uploadProfilePhoto(user.id, photoFile);
+      if (photoFile) {
+        const photoKey = await uploadProfilePhoto(user.id, photoFile);
+        setPhotoUrl(await downloadProfilePhoto(photoKey));
+      }
       setPhotoFile(null);
-      await refresh();
+      setCompletedAt((current) => current ?? new Date().toISOString());
       setNotice({ kind: "success", text: "Profilo salvato. Sei pronto per il prossimo step della Beta." });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {

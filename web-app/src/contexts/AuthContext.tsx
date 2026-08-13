@@ -20,16 +20,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return;
 
     let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (active) {
-        setSession(data.session);
-        setLoading(false);
-      }
-    });
+    void supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (!active) return;
+        setSession(error ? null : data.session);
+      })
+      .catch(() => {
+        if (active) setSession(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       setLoading(false);
+      if (nextSession) sessionStorage.removeItem("escoapesca:pending-email");
     });
 
     return () => {
