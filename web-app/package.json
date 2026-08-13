@@ -4,30 +4,34 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "vinext dev",
+    "build": "tsc -b && vinext build",
+    "start": "vinext start",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "postbuild": "node scripts/copy-hosting-config.mjs"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "react-router-dom": "7.18.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.52.0",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
-    "@vitejs/plugin-react": "6.0.5",
+    "@cloudflare/vite-plugin": "1.37.1",
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
-    "typescript": "7.0.2",
-    "vinext": "1.0.0-beta.5",
-    "vite": "8.2.1",
-    "vitest": "4.1.10"
+    "react-server-dom-webpack": "19.2.6",
+    "typescript": "5.9.3",
+    "vinext": "0.0.50",
+    "vite": "8.0.13",
+    "vitest": "4.1.10",
+    "wrangler": "4.92.0"
   }
 }
