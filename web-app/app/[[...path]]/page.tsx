@@ -1,16 +1,14 @@
-"use client";
+import { SpaClient } from "./SpaClient";
 
-import { useEffect, useState } from "react";
-import { App } from "../../src/App";
+export const dynamic = "force-dynamic";
 
 export default function SpaPage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) {
-    return <div className="page-status">Caricamento EscoAPesca…</div>;
-  }
-
-  return <App />;
+  return (
+    <SpaClient
+      config={{
+        supabaseUrl: process.env.VITE_SUPABASE_URL ?? "",
+        supabasePublishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
+      }}
+    />
+  );
 }

@@ -139,7 +139,7 @@ legend { color: var(--ocean-dark); font-size: 1.15rem; font-weight: 850; padding
 .success-mark { align-items: center; background: #e7f6ed; border-radius: 50%; color: var(--success); display: inline-flex; font-size: 2rem; font-weight: 900; height: 70px; justify-content: center; margin-bottom: 1rem; width: 70px; }
 
 @media (max-width: 480px) {
-  .brand span { display: none; }
+  .topbar.authenticated .brand > span { display: none; }
   .topbar nav { gap: .7rem; }
   .topbar nav a, .link-button { font-size: .86rem; }
 }
@@ -242,3 +242,98 @@ fieldset {
 .config-warning { background: #3b350d; border-color: #68601e; color: #fff1a6; }
 
 footer { border-top: 1px solid var(--line); margin-top: 2rem; }
+
+.app-shell { isolation: isolate; overflow: hidden; position: relative; }
+.app-shell > header, .app-shell > main, .app-shell > footer, .config-warning {
+  position: relative;
+  z-index: 2;
+}
+.app-ambient {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+}
+.app-ambient::before {
+  background:
+    radial-gradient(ellipse at 18% 20%, rgba(104,245,218,.12), transparent 26%),
+    radial-gradient(ellipse at 82% 34%, rgba(47,143,255,.12), transparent 30%),
+    radial-gradient(ellipse at 48% 86%, rgba(104,245,218,.06), transparent 32%);
+  content: "";
+  inset: -14%;
+  position: absolute;
+  animation: ambient-breathe 13s ease-in-out infinite alternate;
+}
+.app-ambient::after {
+  background-image: radial-gradient(circle, rgba(234,253,251,.24) 0 1px, transparent 1.8px);
+  background-size: 88px 116px;
+  content: "";
+  inset: -120px 0 0;
+  opacity: .24;
+  position: absolute;
+  animation: bubbles-rise 24s linear infinite;
+}
+.ambient-current {
+  border: 1px solid rgba(104,245,218,.14);
+  border-color: rgba(104,245,218,.14) transparent transparent;
+  border-radius: 50%;
+  height: 28vh;
+  position: absolute;
+  transform: rotate(-8deg);
+  width: 115vw;
+}
+.ambient-current-one {
+  left: -28vw;
+  top: 21vh;
+  animation: current-drift 17s ease-in-out infinite alternate;
+}
+.ambient-current-two {
+  border-top-color: rgba(47,143,255,.12);
+  left: -10vw;
+  top: 59vh;
+  animation: current-drift 21s ease-in-out -5s infinite alternate-reverse;
+}
+.ambient-sonar {
+  border: 1px solid rgba(104,245,218,.08);
+  border-radius: 50%;
+  height: min(54vw, 520px);
+  position: absolute;
+  right: -16vw;
+  top: 12vh;
+  width: min(54vw, 520px);
+  animation: sonar-pulse 8s ease-out infinite;
+}
+.auth-card, fieldset, .trip-type-card > span, .choice-chip span {
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.auth-card:hover, fieldset:focus-within {
+  border-color: rgba(104,245,218,.3);
+  box-shadow: 0 30px 76px rgba(0,0,0,.22), 0 0 48px rgba(104,245,218,.035);
+}
+main > * { animation: page-arrive .5s ease-out both; }
+
+@keyframes ambient-breathe {
+  from { opacity: .68; transform: translate3d(-1.5%, -1%, 0) scale(.98); }
+  to { opacity: 1; transform: translate3d(2%, 1.5%, 0) scale(1.05); }
+}
+@keyframes bubbles-rise { from { transform: translateY(0); } to { transform: translateY(-116px); } }
+@keyframes current-drift {
+  from { transform: translateX(-3%) rotate(-8deg) scaleY(.9); }
+  to { transform: translateX(7%) rotate(-4deg) scaleY(1.12); }
+}
+@keyframes sonar-pulse {
+  0% { opacity: 0; transform: scale(.72); }
+  28% { opacity: .85; }
+  100% { opacity: 0; transform: scale(1.28); }
+}
+@keyframes page-arrive {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-ambient::before, .app-ambient::after, .ambient-current, .ambient-sonar, main > * {
+    animation: none !important;
+  }
+}

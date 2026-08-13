@@ -1,7 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
-const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+type PublicRuntimeConfig = {
+  supabaseUrl?: string;
+  supabasePublishableKey?: string;
+};
+
+declare global {
+  var __ESCOAPESCA_PUBLIC_CONFIG__: PublicRuntimeConfig | undefined;
+}
+
+const runtimeConfig = globalThis.__ESCOAPESCA_PUBLIC_CONFIG__;
+const supabaseUrl = runtimeConfig?.supabaseUrl?.trim()
+  || import.meta.env.VITE_SUPABASE_URL?.trim();
+const publishableKey = runtimeConfig?.supabasePublishableKey?.trim()
+  || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && publishableKey);
 

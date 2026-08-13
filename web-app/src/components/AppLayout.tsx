@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { requireSupabase } from "../lib/supabase";
+import logoUrl from "../assets/logo-escoapesca.svg";
 
 export function AppLayout() {
   const { user, configured } = useAuth();
@@ -13,9 +14,14 @@ export function AppLayout() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
+      <div className="app-ambient" aria-hidden="true">
+        <span className="ambient-current ambient-current-one" />
+        <span className="ambient-current ambient-current-two" />
+        <span className="ambient-sonar" />
+      </div>
+      <header className={`topbar${user ? " authenticated" : ""}`}>
         <Link className="brand" to="/" aria-label="EscoAPesca home">
-          <img src="/logo-escoapesca.svg" alt="" />
+          <img src={logoUrl} alt="" />
           <span>EscoA<b>Pesca</b><i aria-hidden="true" /></span>
         </Link>
         {user && (
