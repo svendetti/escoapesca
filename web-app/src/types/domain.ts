@@ -1,6 +1,9 @@
 export type AgeBand = "18_24" | "25_34" | "35_44" | "45_54" | "55_64" | "65_plus";
 export type WaterType = "sea" | "freshwater" | "both";
 export type SkillLevel = "beginner" | "intermediate" | "expert";
+export type TripWaterType = Exclude<WaterType, "both">;
+export type TripType = "free" | "protected";
+export type RecommendedLevel = "any" | SkillLevel;
 
 export type CatalogItem = {
   id: number;
@@ -34,6 +37,23 @@ export type ProfileValues = {
   availabilitySlotIds: number[];
 };
 
+export type TripValues = {
+  title: string;
+  techniqueId: number | "";
+  waterType: TripWaterType | "";
+  date: string;
+  startTime: string;
+  endTime: string;
+  provinceCode: string;
+  publicZone: string;
+  publicMeetingPoint: string;
+  maxParticipants: number;
+  recommendedLevel: RecommendedLevel;
+  description: string;
+  gearNotes: string;
+  tripType: TripType;
+};
+
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;
 
 export const LAZIO_PROVINCES = [
@@ -65,4 +85,21 @@ export const EMPTY_PROFILE: ProfileValues = {
   travelRadiusKm: "25",
   techniqueIds: [],
   availabilitySlotIds: [],
+};
+
+export const EMPTY_TRIP: TripValues = {
+  title: "",
+  techniqueId: "",
+  waterType: "",
+  date: "",
+  startTime: "07:00",
+  endTime: "12:00",
+  provinceCode: "RM",
+  publicZone: "",
+  publicMeetingPoint: "",
+  maxParticipants: 4,
+  recommendedLevel: "any",
+  description: "",
+  gearNotes: "",
+  tripType: "protected",
 };

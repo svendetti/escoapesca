@@ -20,6 +20,7 @@ export function AppLayout() {
         </Link>
         {user && (
           <nav aria-label="Navigazione principale">
+            <NavLink to="/crea-uscita">Crea uscita</NavLink>
             <NavLink to="/profilo">Profilo</NavLink>
             <button className="link-button" type="button" onClick={() => void signOut()}>
               Esci

@@ -3,6 +3,7 @@ import { AppLayout } from "./components/AppLayout";
 import { AuthGuard } from "./components/AuthGuard";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
+import { CreateTripPage } from "./pages/CreateTripPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ForgotPasswordPage, UpdatePasswordPage } from "./pages/PasswordPages";
 import { ProfilePage } from "./pages/ProfilePage";
@@ -22,6 +23,7 @@ export function App() {
             <Route path="password-dimenticata" element={<ForgotPasswordPage />} />
             <Route path="aggiorna-password" element={<UpdatePasswordPage />} />
             <Route path="profilo" element={<AuthGuard><ProfilePage /></AuthGuard>} />
+            <Route path="crea-uscita" element={<AuthGuard><CreateTripPage /></AuthGuard>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

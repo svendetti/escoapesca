@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { hasErrors, validateProfile, validateRegistration } from "./validation";
-import { EMPTY_PROFILE } from "../types/domain";
+import { hasErrors, tripDateTimes, validateProfile, validateRegistration, validateTrip } from "./validation";
+import { EMPTY_PROFILE, EMPTY_TRIP } from "../types/domain";
 
 describe("validateRegistration", () => {
   it("richiede dati legali e anagrafici minimi", () => {
@@ -55,5 +55,38 @@ describe("validateProfile", () => {
     });
 
     expect(hasErrors(errors)).toBe(false);
+  });
+});
+
+describe("validateTrip", () => {
+  const validTrip = {
+    ...EMPTY_TRIP,
+    title: "Spinning al tramonto",
+    techniqueId: 1,
+    waterType: "sea" as const,
+    date: "2030-06-15",
+    publicZone: "Litorale di Ostia",
+    description: "Uscita tranquilla per pescare insieme.",
+  };
+
+  it("accetta i dati minimi di una futura uscita protetta", () => {
+    const errors = validateTrip(validTrip, new Date("2030-01-01T00:00:00Z"));
+    expect(hasErrors(errors)).toBe(false);
+  });
+
+  it("interpreta un orario finale precedente come uscita notturna", () => {
+    const times = tripDateTimes({ date: "2030-06-15", startTime: "21:00", endTime: "02:00" });
+    expect(times?.endsAt.getDate()).not.toBe(times?.startsAt.getDate());
+    expect(times && times.endsAt > times.startsAt).toBe(true);
+  });
+
+  it("rifiuta una data passata e i campi pubblici incompleti", () => {
+    const errors = validateTrip(
+      { ...validTrip, title: "No", publicZone: "", date: "2029-01-01" },
+      new Date("2030-01-01T00:00:00Z"),
+    );
+    expect(errors.title).toBeDefined();
+    expect(errors.publicZone).toBeDefined();
+    expect(errors.date).toBeDefined();
   });
 });
