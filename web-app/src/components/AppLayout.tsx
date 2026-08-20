@@ -31,12 +31,16 @@ export function AppLayout() {
         {user && (
           <nav aria-label="Navigazione principale">
             <NavLink className="nav-home" to="/" end>Home</NavLink>
-            <NavLink to="/mie-uscite">Uscite</NavLink>
+            <NavLink to="/trova-uscita">Trova</NavLink>
+            <NavLink to="/mie-uscite">Le mie</NavLink>
             <NavLink to="/crea-uscita">
               <span className="nav-label-wide">Crea uscita</span>
               <span className="nav-label-short">Crea</span>
             </NavLink>
-            <NavLink to="/profilo">Profilo</NavLink>
+            <NavLink to="/profilo">
+              <span className="nav-label-wide">Profilo</span>
+              <span className="nav-label-short">Io</span>
+            </NavLink>
             <button className="link-button" disabled={signingOut} type="button" onClick={() => void signOut()}>
               {signingOut ? "…" : "Esci"}
             </button>

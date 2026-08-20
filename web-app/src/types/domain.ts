@@ -79,6 +79,33 @@ export type FishingTrip = {
   updatedAt: string;
 };
 
+export type TripDiscoveryFilters = {
+  provinceCode: string;
+  techniqueId: number | "";
+  waterType: TripWaterType | "";
+  date: string;
+};
+
+export type FishingTripDiscovery = {
+  id: string;
+  organizerUserId: string;
+  organizerName: string;
+  title: string;
+  techniqueId: number;
+  techniqueName: string;
+  waterType: TripWaterType;
+  startsAt: string;
+  endsAt: string;
+  provinceCode: string;
+  provinceName: string;
+  publicZone: string;
+  maxParticipants: number;
+  availablePlaces: number;
+  recommendedLevel: RecommendedLevel;
+  description: string;
+  tripType: TripType;
+};
+
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;
 
 export const LAZIO_PROVINCES = [
@@ -127,4 +154,11 @@ export const EMPTY_TRIP: TripValues = {
   description: "",
   gearNotes: "",
   tripType: "protected",
+};
+
+export const EMPTY_TRIP_DISCOVERY_FILTERS: TripDiscoveryFilters = {
+  provinceCode: "",
+  techniqueId: "",
+  waterType: "",
+  date: "",
 };

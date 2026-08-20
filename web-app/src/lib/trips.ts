@@ -1,6 +1,12 @@
 import { requireSupabase } from "./supabase";
 import { tripDateTimes } from "./validation";
-import type { CatalogItem, FishingTrip, TripValues } from "../types/domain";
+import type {
+  CatalogItem,
+  FishingTrip,
+  FishingTripDiscovery,
+  TripDiscoveryFilters,
+  TripValues,
+} from "../types/domain";
 
 export async function loadFishingTechniques(): Promise<CatalogItem[]> {
   const { data, error } = await requireSupabase()
@@ -10,6 +16,77 @@ export async function loadFishingTechniques(): Promise<CatalogItem[]> {
 
   if (error) throw error;
   return data.map((item) => ({ id: item.id, slug: item.slug, label: item.name }));
+}
+
+type DiscoveryRow = {
+  id: string;
+  organizer_user_id: string;
+  organizer_name: string;
+  title: string;
+  technique_id: number;
+  technique_name: string;
+  water_type: FishingTripDiscovery["waterType"];
+  starts_at: string;
+  ends_at: string;
+  province_code: string;
+  province_name: string;
+  public_zone: string;
+  max_participants: number;
+  available_places: number;
+  recommended_level: FishingTripDiscovery["recommendedLevel"];
+  description: string;
+  trip_type: FishingTripDiscovery["tripType"];
+};
+
+function localDateBoundary(date: string, addDays: number) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) return null;
+
+  const boundary = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  if (Number.isNaN(boundary.getTime())) return null;
+  boundary.setDate(boundary.getDate() + addDays);
+  return boundary.toISOString();
+}
+
+export function discoveryRpcArgs(filters: TripDiscoveryFilters) {
+  return {
+    p_province_code: filters.provinceCode || null,
+    p_technique_id: filters.techniqueId || null,
+    p_water_type: filters.waterType || null,
+    p_starts_from: filters.date ? localDateBoundary(filters.date, 0) : null,
+    p_starts_before: filters.date ? localDateBoundary(filters.date, 1) : null,
+    p_limit: 50,
+  };
+}
+
+export async function loadDiscoverableTrips(
+  filters: TripDiscoveryFilters,
+): Promise<FishingTripDiscovery[]> {
+  const { data, error } = await requireSupabase().rpc(
+    "search_fishing_trips",
+    discoveryRpcArgs(filters),
+  );
+
+  if (error) throw error;
+  return ((data ?? []) as DiscoveryRow[]).map((row) => ({
+    id: row.id,
+    organizerUserId: row.organizer_user_id,
+    organizerName: row.organizer_name,
+    title: row.title,
+    techniqueId: row.technique_id,
+    techniqueName: row.technique_name,
+    waterType: row.water_type,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    provinceCode: row.province_code,
+    provinceName: row.province_name,
+    publicZone: row.public_zone,
+    maxParticipants: row.max_participants,
+    availablePlaces: row.available_places,
+    recommendedLevel: row.recommended_level,
+    description: row.description,
+    tripType: row.trip_type,
+  }));
 }
 
 const TRIP_SELECT = `

@@ -11,6 +11,7 @@ import { ForgotPasswordPage, UpdatePasswordPage } from "./pages/PasswordPages";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { TripDetailPage } from "./pages/TripDetailPage";
+import { TripDiscoveryPage } from "./pages/TripDiscoveryPage";
 import { WelcomePage } from "./pages/WelcomePage";
 
 export function App() {
@@ -27,6 +28,7 @@ export function App() {
             <Route path="aggiorna-password" element={<UpdatePasswordPage />} />
             <Route path="profilo" element={<AuthGuard><ProfilePage /></AuthGuard>} />
             <Route path="crea-uscita" element={<AuthGuard><CreateTripPage /></AuthGuard>} />
+            <Route path="trova-uscita" element={<AuthGuard><TripDiscoveryPage /></AuthGuard>} />
             <Route path="mie-uscite" element={<AuthGuard><MyTripsPage /></AuthGuard>} />
             <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
