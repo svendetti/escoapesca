@@ -30,7 +30,8 @@ export function AppLayout() {
         </Link>
         {user && (
           <nav aria-label="Navigazione principale">
-            <NavLink to="/" end>Home</NavLink>
+            <NavLink className="nav-home" to="/" end>Home</NavLink>
+            <NavLink to="/mie-uscite">Uscite</NavLink>
             <NavLink to="/crea-uscita">
               <span className="nav-label-wide">Crea uscita</span>
               <span className="nav-label-short">Crea</span>

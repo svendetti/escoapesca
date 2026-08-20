@@ -346,3 +346,104 @@ main > * { animation: page-arrive .5s ease-out both; }
   .nav-label-wide { display: none; }
   .nav-label-short { display: inline; }
 }
+.trips-page { padding-bottom: 4rem; }
+.trip-list-section { margin-top: 2.5rem; }
+.trip-list-section > h2 { font-size: 1.35rem; margin-bottom: 1rem; }
+.trip-list-grid { display: grid; gap: 1rem; }
+.trip-list-card {
+  background: rgba(7, 27, 41, .76);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  color: var(--ink);
+  display: block;
+  padding: 1.2rem;
+  text-decoration: none;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.trip-list-card:hover {
+  border-color: rgba(104,245,218,.34);
+  box-shadow: 0 20px 50px rgba(0,0,0,.18);
+  transform: translateY(-2px);
+}
+.trip-list-card h3 { color: var(--ink); font-family: "Outfit", sans-serif; font-size: 1.35rem; font-weight: 500; margin: 1rem 0 .35rem; }
+.trip-card-heading { align-items: center; display: flex; flex-wrap: wrap; gap: .55rem; justify-content: space-between; }
+.trip-status, .trip-privacy {
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 700;
+  padding: .38rem .62rem;
+}
+.trip-status { background: rgba(104,245,218,.12); color: var(--success); }
+.status-cancelled { background: rgba(255,135,147,.12); color: #ffc0c6; }
+.status-confirmed { background: rgba(216,255,95,.12); color: var(--signal); }
+.status-completed { background: rgba(234,253,251,.09); color: var(--muted); }
+.trip-privacy { border: 1px solid var(--line); color: var(--muted); }
+.trip-date { color: var(--ocean); font-weight: 600; margin: 0; }
+.trip-card-meta { color: var(--muted); display: flex; flex-wrap: wrap; font-size: .86rem; gap: .45rem 1rem; margin-top: .9rem; }
+.trip-card-action { color: var(--signal); display: inline-block; font-size: .88rem; font-weight: 650; margin-top: 1.1rem; }
+.empty-state {
+  background: rgba(7,27,41,.7);
+  border: 1px dashed rgba(104,245,218,.3);
+  border-radius: 24px;
+  margin-top: 2rem;
+  padding: 2rem 1.2rem;
+  text-align: center;
+}
+.empty-state > span { color: var(--ocean); font-size: 2.4rem; }
+.empty-state h2 { margin-bottom: .4rem; }
+.empty-state p { color: var(--muted); margin: 0 auto 1.4rem; max-width: 34rem; }
+
+.back-link { display: inline-block; font-weight: 650; margin: .8rem 0 1.5rem; text-decoration: none; }
+.trip-detail-hero { align-items: flex-start; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+.trip-detail-hero h1 { margin: .9rem 0 .5rem; }
+.trip-detail-hero p { color: var(--muted); margin: 0; }
+.trip-detail-grid { display: grid; gap: 1rem; margin: 1rem 0; }
+.trip-detail-card {
+  background: rgba(7,27,41,.76);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 1.2rem;
+}
+.trip-detail-card h2 { margin-top: 0; }
+.trip-detail-card h3 { color: var(--ocean); font-size: .95rem; margin: 1.5rem 0 .4rem; }
+.trip-detail-card p:last-child { margin-bottom: 0; }
+.trip-data-list { display: grid; gap: .85rem; margin: 0; }
+.trip-data-list > div { border-bottom: 1px solid var(--line); display: grid; gap: .2rem; padding-bottom: .75rem; }
+.trip-data-list > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.trip-data-list dt { color: var(--muted); font-size: .78rem; }
+.trip-data-list dd { margin: 0; }
+.preserve-lines { white-space: pre-wrap; }
+.cancelled-summary { border-color: rgba(255,135,147,.28); }
+.danger-zone {
+  align-items: flex-start;
+  background: rgba(255,107,122,.055);
+  border: 1px solid rgba(255,135,147,.24);
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.2rem;
+}
+.danger-zone h2 { font-size: 1.15rem; margin: 0 0 .3rem; }
+.danger-zone p { color: var(--muted); margin: 0; }
+.button-danger { background: rgba(255,107,122,.12); border-color: rgba(255,135,147,.45); color: #ffc0c6; }
+.button-danger:hover:not(:disabled) { background: rgba(255,107,122,.2); }
+.cancellation-form { display: grid; gap: .8rem; width: 100%; }
+.inline-actions { display: flex; flex-direction: column; gap: .65rem; }
+
+@media (min-width: 700px) {
+  .trip-list-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trip-detail-hero { align-items: center; flex-direction: row; justify-content: space-between; }
+  .trip-detail-grid { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .danger-zone { align-items: center; flex-direction: row; justify-content: space-between; }
+  .cancellation-form { max-width: 520px; }
+  .inline-actions { flex-direction: row; }
+}
+
+@media (max-width: 700px) {
+  .nav-home { display: none; }
+  .topbar.authenticated { padding-inline: .7rem; }
+  .topbar.authenticated nav { gap: .52rem; }
+  .topbar.authenticated nav a, .topbar.authenticated .link-button { font-size: .82rem; }
+}

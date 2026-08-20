@@ -5,6 +5,9 @@ const AUTH_MESSAGES: Array<[RegExp, string]> = [
   [/password should be at least/i, "La password non rispetta i requisiti minimi."],
   [/rate limit/i, "Troppi tentativi. Attendi qualche minuto e riprova."],
   [/network|fetch/i, "Connessione non disponibile. Controlla la rete e riprova."],
+  [/uscita non trovata/i, "Uscita non trovata o non accessibile."],
+  [/uscita non (è|e) più modificabile/i, "Questa uscita non è più modificabile."],
+  [/uscita non (è|e) più annullabile/i, "Questa uscita non è più annullabile."],
 ];
 
 export function readableError(error: unknown) {

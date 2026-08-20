@@ -14,14 +14,14 @@ export function WelcomePage() {
       </h1>
       <p>
         {user
-          ? "Dalla Home puoi proporre una nuova uscita o aggiornare il tuo profilo pescatore."
+          ? "Proponi una nuova uscita oppure rivedi quelle che hai già organizzato."
           : "Crea il tuo profilo pescatore. Nel prossimo step potrai trovare o proporre un’uscita, senza esporre pubblicamente gli spot protetti."}
       </p>
       <div className="button-stack">
         {user ? (
           <>
             <Link className="button button-primary" to="/crea-uscita">Crea un’uscita</Link>
-            <Link className="button button-secondary" to="/profilo">Vai al profilo</Link>
+            <Link className="button button-secondary" to="/mie-uscite">Le mie uscite</Link>
           </>
         ) : (
           <>

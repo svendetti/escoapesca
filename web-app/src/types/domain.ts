@@ -4,6 +4,7 @@ export type SkillLevel = "beginner" | "intermediate" | "expert";
 export type TripWaterType = Exclude<WaterType, "both">;
 export type TripType = "free" | "protected";
 export type RecommendedLevel = "any" | SkillLevel;
+export type TripStatus = "draft" | "open" | "confirmed" | "completed" | "cancelled";
 
 export type CatalogItem = {
   id: number;
@@ -52,6 +53,30 @@ export type TripValues = {
   description: string;
   gearNotes: string;
   tripType: TripType;
+};
+
+export type FishingTrip = {
+  id: string;
+  organizerUserId: string;
+  title: string;
+  techniqueId: number;
+  techniqueName: string;
+  waterType: TripWaterType;
+  startsAt: string;
+  endsAt: string;
+  provinceCode: string;
+  publicZone: string;
+  publicMeetingPoint: string | null;
+  maxParticipants: number;
+  recommendedLevel: RecommendedLevel;
+  description: string;
+  gearNotes: string | null;
+  tripType: TripType;
+  status: TripStatus;
+  cancelledAt: string | null;
+  cancellationReason: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;

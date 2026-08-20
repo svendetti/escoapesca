@@ -4,10 +4,13 @@ import { AuthGuard } from "./components/AuthGuard";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { CreateTripPage } from "./pages/CreateTripPage";
+import { EditTripPage } from "./pages/EditTripPage";
 import { LoginPage } from "./pages/LoginPage";
+import { MyTripsPage } from "./pages/MyTripsPage";
 import { ForgotPasswordPage, UpdatePasswordPage } from "./pages/PasswordPages";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { TripDetailPage } from "./pages/TripDetailPage";
 import { WelcomePage } from "./pages/WelcomePage";
 
 export function App() {
@@ -24,6 +27,9 @@ export function App() {
             <Route path="aggiorna-password" element={<UpdatePasswordPage />} />
             <Route path="profilo" element={<AuthGuard><ProfilePage /></AuthGuard>} />
             <Route path="crea-uscita" element={<AuthGuard><CreateTripPage /></AuthGuard>} />
+            <Route path="mie-uscite" element={<AuthGuard><MyTripsPage /></AuthGuard>} />
+            <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
+            <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
