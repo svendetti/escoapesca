@@ -1,6 +1,6 @@
 # EscoAPesca Beta web app
 
-SPA mobile-first dello STEP 3. Il sito pubblico nella root del repository resta indipendente.
+SPA mobile-first della Beta, attualmente completata fino allo STEP 6. Il sito pubblico nella root del repository resta indipendente.
 
 ## Configurazione locale
 
@@ -22,4 +22,4 @@ npm.cmd test
 npm.cmd run build
 ```
 
-Il deploy deve riscrivere tutte le rotte della SPA verso `index.html`, in particolare `/profilo` e `/aggiorna-password`.
+Il deploy deve riscrivere tutte le rotte della SPA verso `index.html`, incluse `/profilo`, `/trova-uscita` e `/aggiorna-password`.

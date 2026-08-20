@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
-import { discoveryRpcArgs } from "./trips";
+import { discoveryRpcArgs, mergeParticipationStatuses } from "./trips";
+import type { FishingTripDiscovery } from "../types/domain";
 
 describe("discoveryRpcArgs", () => {
   it("invia filtri vuoti come null", () => {
@@ -27,5 +28,31 @@ describe("discoveryRpcArgs", () => {
     expect(from.getMonth()).toBe(8);
     expect(from.getDate()).toBe(14);
     expect(before.getDate()).toBe(15);
+  });
+});
+
+describe("mergeParticipationStatuses", () => {
+  it("associa soltanto lo stato della richiesta relativo alla stessa uscita", () => {
+    const trip = {
+      id: "trip-1",
+      participationStatus: null,
+    } as FishingTripDiscovery;
+
+    expect(mergeParticipationStatuses(
+      [trip],
+      [
+        { trip_id: "trip-1", status: "requested" },
+        { trip_id: "trip-2", status: "cancelled" },
+      ],
+    )[0].participationStatus).toBe("requested");
+  });
+
+  it("mantiene null quando non esiste una richiesta", () => {
+    const trip = {
+      id: "trip-1",
+      participationStatus: null,
+    } as FishingTripDiscovery;
+
+    expect(mergeParticipationStatuses([trip], [])[0].participationStatus).toBeNull();
   });
 });

@@ -6,7 +6,7 @@ Questo repository contiene la landing pubblica e l’applicazione web della Beta
 
 - La landing statica resta pubblicata su `www.escoapesca.it` tramite GitHub Pages.
 - I materiali in `social-launch-kit` e `social-calendar` supportano l'acquisizione dei primi utenti.
-- Gli STEP 3–5 della Beta sono implementati in `web-app/`: registrazione, login, recupero password, profilo pescatore, creazione/gestione delle uscite ed elenco con filtri.
+- Gli STEP 3–6 della Beta sono implementati in `web-app/`: registrazione, login, recupero password, profilo pescatore, creazione/gestione delle uscite, elenco con filtri e richieste di partecipazione.
 - L’app è collegata al progetto Supabase dedicato `EscoAPesca Beta` ed è pubblicata su `app.escoapesca.it`; la landing indirizza registrazione, accesso, ricerca e creazione verso l’app.
 - Le dipendenze locali in `.tools` servono esclusivamente alla generazione dei contenuti media e non fanno parte dello stack applicativo.
 - Il modello dati Supabase/PostgreSQL e l'ordine delle migrazioni sono documentati in `database/OPERATIONS.md`.

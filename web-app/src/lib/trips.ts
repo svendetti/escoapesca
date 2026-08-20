@@ -4,6 +4,7 @@ import type {
   CatalogItem,
   FishingTrip,
   FishingTripDiscovery,
+  TripParticipationStatus,
   TripDiscoveryFilters,
   TripValues,
 } from "../types/domain";
@@ -61,14 +62,16 @@ export function discoveryRpcArgs(filters: TripDiscoveryFilters) {
 
 export async function loadDiscoverableTrips(
   filters: TripDiscoveryFilters,
+  userId: string,
 ): Promise<FishingTripDiscovery[]> {
-  const { data, error } = await requireSupabase().rpc(
+  const supabase = requireSupabase();
+  const { data, error } = await supabase.rpc(
     "search_fishing_trips",
     discoveryRpcArgs(filters),
   );
 
   if (error) throw error;
-  return ((data ?? []) as DiscoveryRow[]).map((row) => ({
+  const trips = ((data ?? []) as DiscoveryRow[]).map((row) => ({
     id: row.id,
     organizerUserId: row.organizer_user_id,
     organizerName: row.organizer_name,
@@ -86,7 +89,70 @@ export async function loadDiscoverableTrips(
     recommendedLevel: row.recommended_level,
     description: row.description,
     tripType: row.trip_type,
+    participationStatus: null,
   }));
+
+  if (trips.length === 0) return trips;
+
+  const { data: participationData, error: participationError } = await supabase
+    .from("trip_participants")
+    .select("trip_id, status")
+    .eq("user_id", userId)
+    .in("trip_id", trips.map((trip) => trip.id));
+
+  if (participationError) throw participationError;
+  return mergeParticipationStatuses(
+    trips,
+    (participationData ?? []) as Array<{
+      trip_id: string;
+      status: TripParticipationStatus;
+    }>,
+  );
+}
+
+export function mergeParticipationStatuses(
+  trips: FishingTripDiscovery[],
+  participations: Array<{ trip_id: string; status: TripParticipationStatus }>,
+) {
+  const statusByTrip = new Map(
+    participations.map((participation) => [
+      participation.trip_id,
+      participation.status,
+    ]),
+  );
+
+  return trips.map((trip) => ({
+    ...trip,
+    participationStatus: statusByTrip.get(trip.id) ?? null,
+  }));
+}
+
+type ParticipationActionRow = {
+  participant_id: string;
+  participation_status: TripParticipationStatus;
+  requested_at: string;
+};
+
+async function participationAction(
+  functionName: "request_trip_participation" | "cancel_trip_participation",
+  tripId: string,
+) {
+  const { data, error } = await requireSupabase().rpc(functionName, {
+    p_trip_id: tripId,
+  });
+
+  if (error) throw error;
+  const result = ((data ?? []) as ParticipationActionRow[])[0];
+  if (!result) throw new Error("La richiesta non ha restituito uno stato valido.");
+  return result.participation_status;
+}
+
+export function requestTripParticipation(tripId: string) {
+  return participationAction("request_trip_participation", tripId);
+}
+
+export function cancelTripParticipation(tripId: string) {
+  return participationAction("cancel_trip_participation", tripId);
 }
 
 const TRIP_SELECT = `

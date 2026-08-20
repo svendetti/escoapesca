@@ -5,6 +5,14 @@ export type TripWaterType = Exclude<WaterType, "both">;
 export type TripType = "free" | "protected";
 export type RecommendedLevel = "any" | SkillLevel;
 export type TripStatus = "draft" | "open" | "confirmed" | "completed" | "cancelled";
+export type TripParticipationStatus =
+  | "requested"
+  | "accepted"
+  | "rejected"
+  | "cancelled"
+  | "confirmed"
+  | "completed"
+  | "no_show";
 
 export type CatalogItem = {
   id: number;
@@ -104,6 +112,7 @@ export type FishingTripDiscovery = {
   recommendedLevel: RecommendedLevel;
   description: string;
   tripType: TripType;
+  participationStatus: TripParticipationStatus | null;
 };
 
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;

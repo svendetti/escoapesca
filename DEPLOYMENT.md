@@ -14,7 +14,7 @@
 
 ## Confini della baseline
 
-Il deploy pubblico comprende landing, privacy e termini su GitHub Pages. Gli STEP 3–5 (autenticazione, profilo, creazione/gestione uscite ed elenco con filtri) sono implementati in `web-app/`, collegati al progetto Supabase dedicato `EscoAPesca Beta` e pubblicati su `app.escoapesca.it`. Partecipazioni, feedback, amministrazione e notifiche non sono ancora implementati.
+Il deploy pubblico comprende landing, privacy e termini su GitHub Pages. Gli STEP 3–6 (autenticazione, profilo, creazione/gestione uscite, elenco con filtri e richiesta/annullamento partecipazione) sono implementati in `web-app/`, collegati al progetto Supabase dedicato `EscoAPesca Beta` e pubblicati su `app.escoapesca.it`. Accettazione/rifiuto delle richieste, conferma dell’uscita, feedback, amministrazione e notifiche utente non sono ancora implementati.
 
 La landing va mantenuta separata dalla futura applicazione Beta: non deve diventare il contenitore della logica autenticata né dei dati privati degli spot.
 

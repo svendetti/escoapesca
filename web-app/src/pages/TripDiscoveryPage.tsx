@@ -1,8 +1,14 @@
 import { type FormEvent, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
-import { loadDiscoverableTrips, loadFishingTechniques } from "../lib/trips";
+import {
+  cancelTripParticipation,
+  loadDiscoverableTrips,
+  loadFishingTechniques,
+  requestTripParticipation,
+} from "../lib/trips";
 import {
   EMPTY_TRIP_DISCOVERY_FILTERS,
   LAZIO_PROVINCES,
@@ -10,6 +16,7 @@ import {
   type FishingTripDiscovery,
   type RecommendedLevel,
   type TripDiscoveryFilters,
+  type TripParticipationStatus,
 } from "../types/domain";
 
 const LEVEL_LABELS: Record<RecommendedLevel, string> = {
@@ -17,6 +24,16 @@ const LEVEL_LABELS: Record<RecommendedLevel, string> = {
   beginner: "Principiante",
   intermediate: "Intermedio",
   expert: "Esperto",
+};
+
+const PARTICIPATION_LABELS: Record<TripParticipationStatus, string> = {
+  requested: "Richiesta inviata",
+  accepted: "Richiesta accettata",
+  rejected: "Richiesta rifiutata",
+  cancelled: "Richiesta annullata",
+  confirmed: "Partecipazione confermata",
+  completed: "Uscita completata",
+  no_show: "Assenza registrata",
 };
 
 const dayFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -30,7 +47,19 @@ const timeFormatter = new Intl.DateTimeFormat("it-IT", {
   minute: "2-digit",
 });
 
-function DiscoveryCard({ trip, currentUserId }: { trip: FishingTripDiscovery; currentUserId: string }) {
+function DiscoveryCard({
+  trip,
+  currentUserId,
+  busy,
+  onRequest,
+  onCancel,
+}: {
+  trip: FishingTripDiscovery;
+  currentUserId: string;
+  busy: boolean;
+  onRequest: (tripId: string) => void;
+  onCancel: (tripId: string) => void;
+}) {
   const startsAt = new Date(trip.startsAt);
   const endsAt = new Date(trip.endsAt);
   const ownTrip = trip.organizerUserId === currentUserId;
@@ -58,6 +87,33 @@ function DiscoveryCard({ trip, currentUserId }: { trip: FishingTripDiscovery; cu
         <span>Organizza <strong>{ownTrip ? "tu" : trip.organizerName}</strong></span>
         {ownTrip && <span className="own-trip-badge">La tua uscita</span>}
       </div>
+      <div className="discovery-actions" aria-live="polite">
+        {ownTrip ? (
+          <Link className="button button-secondary" to={`/uscite/${trip.id}`}>Gestisci la tua uscita</Link>
+        ) : trip.participationStatus === "requested" ? (
+          <>
+            <span className="participation-state state-requested">{PARTICIPATION_LABELS.requested}</span>
+            <button className="button button-secondary" disabled={busy} type="button" onClick={() => onCancel(trip.id)}>
+              {busy ? "Aggiornamento…" : "Annulla richiesta"}
+            </button>
+          </>
+        ) : trip.participationStatus === "cancelled" ? (
+          <>
+            <span className="participation-state">{PARTICIPATION_LABELS.cancelled}</span>
+            <button className="button button-primary" disabled={busy} type="button" onClick={() => onRequest(trip.id)}>
+              {busy ? "Invio…" : "Invia di nuovo"}
+            </button>
+          </>
+        ) : trip.participationStatus ? (
+          <span className={`participation-state state-${trip.participationStatus}`}>
+            {PARTICIPATION_LABELS[trip.participationStatus]}
+          </span>
+        ) : (
+          <button className="button button-primary" disabled={busy} type="button" onClick={() => onRequest(trip.id)}>
+            {busy ? "Invio…" : "Chiedi di partecipare"}
+          </button>
+        )}
+      </div>
     </article>
   );
 }
@@ -69,13 +125,16 @@ export function TripDiscoveryPage() {
   const [trips, setTrips] = useState<FishingTripDiscovery[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [actionTripId, setActionTripId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     let active = true;
     void Promise.all([
       loadFishingTechniques(),
-      loadDiscoverableTrips(EMPTY_TRIP_DISCOVERY_FILTERS),
+      loadDiscoverableTrips(EMPTY_TRIP_DISCOVERY_FILTERS, user.id),
     ])
       .then(([loadedTechniques, loadedTrips]) => {
         if (!active) return;
@@ -90,17 +149,54 @@ export function TripDiscoveryPage() {
       });
 
     return () => { active = false; };
-  }, []);
+  }, [user]);
 
   async function search(nextFilters: TripDiscoveryFilters) {
+    if (!user) return;
     setSearching(true);
     setError(null);
     try {
-      setTrips(await loadDiscoverableTrips(nextFilters));
+      setTrips(await loadDiscoverableTrips(nextFilters, user.id));
     } catch (caught) {
       setError(readableError(caught));
     } finally {
       setSearching(false);
+    }
+  }
+
+  function updateParticipationStatus(tripId: string, status: TripParticipationStatus) {
+    setTrips((current) => current.map((trip) => (
+      trip.id === tripId ? { ...trip, participationStatus: status } : trip
+    )));
+  }
+
+  async function requestParticipation(tripId: string) {
+    setActionTripId(tripId);
+    setError(null);
+    setNotice(null);
+    try {
+      const status = await requestTripParticipation(tripId);
+      updateParticipationStatus(tripId, status);
+      setNotice("Richiesta inviata. Lo stato è visibile direttamente sulla card dell’uscita.");
+    } catch (caught) {
+      setError(readableError(caught));
+    } finally {
+      setActionTripId(null);
+    }
+  }
+
+  async function cancelParticipation(tripId: string) {
+    setActionTripId(tripId);
+    setError(null);
+    setNotice(null);
+    try {
+      const status = await cancelTripParticipation(tripId);
+      updateParticipationStatus(tripId, status);
+      setNotice("Richiesta annullata. Puoi inviarla di nuovo finché l’uscita resta disponibile.");
+    } catch (caught) {
+      setError(readableError(caught));
+    } finally {
+      setActionTripId(null);
     }
   }
 
@@ -164,6 +260,7 @@ export function TripDiscoveryPage() {
       </form>
 
       <Notice kind="info">Per le uscite protette mostriamo soltanto la zona generica. Lo spot preciso resta riservato.</Notice>
+      {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
 
       {!error && trips.length === 0 ? (
@@ -175,7 +272,16 @@ export function TripDiscoveryPage() {
         </div>
       ) : (
         <div className={`discovery-grid${searching ? " is-searching" : ""}`} aria-live="polite">
-          {trips.map((trip) => <DiscoveryCard key={trip.id} trip={trip} currentUserId={user?.id ?? ""} />)}
+          {trips.map((trip) => (
+            <DiscoveryCard
+              key={trip.id}
+              trip={trip}
+              currentUserId={user?.id ?? ""}
+              busy={actionTripId === trip.id}
+              onRequest={(tripId) => void requestParticipation(tripId)}
+              onCancel={(tripId) => void cancelParticipation(tripId)}
+            />
+          ))}
         </div>
       )}
     </section>
