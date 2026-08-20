@@ -1,8 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
-import { discoveryRpcArgs, mergeParticipationStatuses } from "./trips";
-import type { FishingTripDiscovery } from "../types/domain";
+import {
+  discoveryRpcArgs,
+  mergeParticipationDecision,
+  mergeParticipationStatuses,
+} from "./trips";
+import type {
+  FishingTripDiscovery,
+  TripParticipationRequest,
+} from "../types/domain";
 
 describe("discoveryRpcArgs", () => {
   it("invia filtri vuoti come null", () => {
@@ -54,5 +61,24 @@ describe("mergeParticipationStatuses", () => {
     } as FishingTripDiscovery;
 
     expect(mergeParticipationStatuses([trip], [])[0].participationStatus).toBeNull();
+  });
+});
+
+describe("mergeParticipationDecision", () => {
+  it("aggiorna soltanto la richiesta decisa", () => {
+    const requests = [
+      { id: "participant-1", status: "requested", decidedAt: null },
+      { id: "participant-2", status: "requested", decidedAt: null },
+    ] as TripParticipationRequest[];
+
+    const updated = mergeParticipationDecision(requests, {
+      participant_id: "participant-1",
+      participation_status: "accepted",
+      decided_at: "2026-08-20T15:00:00.000Z",
+    });
+
+    expect(updated[0].status).toBe("accepted");
+    expect(updated[0].decidedAt).toBe("2026-08-20T15:00:00.000Z");
+    expect(updated[1].status).toBe("requested");
   });
 });

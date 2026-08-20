@@ -26,6 +26,7 @@ psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/008_trip_creati
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/009_trip_management_rls.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/010_trip_discovery.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/011_trip_participation_requests.sql
+psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/012_trip_participation_management.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/seeds/001_beta_lazio_catalogs.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/001_schema_contract.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/002_supabase_auth_profile_contract.sql
@@ -33,6 +34,7 @@ psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/003_trip_creation_co
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/004_trip_management_contract.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/005_trip_discovery_contract.sql
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/006_trip_participation_requests_contract.sql
+psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/007_trip_participation_management_contract.sql
 ```
 
 Le migrazioni sono forward-only e transazionali. Il seed è rieseguibile perché usa `ON CONFLICT`.
@@ -66,6 +68,13 @@ In Supabase Auth configurare Site URL e Redirect URLs per:
 - `cancel_trip_participation` consente di annullare esclusivamente una propria richiesta ancora in stato `requested`.
 - Le scritture avvengono tramite RPC con controlli espliciti; la tabella espone in lettura soltanto le righe dell’utente autenticato.
 - Ogni cambio effettivo registra un evento senza dati privati dello spot, pronto per le notifiche successive.
+
+## Gestione e conferma delle partecipazioni
+
+- `list_trip_participation_requests` espone all’organizzatore soltanto nome, livello e stato delle richieste della propria uscita.
+- `decide_trip_participation` serializza le decisioni sulla singola uscita e impedisce di superare i posti disponibili.
+- `confirm_fishing_trip` richiede almeno un partecipante accettato, conferma gli accettati e rifiuta le richieste ancora pendenti.
+- Le transizioni registrano eventi applicativi; contatti e dettagli privati dello spot restano esclusi.
 
 ## Metriche
 

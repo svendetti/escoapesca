@@ -4,6 +4,7 @@ import type {
   CatalogItem,
   FishingTrip,
   FishingTripDiscovery,
+  TripParticipationRequest,
   TripParticipationStatus,
   TripDiscoveryFilters,
   TripValues,
@@ -153,6 +154,90 @@ export function requestTripParticipation(tripId: string) {
 
 export function cancelTripParticipation(tripId: string) {
   return participationAction("cancel_trip_participation", tripId);
+}
+
+type ParticipationManagementRow = {
+  participant_id: string;
+  participant_user_id: string;
+  display_name: string;
+  skill_level: TripParticipationRequest["skillLevel"];
+  participation_status: TripParticipationStatus;
+  requested_at: string;
+  decided_at: string | null;
+};
+
+export async function loadTripParticipationRequests(
+  tripId: string,
+): Promise<TripParticipationRequest[]> {
+  const { data, error } = await requireSupabase().rpc(
+    "list_trip_participation_requests",
+    { p_trip_id: tripId },
+  );
+
+  if (error) throw error;
+  return ((data ?? []) as ParticipationManagementRow[]).map((row) => ({
+    id: row.participant_id,
+    userId: row.participant_user_id,
+    displayName: row.display_name,
+    skillLevel: row.skill_level,
+    status: row.participation_status,
+    requestedAt: row.requested_at,
+    decidedAt: row.decided_at,
+  }));
+}
+
+type ParticipationDecisionRow = {
+  participant_id: string;
+  participation_status: TripParticipationStatus;
+  decided_at: string;
+};
+
+export async function decideTripParticipation(
+  participantId: string,
+  decision: "accepted" | "rejected",
+) {
+  const { data, error } = await requireSupabase().rpc(
+    "decide_trip_participation",
+    {
+      p_participant_id: participantId,
+      p_decision: decision,
+    },
+  );
+
+  if (error) throw error;
+  const result = ((data ?? []) as ParticipationDecisionRow[])[0];
+  if (!result) throw new Error("La decisione non ha restituito uno stato valido.");
+  return result;
+}
+
+export function mergeParticipationDecision(
+  requests: TripParticipationRequest[],
+  decision: ParticipationDecisionRow,
+) {
+  return requests.map((request) => request.id === decision.participant_id
+    ? {
+        ...request,
+        status: decision.participation_status,
+        decidedAt: decision.decided_at,
+      }
+    : request);
+}
+
+type TripConfirmationRow = {
+  trip_status: "confirmed";
+  confirmed_at: string;
+  confirmed_participant_count: number;
+};
+
+export async function confirmFishingTrip(tripId: string) {
+  const { data, error } = await requireSupabase().rpc("confirm_fishing_trip", {
+    p_trip_id: tripId,
+  });
+
+  if (error) throw error;
+  const result = ((data ?? []) as TripConfirmationRow[])[0];
+  if (!result) throw new Error("La conferma non ha restituito uno stato valido.");
+  return result;
 }
 
 const TRIP_SELECT = `

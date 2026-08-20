@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
+import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
 import { cancelFishingTrip, loadFishingTrip } from "../lib/trips";
@@ -143,6 +144,13 @@ export function TripDetailPage() {
           )}
         </section>
       </div>
+
+      <TripRequestsPanel
+        trip={trip}
+        onConfirmed={() => setTrip((current) => current
+          ? { ...current, status: "confirmed", updatedAt: new Date().toISOString() }
+          : current)}
+      />
 
       {trip.tripType === "protected" ? (
         <Notice kind="info">La posizione precisa non è pubblica. Sarà gestita separatamente quando l’uscita verrà confermata.</Notice>

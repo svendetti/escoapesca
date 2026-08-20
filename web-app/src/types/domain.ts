@@ -87,6 +87,16 @@ export type FishingTrip = {
   updatedAt: string;
 };
 
+export type TripParticipationRequest = {
+  id: string;
+  userId: string;
+  displayName: string;
+  skillLevel: SkillLevel | null;
+  status: TripParticipationStatus;
+  requestedAt: string;
+  decidedAt: string | null;
+};
+
 export type TripDiscoveryFilters = {
   provinceCode: string;
   techniqueId: number | "";

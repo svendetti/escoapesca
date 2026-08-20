@@ -1,6 +1,6 @@
 # EscoAPesca Beta web app
 
-SPA mobile-first della Beta, attualmente completata fino allo STEP 6. Il sito pubblico nella root del repository resta indipendente.
+SPA mobile-first della Beta, attualmente completata fino allo STEP 7. Il sito pubblico nella root del repository resta indipendente.
 
 ## Configurazione locale
 
