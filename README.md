@@ -1,13 +1,13 @@
-# EscoAPesca — landing 3D
+# EscoAPesca — landing pubblica e Beta
 
 ## Stato del repository
 
-Questo repository è la sorgente unica della landing pubblica di EscoAPesca. Il workspace contiene inoltre gli asset locali di validazione della Beta Lazio.
+Questo repository contiene la landing pubblica e l’applicazione web della Beta Lazio.
 
 - La landing statica resta pubblicata su `www.escoapesca.it` tramite GitHub Pages.
 - I materiali in `social-launch-kit` e `social-calendar` supportano l'acquisizione dei primi utenti.
-- Lo STEP 3 della Beta è implementato in `web-app/`: registrazione, login, recupero password e profilo pescatore. È collegato al progetto Supabase dedicato `EscoAPesca Beta` e pubblicato separatamente dalla landing; l'attivazione di `app.escoapesca.it` attende i record DNS OVH e i redirect Auth definitivi.
-- La SPA resta separata dalla landing e proseguirà in modo incrementale.
+- Gli STEP 3–5 della Beta sono implementati in `web-app/`: registrazione, login, recupero password, profilo pescatore, creazione/gestione delle uscite ed elenco con filtri.
+- L’app è collegata al progetto Supabase dedicato `EscoAPesca Beta` ed è pubblicata su `app.escoapesca.it`; la landing indirizza registrazione, accesso, ricerca e creazione verso l’app.
 - Le dipendenze locali in `.tools` servono esclusivamente alla generazione dei contenuti media e non fanno parte dello stack applicativo.
 - Il modello dati Supabase/PostgreSQL e l'ordine delle migrazioni sono documentati in `database/OPERATIONS.md`.
 
@@ -15,7 +15,7 @@ La metrica primaria della Beta è il numero di uscite reali organizzate tra pesc
 
 ## Ottimizzazione SEO e prestazioni
 
-La build pubblica è una pagina HTML statica; il solo questionario beta è incorporato da Tally con caricamento differito. Sono stati inoltre applicati:
+La landing pubblica è una pagina HTML statica. Sono stati inoltre applicati:
 
 - title, description, canonical, Open Graph, Twitter Card e JSON-LD;
 - `robots.txt`, `sitemap.xml` e manifest PWA;
@@ -24,7 +24,7 @@ La build pubblica è una pagina HTML statica; il solo questionario beta è incor
 - sospensione del rendering 3D quando la scena è fuori schermo;
 - riduzione di pixel ratio e particelle senza alterare la composizione;
 - contenuti leggibili anche se JavaScript o le animazioni non partono;
-- propagazione di `utm_source`, `utm_medium` e `utm_campaign` al questionario Tally;
+- propagazione di `utm_source`, `utm_medium`, `utm_campaign` e `utm_content` ai collegamenti verso l’app;
 - Content Security Policy limitata alle dipendenze effettivamente utilizzate.
 
 I Core Web Vitals reali devono essere misurati nuovamente dopo il deploy HTTPS, perché hosting, CDN, compressione e latenza non sono simulabili con il file locale.
@@ -40,7 +40,7 @@ La landing è stata sottoposta a una revisione con UI/UX Pro Max. Gli interventi
 - tipografia Outfit + Work Sans;
 - CTA chartreuse ad alto contrasto, ispirata alle esche tecniche e distinta dai segnali di fiducia turchesi;
 - navbar flottante e persistente;
-- linguaggio coerente della candidatura beta;
+- linguaggio coerente con le funzionalità effettivamente disponibili nella Beta;
 - skip link per navigazione da tastiera;
 - focus visibili su tutti gli elementi interattivi;
 - controllo di contrasto, hover e riduzione del movimento;
@@ -63,23 +63,23 @@ Poi aprire `http://127.0.0.1:8765/`.
 
 - Sito principale: `https://www.escoapesca.it/`
 - URL GitHub Pages di origine: `https://svendetti.github.io/escoapesca/`
-- Modulo pubblico: `https://tally.so/r/zxoGMR`
-- Email beta e privacy: `devillsit@gmail.com`
+- Applicazione Beta: `https://app.escoapesca.it/`
+- Registrazione: `https://app.escoapesca.it/registrati`
+- Email beta e privacy: `social@escoapesca.it`
 - Titolare del trattamento: Simone Vendetti
 
-L'informativa completa è disponibile in `privacy.html` e viene collegata sia dalla landing sia dal consenso nel questionario.
+L’informativa dell’app è disponibile in `privacy-beta.html` e viene collegata dalla landing e dal flusso di registrazione. `privacy.html` resta disponibile come informativa storica per le candidature raccolte tramite il precedente modulo Tally.
 
-## Form
+## Flusso di acquisizione
 
-Il form Tally è operativo e divide la candidatura in tre passaggi: profilo, uscita ideale e consenso finale. Le risposte vengono registrate nell'account Tally collegato al progetto; la landing non conserva copie nel browser.
+La landing non raccoglie dati personali e indirizza l’utente verso l’app. La registrazione, la conferma email e il completamento del profilo avvengono su `app.escoapesca.it`. Il precedente modulo Tally non fa più parte del flusso pubblico principale.
 
 Prima di avviare campagne a pagamento bisogna ancora:
 
 1. verificare con un professionista il testo privacy rispetto all'uso effettivo dei dati;
 2. configurare eventuali analytics e conversioni con le scelte privacy appropriate;
 3. uniformare i contatti e gli handle social definitivi;
-4. configurare notifiche e routine di risposta ai candidati;
-5. eseguire un test completo con una candidatura reale autorizzata.
+4. eseguire test periodici del percorso landing → registrazione → profilo → uscita.
 
 Consultare anche `DEPLOYMENT.md` per cache, compressione e header di produzione.
 
