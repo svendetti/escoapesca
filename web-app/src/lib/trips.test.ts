@@ -13,8 +13,9 @@ import type {
 
 describe("discoveryRpcArgs", () => {
   it("invia filtri vuoti come null", () => {
-    expect(discoveryRpcArgs({ provinceCode: "", techniqueId: "", waterType: "", date: "" })).toEqual({
+    expect(discoveryRpcArgs({ provinceCode: "", zone: "", techniqueId: "", waterType: "", date: "" })).toEqual({
       p_province_code: null,
+      p_zone: null,
       p_technique_id: null,
       p_water_type: null,
       p_starts_from: null,
@@ -24,11 +25,12 @@ describe("discoveryRpcArgs", () => {
   });
 
   it("converte una data locale in un intervallo di un giorno", () => {
-    const args = discoveryRpcArgs({ provinceCode: "RM", techniqueId: 3, waterType: "sea", date: "2026-09-14" });
+    const args = discoveryRpcArgs({ provinceCode: "RM", zone: " Ostia ", techniqueId: 3, waterType: "sea", date: "2026-09-14" });
     const from = new Date(args.p_starts_from!);
     const before = new Date(args.p_starts_before!);
 
     expect(args.p_province_code).toBe("RM");
+    expect(args.p_zone).toBe("Ostia");
     expect(args.p_technique_id).toBe(3);
     expect(args.p_water_type).toBe("sea");
     expect(from.getFullYear()).toBe(2026);

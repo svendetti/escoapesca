@@ -115,9 +115,30 @@ export type TripParticipationRequest = {
 
 export type TripDiscoveryFilters = {
   provinceCode: string;
+  zone: string;
   techniqueId: number | "";
   waterType: TripWaterType | "";
   date: string;
+};
+
+export type AppNotificationType =
+  | "participation_requested"
+  | "participation_cancelled"
+  | "participation_accepted"
+  | "participation_rejected"
+  | "trip_confirmed"
+  | "trip_updated"
+  | "trip_cancelled"
+  | "trip_private_details_updated";
+
+export type AppNotification = {
+  id: string;
+  type: AppNotificationType;
+  tripId: string | null;
+  tripTitle: string | null;
+  actorName: string | null;
+  readAt: string | null;
+  createdAt: string;
 };
 
 export type FishingTripDiscovery = {
@@ -193,6 +214,7 @@ export const EMPTY_TRIP: TripValues = {
 
 export const EMPTY_TRIP_DISCOVERY_FILTERS: TripDiscoveryFilters = {
   provinceCode: "",
+  zone: "",
   techniqueId: "",
   waterType: "",
   date: "",

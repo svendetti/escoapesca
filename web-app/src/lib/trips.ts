@@ -55,6 +55,7 @@ function localDateBoundary(date: string, addDays: number) {
 export function discoveryRpcArgs(filters: TripDiscoveryFilters) {
   return {
     p_province_code: filters.provinceCode || null,
+    p_zone: filters.zone.trim() || null,
     p_technique_id: filters.techniqueId || null,
     p_water_type: filters.waterType || null,
     p_starts_from: filters.date ? localDateBoundary(filters.date, 0) : null,

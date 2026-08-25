@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { loadUnreadNotificationCount } from "../lib/notifications";
 import { requireSupabase } from "../lib/supabase";
 import logoUrl from "../assets/logo-escoapesca.svg?url";
 
@@ -8,6 +9,32 @@ export function AppLayout() {
   const { user, configured } = useAuth();
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    let active = true;
+    const refresh = () => {
+      void loadUnreadNotificationCount()
+        .then((count) => {
+          if (active) setUnreadNotifications(count);
+        })
+        .catch(() => {
+          if (active) setUnreadNotifications(0);
+        });
+    };
+
+    refresh();
+    window.addEventListener("escoapesca:notifications-updated", refresh);
+    return () => {
+      active = false;
+      window.removeEventListener("escoapesca:notifications-updated", refresh);
+    };
+  }, [user]);
 
   async function signOut() {
     if (signingOut) return;
@@ -36,6 +63,10 @@ export function AppLayout() {
             <NavLink to="/crea-uscita">
               <span className="nav-label-wide">Crea uscita</span>
               <span className="nav-label-short">Crea</span>
+            </NavLink>
+            <NavLink className="notification-nav-link" to="/notifiche" aria-label={`Notifiche${unreadNotifications ? `, ${unreadNotifications} non lette` : ""}`}>
+              Avvisi
+              {unreadNotifications > 0 && <span>{Math.min(unreadNotifications, 99)}</span>}
             </NavLink>
             <NavLink to="/profilo">
               <span className="nav-label-wide">Profilo</span>

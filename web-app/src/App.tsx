@@ -7,6 +7,7 @@ import { CreateTripPage } from "./pages/CreateTripPage";
 import { EditTripPage } from "./pages/EditTripPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MyTripsPage } from "./pages/MyTripsPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
 import { ForgotPasswordPage, UpdatePasswordPage } from "./pages/PasswordPages";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -30,6 +31,7 @@ export function App() {
             <Route path="crea-uscita" element={<AuthGuard><CreateTripPage /></AuthGuard>} />
             <Route path="trova-uscita" element={<AuthGuard><TripDiscoveryPage /></AuthGuard>} />
             <Route path="mie-uscite" element={<AuthGuard><MyTripsPage /></AuthGuard>} />
+            <Route path="notifiche" element={<AuthGuard><NotificationsPage /></AuthGuard>} />
             <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
             <Route path="*" element={<Navigate to="/" replace />} />

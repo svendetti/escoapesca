@@ -47,6 +47,13 @@ const timeFormatter = new Intl.DateTimeFormat("it-IT", {
   minute: "2-digit",
 });
 
+function localDateValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function DiscoveryCard({
   trip,
   currentUserId,
@@ -233,6 +240,16 @@ export function TripDiscoveryPage() {
           </select>
         </label>
         <label>
+          Zona
+          <input
+            maxLength={80}
+            placeholder="Es. Ostia, Bracciano"
+            type="search"
+            value={filters.zone}
+            onChange={(event) => setFilters((current) => ({ ...current, zone: event.target.value }))}
+          />
+        </label>
+        <label>
           Tecnica
           <select value={filters.techniqueId} onChange={(event) => setFilters((current) => ({ ...current, techniqueId: event.target.value ? Number(event.target.value) : "" }))}>
             <option value="">Tutte le tecniche</option>
@@ -249,7 +266,7 @@ export function TripDiscoveryPage() {
         </label>
         <label>
           Data
-          <input type="date" value={filters.date} onChange={(event) => setFilters((current) => ({ ...current, date: event.target.value }))} />
+          <input min={localDateValue()} type="date" value={filters.date} onChange={(event) => setFilters((current) => ({ ...current, date: event.target.value }))} />
         </label>
         <div className="filter-actions">
           <button className="button button-primary" disabled={searching} type="submit">
