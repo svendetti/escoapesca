@@ -17,6 +17,7 @@ import type { CatalogItem, FieldErrors, ProfileValues } from "../types/domain";
 
 export function ProfilePage() {
   const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [values, setValues] = useState<ProfileValues>(EMPTY_PROFILE);
   const [techniques, setTechniques] = useState<CatalogItem[]>([]);
   const [availability, setAvailability] = useState<CatalogItem[]>([]);
@@ -36,10 +37,11 @@ export function ProfilePage() {
   ].filter(Boolean).length, [values]);
 
   const refresh = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setLoading(true);
+    setNotice(null);
     try {
-      const [catalogs, profile] = await Promise.all([loadCatalogs(), loadProfile(user.id)]);
+      const [catalogs, profile] = await Promise.all([loadCatalogs(), loadProfile(userId)]);
       setTechniques(catalogs.techniques);
       setAvailability(catalogs.availability);
       setValues(profile.values);
@@ -53,7 +55,7 @@ export function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
     void refresh();

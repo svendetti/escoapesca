@@ -48,10 +48,20 @@ async function fetchCatalogs() {
 
 export function loadCatalogs() {
   if (!catalogsPromise) {
-    catalogsPromise = fetchCatalogs().catch((error) => {
-      catalogsPromise = null;
-      throw error;
-    });
+    catalogsPromise = fetchCatalogs()
+      .catch(async (firstError) => {
+        const client = requireSupabase();
+        const { data, error } = await client.auth.getSession();
+
+        if (error || !data.session) throw firstError;
+
+        await new Promise((resolve) => globalThis.setTimeout(resolve, 150));
+        return fetchCatalogs();
+      })
+      .catch((error) => {
+        catalogsPromise = null;
+        throw error;
+      });
   }
   return catalogsPromise;
 }
