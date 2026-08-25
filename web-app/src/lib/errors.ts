@@ -8,6 +8,12 @@ const AUTH_MESSAGES: Array<[RegExp, string]> = [
   [/uscita non trovata/i, "Uscita non trovata o non accessibile."],
   [/uscita non (è|e) più modificabile/i, "Questa uscita non è più modificabile."],
   [/uscita non (è|e) più annullabile/i, "Questa uscita non è più annullabile."],
+  [/feedback sarà disponibile al termine/i, "Potrai inviare il feedback dopo l’orario di fine uscita."],
+  [/feedback è disponibile solo/i, "Il feedback è disponibile solo per le uscite confermate."],
+  [/già inviato il feedback/i, "Hai già inviato il feedback per questa uscita."],
+  [/completa tutte le risposte/i, "Completa tutte le risposte obbligatorie."],
+  [/valutazione deve essere/i, "Scegli una valutazione da 1 a 5 stelle."],
+  [/commento non può/i, "Il commento non può superare 1000 caratteri."],
 ];
 
 export function readableError(error: unknown) {

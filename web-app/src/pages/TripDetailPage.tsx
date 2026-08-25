@@ -101,6 +101,8 @@ export function TripDetailPage() {
   const endsAt = new Date(trip.endsAt);
   const isOrganizer = trip.organizerUserId === user?.id;
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
+  const canLeaveFeedback = endsAt.getTime() <= Date.now()
+    && ["confirmed", "completed"].includes(trip.status);
 
   return (
     <section className="page-wide trip-detail-page">
@@ -124,6 +126,14 @@ export function TripDetailPage() {
 
       {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
+
+      {canLeaveFeedback && (
+        <section className="trip-detail-card">
+          <h2>L’uscita è terminata</h2>
+          <p>Dicci se si è svolta davvero: bastano pochi secondi e il risultato resta privato.</p>
+          <Link className="button button-primary" to={`/uscite/${trip.id}/feedback`}>Lascia il feedback</Link>
+        </section>
+      )}
 
       <div className="trip-detail-grid">
         <section className="trip-detail-card">

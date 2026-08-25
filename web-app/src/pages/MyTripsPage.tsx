@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
+import { loadMyTripFeedback } from "../lib/feedback";
 import { readableError } from "../lib/errors";
 import {
   dashboardTripBucket,
@@ -63,9 +64,10 @@ type DashboardTrip = {
   status: TripStatus;
   participationStatus: TripParticipationStatus | null;
   organizerName: string | null;
+  feedbackSubmitted: boolean;
 };
 
-function organizedTrip(trip: FishingTrip): DashboardTrip {
+function organizedTrip(trip: FishingTrip, feedbackTripIds: Set<string>): DashboardTrip {
   return {
     key: `organizer-${trip.id}`,
     id: trip.id,
@@ -81,10 +83,14 @@ function organizedTrip(trip: FishingTrip): DashboardTrip {
     status: trip.status,
     participationStatus: null,
     organizerName: null,
+    feedbackSubmitted: feedbackTripIds.has(trip.id),
   };
 }
 
-function participatingTrip(trip: FishingTripParticipation): DashboardTrip {
+function participatingTrip(
+  trip: FishingTripParticipation,
+  feedbackTripIds: Set<string>,
+): DashboardTrip {
   return {
     key: `participant-${trip.participantId}`,
     id: trip.id,
@@ -100,25 +106,36 @@ function participatingTrip(trip: FishingTripParticipation): DashboardTrip {
     status: trip.status,
     participationStatus: trip.participationStatus,
     organizerName: trip.organizerName,
+    feedbackSubmitted: feedbackTripIds.has(trip.id),
   };
+}
+
+function canLeaveFeedback(trip: DashboardTrip) {
+  if (trip.feedbackSubmitted || tripTimePhase(trip.startsAt, trip.endsAt) !== "past") {
+    return false;
+  }
+  if (!["confirmed", "completed"].includes(trip.status)) return false;
+  return trip.role === "organizer"
+    || ["confirmed", "completed"].includes(trip.participationStatus ?? "");
 }
 
 function statusLabel(trip: DashboardTrip) {
   const phase = tripTimePhase(trip.startsAt, trip.endsAt);
   if (trip.status === "cancelled") return "Annullata";
+  if (trip.feedbackSubmitted && phase === "past") return "Feedback inviato";
 
   if (trip.role === "participant" && trip.participationStatus) {
     if (phase === "past" && ["requested", "accepted"].includes(trip.participationStatus)) {
       return "Scaduta";
     }
     if (phase === "past" && trip.participationStatus === "confirmed") {
-      return "Da verificare";
+      return "Feedback richiesto";
     }
     return PARTICIPATION_LABELS[trip.participationStatus];
   }
 
   if (phase === "past" && trip.status === "open") return "Scaduta";
-  if (phase === "past" && trip.status === "confirmed") return "Da verificare";
+  if (phase === "past" && trip.status === "confirmed") return "Feedback richiesto";
   if (phase === "in_progress") return "In corso";
   return TRIP_STATUS_LABELS[trip.status];
 }
@@ -127,10 +144,11 @@ function nextAction(trip: DashboardTrip) {
   const phase = tripTimePhase(trip.startsAt, trip.endsAt);
 
   if (trip.status === "cancelled") return "Nessuna azione: l’uscita è stata annullata.";
+  if (trip.feedbackSubmitted) return "Feedback registrato: grazie per aver aiutato la Beta.";
+  if (canLeaveFeedback(trip)) return "Raccontaci se l’uscita si è svolta davvero.";
 
   if (trip.role === "organizer") {
     if (phase === "past" && trip.status === "open") return "Scaduta senza conferma: non viene conteggiata come uscita svolta.";
-    if (phase === "past" && trip.status === "confirmed") return "Da verificare: il feedback sarà disponibile a breve.";
     if (trip.status === "completed") return "Esito già registrato.";
     if (phase === "in_progress" && trip.status === "confirmed") return "L’uscita è in corso.";
     if (phase === "in_progress") return "Il periodo è iniziato senza conferma definitiva.";
@@ -148,7 +166,6 @@ function nextAction(trip: DashboardTrip) {
         ? "L’uscita non è stata confermata definitivamente."
         : "Sei stato accettato: attendi la conferma definitiva.";
     case "confirmed":
-      if (phase === "past") return "Da verificare: il feedback sarà disponibile a breve.";
       if (phase === "in_progress") return "L’uscita è in corso.";
       return "Controlla il punto d’incontro condiviso dall’organizzatore.";
     case "rejected":
@@ -168,6 +185,12 @@ function canOpenDetails(trip: DashboardTrip) {
   if (trip.role === "organizer") return true;
   return ["confirmed", "completed"].includes(trip.status)
     && ["confirmed", "completed"].includes(trip.participationStatus ?? "");
+}
+
+function cardDestination(trip: DashboardTrip) {
+  if (canLeaveFeedback(trip)) return `/uscite/${trip.id}/feedback`;
+  if (canOpenDetails(trip)) return `/uscite/${trip.id}`;
+  return null;
 }
 
 function TripCardContent({ trip }: { trip: DashboardTrip }) {
@@ -191,17 +214,20 @@ function TripCardContent({ trip }: { trip: DashboardTrip }) {
         <span>{trip.role === "organizer" ? "Organizzata da te" : `Organizza ${trip.organizerName}`}</span>
       </div>
       <p className="trip-card-action">{nextAction(trip)}</p>
-      {canOpenDetails(trip) && (
-        <span className="trip-card-action">Apri i dettagli <span aria-hidden="true">→</span></span>
+      {cardDestination(trip) && (
+        <span className="trip-card-action">
+          {canLeaveFeedback(trip) ? "Lascia il feedback" : "Apri i dettagli"} <span aria-hidden="true">→</span>
+        </span>
       )}
     </>
   );
 }
 
 function TripCard({ trip }: { trip: DashboardTrip }) {
-  if (canOpenDetails(trip)) {
+  const destination = cardDestination(trip);
+  if (destination) {
     return (
-      <Link className="trip-list-card" to={`/uscite/${trip.id}`}>
+      <Link className="trip-list-card" to={destination}>
         <article><TripCardContent trip={trip} /></article>
       </Link>
     );
@@ -242,6 +268,7 @@ export function MyTripsPage() {
   const { user } = useAuth();
   const [organized, setOrganized] = useState<FishingTrip[]>([]);
   const [participating, setParticipating] = useState<FishingTripParticipation[]>([]);
+  const [feedbackTripIds, setFeedbackTripIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -252,11 +279,13 @@ export function MyTripsPage() {
     void Promise.all([
       loadMyFishingTrips(user.id),
       loadMyTripParticipations(),
+      loadMyTripFeedback(),
     ])
-      .then(([loadedOrganized, loadedParticipating]) => {
+      .then(([loadedOrganized, loadedParticipating, loadedFeedback]) => {
         if (!active) return;
         setOrganized(loadedOrganized);
         setParticipating(loadedParticipating);
+        setFeedbackTripIds(new Set(loadedFeedback.map((item) => item.tripId)));
       })
       .catch((caught) => {
         if (active) setError(readableError(caught));
@@ -271,8 +300,8 @@ export function MyTripsPage() {
   const grouped = useMemo(() => {
     const now = Date.now();
     const entries = [
-      ...organized.map(organizedTrip),
-      ...participating.map(participatingTrip),
+      ...organized.map((trip) => organizedTrip(trip, feedbackTripIds)),
+      ...participating.map((trip) => participatingTrip(trip, feedbackTripIds)),
     ];
     const result = {
       organized: [] as DashboardTrip[],
@@ -296,7 +325,7 @@ export function MyTripsPage() {
     result.participating.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     result.past.sort((a, b) => b.endsAt.localeCompare(a.endsAt));
     return result;
-  }, [organized, participating]);
+  }, [organized, participating, feedbackTripIds]);
 
   if (loading) return <div className="page-status">Caricamento delle tue uscite…</div>;
 

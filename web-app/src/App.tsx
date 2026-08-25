@@ -13,6 +13,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { TripDetailPage } from "./pages/TripDetailPage";
 import { TripDiscoveryPage } from "./pages/TripDiscoveryPage";
+import { TripFeedbackPage } from "./pages/TripFeedbackPage";
 import { WelcomePage } from "./pages/WelcomePage";
 
 export function App() {
@@ -34,6 +35,7 @@ export function App() {
             <Route path="notifiche" element={<AuthGuard><NotificationsPage /></AuthGuard>} />
             <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
+            <Route path="uscite/:tripId/feedback" element={<AuthGuard><TripFeedbackPage /></AuthGuard>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
