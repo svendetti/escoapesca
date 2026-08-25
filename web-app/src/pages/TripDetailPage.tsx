@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripRequestsPanel } from "../components/TripRequestsPanel";
+import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
-import { cancelFishingTrip, loadFishingTrip } from "../lib/trips";
+import { cancelFishingTrip, loadFishingTripForViewer } from "../lib/trips";
 import type { FishingTrip, RecommendedLevel, TripStatus } from "../types/domain";
 
 const STATUS_LABELS: Record<TripStatus, string> = {
@@ -51,7 +52,7 @@ export function TripDetailPage() {
     if (!user || !tripId) return;
     let active = true;
 
-    void loadFishingTrip(user.id, tripId)
+    void loadFishingTripForViewer(tripId)
       .then((loaded) => {
         if (active) setTrip(loaded);
       })
@@ -98,11 +99,14 @@ export function TripDetailPage() {
 
   const startsAt = new Date(trip.startsAt);
   const endsAt = new Date(trip.endsAt);
-  const canManage = trip.status === "open" && startsAt.getTime() > Date.now();
+  const isOrganizer = trip.organizerUserId === user?.id;
+  const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
 
   return (
     <section className="page-wide trip-detail-page">
-      <Link className="back-link" to="/mie-uscite">← Le mie uscite</Link>
+      <Link className="back-link" to={isOrganizer ? "/mie-uscite" : "/trova-uscita"}>
+        ← {isOrganizer ? "Le mie uscite" : "Trova un’uscita"}
+      </Link>
 
       <div className="trip-detail-hero">
         <div>
@@ -145,21 +149,27 @@ export function TripDetailPage() {
         </section>
       </div>
 
-      <TripRequestsPanel
-        trip={trip}
-        onConfirmed={() => setTrip((current) => current
-          ? { ...current, status: "confirmed", updatedAt: new Date().toISOString() }
-          : current)}
-      />
+      {isOrganizer ? (
+        <TripRequestsPanel
+          trip={trip}
+          onConfirmed={() => setTrip((current) => current
+            ? { ...current, status: "confirmed", updatedAt: new Date().toISOString() }
+            : current)}
+        />
+      ) : (
+        <Notice kind="success">La tua partecipazione a questa uscita è confermata.</Notice>
+      )}
 
       {trip.tripType === "protected" ? (
-        <Notice kind="info">La posizione precisa non è pubblica. Sarà gestita separatamente quando l’uscita verrà confermata.</Notice>
+        <Notice kind="info">La posizione precisa non è pubblica e resta separata dalla zona generica.</Notice>
       ) : trip.publicMeetingPoint ? (
         <section className="trip-detail-card">
           <h2>Indicazioni pubbliche</h2>
           <p className="preserve-lines">{trip.publicMeetingPoint}</p>
         </section>
       ) : null}
+      <TripPrivateDetailsPanel trip={trip} isOrganizer={isOrganizer} />
+
 
       {trip.status === "cancelled" && (
         <section className="trip-detail-card cancelled-summary">

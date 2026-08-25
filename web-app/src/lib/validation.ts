@@ -2,6 +2,7 @@ import type {
   FieldErrors,
   ProfileValues,
   RegistrationValues,
+  TripPrivateDetailsValues,
   TripValues,
 } from "../types/domain";
 
@@ -81,6 +82,37 @@ export function validateTrip(values: TripValues, now = new Date()) {
     errors.description = "Inserisci una descrizione (massimo 2.000 caratteri).";
   }
   if (values.gearNotes.trim().length > 1000) errors.gearNotes = "Le note non possono superare 1.000 caratteri.";
+
+  return errors;
+}
+
+export function validateTripPrivateDetails(values: TripPrivateDetailsValues) {
+  const errors: FieldErrors<TripPrivateDetailsValues> = {};
+  const meetingPointLength = values.meetingPointText.trim().length;
+  const hasLat = values.exactLat.trim().length > 0;
+  const hasLon = values.exactLon.trim().length > 0;
+
+  if (meetingPointLength < 3 || meetingPointLength > 500) {
+    errors.meetingPointText = "Usa da 3 a 500 caratteri.";
+  }
+
+  if (hasLat !== hasLon) {
+    errors.exactLat = "Inserisci entrambe le coordinate oppure lasciale vuote.";
+    errors.exactLon = "Inserisci entrambe le coordinate oppure lasciale vuote.";
+  } else if (hasLat && hasLon) {
+    const latitude = Number(values.exactLat);
+    const longitude = Number(values.exactLon);
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+      errors.exactLat = "Inserisci una latitudine tra -90 e 90.";
+    }
+    if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+      errors.exactLon = "Inserisci una longitudine tra -180 e 180.";
+    }
+  }
+
+  if (values.privateNotes.trim().length > 2000) {
+    errors.privateNotes = "Le informazioni riservate non possono superare 2.000 caratteri.";
+  }
 
   return errors;
 }

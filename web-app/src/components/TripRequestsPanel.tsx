@@ -151,7 +151,7 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
         <p className="confirmation-hint">Accetta almeno una persona prima di confermare definitivamente.</p>
       )}
       {trip.status === "confirmed" && (
-        <Notice kind="info">Uscita confermata. I dettagli riservati saranno aggiunti nel prossimo aggiornamento.</Notice>
+        <Notice kind="info">Uscita confermata. I partecipanti autorizzati possono vedere i dettagli riservati.</Notice>
       )}
       {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}

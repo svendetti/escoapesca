@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { hasErrors, tripDateTimes, validateProfile, validateRegistration, validateTrip } from "./validation";
-import { EMPTY_PROFILE, EMPTY_TRIP } from "../types/domain";
+import {
+  hasErrors,
+  tripDateTimes,
+  validateProfile,
+  validateRegistration,
+  validateTrip,
+  validateTripPrivateDetails,
+} from "./validation";
+import { EMPTY_PROFILE, EMPTY_TRIP, EMPTY_TRIP_PRIVATE_DETAILS } from "../types/domain";
 
 describe("validateRegistration", () => {
   it("richiede dati legali e anagrafici minimi", () => {
@@ -88,5 +95,29 @@ describe("validateTrip", () => {
     expect(errors.title).toBeDefined();
     expect(errors.publicZone).toBeDefined();
     expect(errors.date).toBeDefined();
+  });
+});
+
+describe("validateTripPrivateDetails", () => {
+  it("richiede un punto di incontro e coordinate complete", () => {
+    const errors = validateTripPrivateDetails({
+      ...EMPTY_TRIP_PRIVATE_DETAILS,
+      exactLat: "41.90",
+    });
+
+    expect(errors.meetingPointText).toBeDefined();
+    expect(errors.exactLat).toBeDefined();
+    expect(errors.exactLon).toBeDefined();
+  });
+
+  it("accetta punto, coordinate e note validi", () => {
+    const errors = validateTripPrivateDetails({
+      meetingPointText: "Parcheggio davanti al porto",
+      exactLat: "41.7502",
+      exactLon: "12.2871",
+      privateNotes: "Chiamami quando arrivi al cancello.",
+    });
+
+    expect(hasErrors(errors)).toBe(false);
   });
 });

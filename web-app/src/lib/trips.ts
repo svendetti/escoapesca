@@ -4,6 +4,8 @@ import type {
   CatalogItem,
   FishingTrip,
   FishingTripDiscovery,
+  TripPrivateDetails,
+  TripPrivateDetailsValues,
   TripParticipationRequest,
   TripParticipationStatus,
   TripDiscoveryFilters,
@@ -375,6 +377,87 @@ export async function loadFishingTrip(userId: string, tripId: string): Promise<F
   if (error) throw error;
   if (!data) throw new Error("Uscita non trovata o non accessibile.");
   return mapTrip(data as unknown as TripRow);
+}
+
+export async function loadFishingTripForViewer(tripId: string): Promise<FishingTrip> {
+  const { data, error } = await requireSupabase()
+    .from("fishing_trips")
+    .select(TRIP_SELECT)
+    .eq("id", tripId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error("Uscita non trovata o non accessibile.");
+  return mapTrip(data as unknown as TripRow);
+}
+
+type PrivateDetailsRow = {
+  trip_id: string;
+  meeting_point_text: string;
+  exact_lat: number | string | null;
+  exact_lon: number | string | null;
+  private_notes: string | null;
+  updated_at: string;
+};
+
+function mapPrivateDetails(row: PrivateDetailsRow): TripPrivateDetails {
+  return {
+    tripId: row.trip_id,
+    meetingPointText: row.meeting_point_text,
+    exactLat: row.exact_lat === null ? null : Number(row.exact_lat),
+    exactLon: row.exact_lon === null ? null : Number(row.exact_lon),
+    privateNotes: row.private_notes,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function loadTripPrivateDetails(
+  tripId: string,
+): Promise<TripPrivateDetails | null> {
+  const { data, error } = await requireSupabase()
+    .from("trip_private_details")
+    .select("trip_id, meeting_point_text, exact_lat, exact_lon, private_notes, updated_at")
+    .eq("trip_id", tripId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? mapPrivateDetails(data as PrivateDetailsRow) : null;
+}
+
+export async function saveTripPrivateDetails(
+  tripId: string,
+  values: TripPrivateDetailsValues,
+): Promise<TripPrivateDetails> {
+  const hasCoordinates = values.exactLat.trim() && values.exactLon.trim();
+  const { data, error } = await requireSupabase()
+    .from("trip_private_details")
+    .upsert({
+      trip_id: tripId,
+      meeting_point_text: values.meetingPointText.trim(),
+      exact_lat: hasCoordinates ? Number(values.exactLat) : null,
+      exact_lon: hasCoordinates ? Number(values.exactLon) : null,
+      private_notes: values.privateNotes.trim() || null,
+    }, { onConflict: "trip_id" })
+    .select("trip_id, meeting_point_text, exact_lat, exact_lon, private_notes, updated_at")
+    .single();
+
+  if (error) throw error;
+  return mapPrivateDetails(data as PrivateDetailsRow);
+}
+
+export function privateDetailsToValues(
+  details: TripPrivateDetails | null,
+): TripPrivateDetailsValues {
+  return {
+    meetingPointText: details?.meetingPointText ?? "",
+    exactLat: details?.exactLat === null || details?.exactLat === undefined
+      ? ""
+      : String(details.exactLat),
+    exactLon: details?.exactLon === null || details?.exactLon === undefined
+      ? ""
+      : String(details.exactLon),
+    privateNotes: details?.privateNotes ?? "",
+  };
 }
 
 export async function updateFishingTrip(

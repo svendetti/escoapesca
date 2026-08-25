@@ -87,6 +87,22 @@ export type FishingTrip = {
   updatedAt: string;
 };
 
+export type TripPrivateDetailsValues = {
+  meetingPointText: string;
+  exactLat: string;
+  exactLon: string;
+  privateNotes: string;
+};
+
+export type TripPrivateDetails = {
+  tripId: string;
+  meetingPointText: string;
+  exactLat: number | null;
+  exactLon: number | null;
+  privateNotes: string | null;
+  updatedAt: string;
+};
+
 export type TripParticipationRequest = {
   id: string;
   userId: string;
@@ -180,4 +196,11 @@ export const EMPTY_TRIP_DISCOVERY_FILTERS: TripDiscoveryFilters = {
   techniqueId: "",
   waterType: "",
   date: "",
+};
+
+export const EMPTY_TRIP_PRIVATE_DETAILS: TripPrivateDetailsValues = {
+  meetingPointText: "",
+  exactLat: "",
+  exactLon: "",
+  privateNotes: "",
 };
