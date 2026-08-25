@@ -1,9 +1,10 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import logoUrl from "../assets/logo-escoapesca.svg?url";
 import { useAuth } from "../contexts/AuthContext";
 import { loadUnreadNotificationCount } from "../lib/notifications";
+import { APP_RELEASE_LABEL } from "../lib/release";
 import { requireSupabase } from "../lib/supabase";
-import logoUrl from "../assets/logo-escoapesca.svg?url";
 
 export function AppLayout() {
   const { user, configured } = useAuth();
@@ -64,7 +65,11 @@ export function AppLayout() {
               <span className="nav-label-wide">Crea uscita</span>
               <span className="nav-label-short">Crea</span>
             </NavLink>
-            <NavLink className="notification-nav-link" to="/notifiche" aria-label={`Notifiche${unreadNotifications ? `, ${unreadNotifications} non lette` : ""}`}>
+            <NavLink
+              className="notification-nav-link"
+              to="/notifiche"
+              aria-label={`Notifiche${unreadNotifications ? `, ${unreadNotifications} non lette` : ""}`}
+            >
               Avvisi
               {unreadNotifications > 0 && <span>{Math.min(unreadNotifications, 99)}</span>}
             </NavLink>
@@ -87,7 +92,7 @@ export function AppLayout() {
 
       <main><Outlet /></main>
       <footer>
-        <span>Beta Lazio v0.1</span>
+        <span>{APP_RELEASE_LABEL}</span>
         <span><a href="https://www.escoapesca.it/privacy-beta.html">Privacy</a> · <a href="https://www.escoapesca.it/termini.html">Termini</a></span>
       </footer>
     </div>
