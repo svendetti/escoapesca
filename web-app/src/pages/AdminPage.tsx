@@ -1,0 +1,272 @@
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Notice } from "../components/Notice";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  betaGoalProgress,
+  cancelTripAsAdmin,
+  formatRatio,
+  loadAdminDashboard,
+  setAdminUserStatus,
+} from "../lib/admin";
+import type { AdminDashboard, AdminTrip, AdminUser } from "../lib/admin";
+import { readableError } from "../lib/errors";
+import "./admin.css";
+
+const dateFormatter = new Intl.DateTimeFormat("it-IT", {
+  day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+});
+
+const statusLabels: Record<string, string> = {
+  active: "Attivo", disabled: "Disabilitato", draft: "Bozza", open: "Aperta",
+  confirmed: "Confermata", completed: "Conclusa", cancelled: "Annullata",
+  requested: "Richiesta", accepted: "Accettata", rejected: "Rifiutata",
+  no_show: "Assente",
+};
+
+const actionLabels: Record<string, string> = {
+  user_disabled: "Utente disabilitato",
+  user_reenabled: "Utente riattivato",
+  trip_moderated_cancelled: "Uscita annullata dall’Admin",
+};
+
+type PendingAction =
+  | { kind: "user"; user: AdminUser; nextStatus: "active" | "disabled" }
+  | { kind: "trip"; trip: AdminTrip };
+
+function formatDate(value: string | null) {
+  return value ? dateFormatter.format(new Date(value)) : "—";
+}
+
+function yesNo(value: boolean) {
+  return value ? "Sì" : "No";
+}
+
+export function AdminPage() {
+  const { user } = useAuth();
+  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const refresh = useCallback(async () => {
+    setError(null);
+    const loaded = await loadAdminDashboard();
+    setDashboard(loaded);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void loadAdminDashboard()
+      .then((loaded) => { if (active) setDashboard(loaded); })
+      .catch((caught) => { if (active) setError(readableError(caught)); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  function startAction(action: PendingAction) {
+    setPendingAction(action);
+    setReason("");
+    setError(null);
+    setSuccess(null);
+  }
+
+  async function confirmAction() {
+    if (!pendingAction || submitting) return;
+    if (reason.trim().length < 3) {
+      setError("Inserisci una motivazione di almeno 3 caratteri.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      if (pendingAction.kind === "user") {
+        await setAdminUserStatus(pendingAction.user.id, pendingAction.nextStatus, reason);
+        setSuccess(pendingAction.nextStatus === "disabled" ? "Utente disabilitato." : "Utente riattivato.");
+      } else {
+        await cancelTripAsAdmin(pendingAction.trip.id, reason);
+        setSuccess("Uscita annullata e partecipanti notificati.");
+      }
+      setPendingAction(null);
+      setReason("");
+      await refresh();
+    } catch (caught) {
+      setError(readableError(caught));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) return <div className="page-status">Caricamento controllo Beta…</div>;
+  if (!dashboard) {
+    return <section className="page-narrow"><Notice kind="error">{error ?? "Dashboard non disponibile."}</Notice></section>;
+  }
+
+  const { metrics } = dashboard;
+  const goalProgress = betaGoalProgress(metrics.realTrips);
+  const metricCards = [
+    ["Utenti registrati", metrics.registeredUsers],
+    ["Profili completati", metrics.completedProfiles],
+    ["Uscite create", metrics.createdTrips],
+    ["Richieste", metrics.participationRequests],
+    ["Richieste accettate", metrics.acceptedRequests],
+    ["Uscite confermate", metrics.confirmedTrips],
+    ["Uscite dichiarate", metrics.reportedTrips],
+    ["Partecipanti alla seconda uscita", metrics.repeatParticipants],
+  ] as const;
+
+  return (
+    <section className="admin-page">
+      <header className="admin-heading">
+        <div>
+          <div className="eyebrow">Amministrazione riservata</div>
+          <h1>Controllo Beta Lazio</h1>
+          <p>Misura il percorso dal primo accesso fino a un’uscita reale tra pescatori che non si conoscevano.</p>
+        </div>
+        <button className="button button-secondary" type="button" onClick={() => void refresh()}>Aggiorna</button>
+      </header>
+
+      {error && <Notice kind="error">{error}</Notice>}
+      {success && <Notice kind="success">{success}</Notice>}
+
+      <section className="admin-goal" aria-label="Obiettivo Beta">
+        <div><span>Milestone iniziale</span><strong>{metrics.realTrips}/5 uscite reali</strong></div>
+        <div className="admin-progress" role="progressbar" aria-valuemin={0} aria-valuemax={5} aria-valuenow={Math.min(metrics.realTrips, 5)}>
+          <span style={{ width: `${goalProgress}%` }} />
+        </div>
+        <p>{goalProgress < 100 ? `Mancano ${Math.max(0, 5 - metrics.realTrips)} uscite validate.` : "Prima milestone raggiunta."}</p>
+      </section>
+
+      <div className="admin-metrics">
+        {metricCards.map(([label, value]) => <article key={label}><span>{label}</span><strong>{value}</strong></article>)}
+        <article><span>Registrati → partecipazione</span><strong>{formatRatio(metrics.registeredToParticipationRatio)}</strong></article>
+        <article><span>Creata → realmente svolta</span><strong>{formatRatio(metrics.createdToRealTripRatio)}</strong></article>
+      </div>
+
+      <details className="admin-section" open>
+        <summary>Utenti <span>{dashboard.users.length}</span></summary>
+        <div className="admin-list">
+          {dashboard.users.map((appUser) => (
+            <article className="admin-card" key={appUser.id}>
+              <div className="admin-card-title">
+                <div><strong>{appUser.displayName}</strong><small>{appUser.email}</small></div>
+                <span className={`admin-status ${appUser.status}`}>{statusLabels[appUser.status]}</span>
+              </div>
+              <dl>
+                <div><dt>Zona</dt><dd>{[appUser.municipalityName, appUser.provinceCode].filter(Boolean).join(" · ") || "Non indicata"}</dd></div>
+                <div><dt>Profilo</dt><dd>{appUser.profileCompletedAt ? "Completo" : "Incompleto"}</dd></div>
+                <div><dt>Email</dt><dd>{appUser.emailVerifiedAt ? "Confermata" : "Non confermata"}</dd></div>
+                <div><dt>Registrazione</dt><dd>{formatDate(appUser.createdAt)}</dd></div>
+              </dl>
+              {appUser.id !== user?.id && (
+                <button
+                  className={`button ${appUser.status === "active" ? "button-danger" : "button-secondary"}`}
+                  type="button"
+                  onClick={() => startAction({ kind: "user", user: appUser, nextStatus: appUser.status === "active" ? "disabled" : "active" })}
+                >
+                  {appUser.status === "active" ? "Disabilita utente" : "Riattiva utente"}
+                </button>
+              )}
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <details className="admin-section" open>
+        <summary>Uscite <span>{dashboard.trips.length}</span></summary>
+        <div className="admin-list">
+          {dashboard.trips.map((trip) => (
+            <article className="admin-card" key={trip.id}>
+              <div className="admin-card-title">
+                <div><Link to={`/uscite/${trip.id}`}><strong>{trip.title}</strong></Link><small>{trip.organizerName} · {trip.techniqueName}</small></div>
+                <span className={`admin-status ${trip.status}`}>{statusLabels[trip.status] ?? trip.status}</span>
+              </div>
+              <dl>
+                <div><dt>Quando</dt><dd>{formatDate(trip.startsAt)}</dd></div>
+                <div><dt>Zona pubblica</dt><dd>{trip.publicZone} · {trip.provinceCode}</dd></div>
+                <div><dt>Partecipazioni</dt><dd>{trip.participantCount} totali · {trip.pendingCount} in attesa</dd></div>
+                <div><dt>Tipo</dt><dd>{trip.tripType === "protected" ? "Protetta" : "Libera"}</dd></div>
+              </dl>
+              {!(["completed", "cancelled"].includes(trip.status)) && (
+                <button className="button button-danger" type="button" onClick={() => startAction({ kind: "trip", trip })}>Annulla come Admin</button>
+              )}
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <details className="admin-section">
+        <summary>Partecipazioni <span>{dashboard.participations.length}</span></summary>
+        <div className="admin-list compact">
+          {dashboard.participations.length === 0 && <p className="admin-empty">Nessuna partecipazione.</p>}
+          {dashboard.participations.map((participation) => (
+            <article className="admin-card" key={participation.id}>
+              <div className="admin-card-title"><div><strong>{participation.userName}</strong><small>{participation.tripTitle}</small></div><span className={`admin-status ${participation.status}`}>{statusLabels[participation.status] ?? participation.status}</span></div>
+              <small>Richiesta il {formatDate(participation.requestedAt)}</small>
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <details className="admin-section">
+        <summary>Feedback privati <span>{dashboard.feedback.length}</span></summary>
+        <div className="admin-list compact">
+          {dashboard.feedback.length === 0 && <p className="admin-empty">Nessun feedback raccolto.</p>}
+          {dashboard.feedback.map((feedback) => (
+            <article className="admin-card" key={feedback.id}>
+              <div className="admin-card-title"><div><strong>{feedback.authorName}</strong><small>{feedback.tripTitle}</small></div><span className="admin-rating">{feedback.rating}/5 ★</span></div>
+              <dl>
+                <div><dt>Svolta</dt><dd>{yesNo(feedback.tripHappened)}</dd></div>
+                <div><dt>Nuovo pescatore</dt><dd>{yesNo(feedback.metNewFisher)}</dd></div>
+                <div><dt>Ripeterebbe</dt><dd>{yesNo(feedback.wouldRepeat)}</dd></div>
+              </dl>
+              {feedback.comment && <p className="admin-comment">{feedback.comment}</p>}
+            </article>
+          ))}
+        </div>
+      </details>
+
+      <details className="admin-section">
+        <summary>Registro moderazione <span>{dashboard.actions.length}</span></summary>
+        <div className="admin-list compact">
+          {dashboard.actions.length === 0 && <p className="admin-empty">Nessuna azione amministrativa.</p>}
+          {dashboard.actions.map((action) => (
+            <article className="admin-card" key={action.id}>
+              <strong>{actionLabels[action.actionType] ?? action.actionType}</strong>
+              <small>{action.actorName} · {formatDate(action.createdAt)}</small>
+              <p>{action.targetUserName ?? action.targetTripTitle ?? "Elemento non più disponibile"}</p>
+              <p className="admin-comment">Motivo: {action.reason}</p>
+            </article>
+          ))}
+        </div>
+      </details>
+
+      {pendingAction && (
+        <div className="admin-modal-backdrop" role="presentation">
+          <section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
+            <div className="eyebrow">Conferma moderazione</div>
+            <h2 id="admin-action-title">
+              {pendingAction.kind === "trip"
+                ? `Annulla “${pendingAction.trip.title}”`
+                : `${pendingAction.nextStatus === "disabled" ? "Disabilita" : "Riattiva"} ${pendingAction.user.displayName}`}
+            </h2>
+            <p>La motivazione verrà conservata nel registro amministrativo.</p>
+            <label>Motivazione
+              <textarea maxLength={1000} rows={4} value={reason} onChange={(event) => setReason(event.target.value)} autoFocus />
+            </label>
+            <div className="admin-modal-actions">
+              <button className="button button-secondary" disabled={submitting} type="button" onClick={() => setPendingAction(null)}>Indietro</button>
+              <button className="button button-danger" disabled={submitting || reason.trim().length < 3} type="button" onClick={() => void confirmAction()}>
+                {submitting ? "Salvataggio…" : "Conferma"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </section>
+  );
+}

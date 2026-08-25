@@ -1,9 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { AdminGuard } from "./components/AdminGuard";
 import { AppLayout } from "./components/AppLayout";
 import { AuthGuard } from "./components/AuthGuard";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AdminPage } from "./pages/AdminPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { CreateTripPage } from "./pages/CreateTripPage";
+import { DisabledAccountPage } from "./pages/DisabledAccountPage";
 import { EditTripPage } from "./pages/EditTripPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MyTripsPage } from "./pages/MyTripsPage";
@@ -28,6 +31,7 @@ export function App() {
             <Route path="controlla-email" element={<CheckEmailPage />} />
             <Route path="password-dimenticata" element={<ForgotPasswordPage />} />
             <Route path="aggiorna-password" element={<UpdatePasswordPage />} />
+            <Route path="account-disabilitato" element={<DisabledAccountPage />} />
             <Route path="profilo" element={<AuthGuard><ProfilePage /></AuthGuard>} />
             <Route path="crea-uscita" element={<AuthGuard><CreateTripPage /></AuthGuard>} />
             <Route path="trova-uscita" element={<AuthGuard><TripDiscoveryPage /></AuthGuard>} />
@@ -36,6 +40,7 @@ export function App() {
             <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
             <Route path="uscite/:tripId/feedback" element={<AuthGuard><TripFeedbackPage /></AuthGuard>} />
+            <Route path="admin" element={<AuthGuard><AdminGuard><AdminPage /></AdminGuard></AuthGuard>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

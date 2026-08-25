@@ -7,7 +7,7 @@ import { APP_RELEASE_LABEL } from "../lib/release";
 import { requireSupabase } from "../lib/supabase";
 
 export function AppLayout() {
-  const { user, configured } = useAuth();
+  const { user, configured, accountStatus, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -56,7 +56,7 @@ export function AppLayout() {
           <img src={logoUrl} alt="" />
           <span>EscoA<b>Pesca</b><i aria-hidden="true" /></span>
         </Link>
-        {user && (
+        {user && accountStatus !== "disabled" && (
           <nav aria-label="Navigazione principale">
             <NavLink className="nav-home" to="/" end>Home</NavLink>
             <NavLink to="/trova-uscita">Trova</NavLink>
@@ -77,6 +77,7 @@ export function AppLayout() {
               <span className="nav-label-wide">Profilo</span>
               <span className="nav-label-short">Io</span>
             </NavLink>
+            {isAdmin && <NavLink to="/admin">Admin</NavLink>}
             <button className="link-button" disabled={signingOut} type="button" onClick={() => void signOut()}>
               {signingOut ? "…" : "Esci"}
             </button>
