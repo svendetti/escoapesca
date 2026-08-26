@@ -2,10 +2,21 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { readableError } from "../lib/errors";
+import {
+  normalizeInternalReturnPath,
+  peekReturnPath,
+  rememberReturnPath,
+  withReturnPath,
+} from "../lib/returnPath";
 import { requireSupabase } from "../lib/supabase";
 
 export function CheckEmailPage() {
-  const locationEmail = (useLocation().state as { email?: string } | null)?.email;
+  const location = useLocation();
+  const locationEmail = (location.state as { email?: string } | null)?.email;
+  const requestedReturnPath = normalizeInternalReturnPath(
+    new URLSearchParams(location.search).get("returnTo"),
+  ) ?? peekReturnPath();
+  if (requestedReturnPath) rememberReturnPath(requestedReturnPath);
   const [email] = useState(() => locationEmail ?? sessionStorage.getItem("escoapesca:pending-email") ?? "");
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<{ kind: "error" | "success"; text: string } | null>(null);
@@ -18,7 +29,12 @@ export function CheckEmailPage() {
       const { error } = await requireSupabase().auth.resend({
         type: "signup",
         email,
-        options: { emailRedirectTo: `${window.location.origin}/profilo` },
+        options: {
+          emailRedirectTo: new URL(
+            withReturnPath("/profilo", requestedReturnPath),
+            window.location.origin,
+          ).toString(),
+        },
       });
       if (error) throw error;
       setNotice({ kind: "success", text: "Email reinviata. Usa il link più recente ricevuto." });
@@ -44,7 +60,7 @@ export function CheckEmailPage() {
           {sending ? "Invio…" : "Reinvia email"}
         </button>
       )}
-      <Link className="button button-secondary" to="/accedi">Torna all’accesso</Link>
+      <Link className="button button-secondary" to={withReturnPath("/accedi", requestedReturnPath)}>Torna all’accesso</Link>
     </section>
   );
 }

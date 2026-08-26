@@ -1,10 +1,16 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { FormError } from "../components/FormError";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
+import {
+  normalizeInternalReturnPath,
+  peekReturnPath,
+  rememberReturnPath,
+  withReturnPath,
+} from "../lib/returnPath";
 import { requireSupabase } from "../lib/supabase";
 import { hasErrors, validateRegistration } from "../lib/validation";
 import { AGE_BANDS, LAZIO_PROVINCES } from "../types/domain";
@@ -25,6 +31,11 @@ const INITIAL_VALUES: RegistrationValues = {
 export function RegisterPage() {
   const { user, configured } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const requestedReturnPath = normalizeInternalReturnPath(
+    new URLSearchParams(location.search).get("returnTo"),
+  ) ?? peekReturnPath();
+  if (requestedReturnPath) rememberReturnPath(requestedReturnPath);
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState<FieldErrors<RegistrationValues>>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -52,11 +63,12 @@ export function RegisterPage() {
     setSubmitting(true);
     try {
       const email = values.email.trim();
+      const profilePath = withReturnPath("/profilo", requestedReturnPath);
       const { data, error } = await requireSupabase().auth.signUp({
         email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/profilo`,
+          emailRedirectTo: new URL(profilePath, window.location.origin).toString(),
           data: {
             display_name: values.displayName.trim(),
             province_code: values.provinceCode,
@@ -71,7 +83,7 @@ export function RegisterPage() {
       if (error) throw error;
 
       sessionStorage.setItem("escoapesca:pending-email", email);
-      navigate(data.session ? "/profilo" : "/controlla-email", {
+      navigate(data.session ? profilePath : withReturnPath("/controlla-email", requestedReturnPath), {
         replace: true,
         state: { email },
       });
@@ -151,7 +163,7 @@ export function RegisterPage() {
           {submitting ? "Creazione account…" : "Crea account"}
         </button>
       </form>
-      <div className="auth-links"><span>Hai già un account? <Link to="/accedi">Accedi</Link></span></div>
+      <div className="auth-links"><span>Hai già un account? <Link to={withReturnPath("/accedi", requestedReturnPath)}>Accedi</Link></span></div>
     </section>
   );
 }

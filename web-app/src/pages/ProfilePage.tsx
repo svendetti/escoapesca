@@ -1,9 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FormError } from "../components/FormError";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
+import {
+  consumeReturnPath,
+  normalizeInternalReturnPath,
+  peekReturnPath,
+  rememberReturnPath,
+} from "../lib/returnPath";
 import {
   downloadProfilePhoto,
   loadCatalogs,
@@ -17,7 +24,13 @@ import type { CatalogItem, FieldErrors, ProfileValues } from "../types/domain";
 
 export function ProfilePage() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const userId = user?.id ?? null;
+  const requestedReturnPath = normalizeInternalReturnPath(
+    new URLSearchParams(location.search).get("returnTo"),
+  ) ?? peekReturnPath();
+  if (requestedReturnPath) rememberReturnPath(requestedReturnPath);
   const [values, setValues] = useState<ProfileValues>(EMPTY_PROFILE);
   const [techniques, setTechniques] = useState<CatalogItem[]>([]);
   const [availability, setAvailability] = useState<CatalogItem[]>([]);
@@ -108,6 +121,11 @@ export function ProfilePage() {
       }
       setPhotoFile(null);
       setCompletedAt((current) => current ?? new Date().toISOString());
+      const destination = consumeReturnPath() ?? requestedReturnPath;
+      if (destination) {
+        navigate(destination, { replace: true });
+        return;
+      }
       setNotice({ kind: "success", text: "Profilo completato. Ora puoi trovare un’uscita oppure proporne una." });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {
