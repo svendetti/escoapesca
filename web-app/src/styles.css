@@ -466,6 +466,7 @@ main > * { animation: page-arrive .5s ease-out both; }
 }
 .filter-actions { display: grid; gap: .6rem; }
 .discovery-grid { display: grid; gap: 1rem; margin-top: 1.2rem; transition: opacity .18s ease; }
+.empty-state-actions { display: grid; gap: .65rem; margin-top: 1rem; }
 .discovery-grid.is-searching { opacity: .52; pointer-events: none; }
 .discovery-card { background: rgba(7,27,41,.78); border: 1px solid var(--line); border-radius: 22px; display: flex; flex-direction: column; padding: 1.2rem; }
 .discovery-card h2 { font-size: 1.4rem; margin: 1rem 0 .35rem; }
@@ -492,6 +493,7 @@ main > * { animation: page-arrive .5s ease-out both; }
   .filter-actions { align-items: end; display: flex; grid-column: 1 / -1; justify-content: flex-end; }
   .filter-actions .button { min-width: 150px; }
   .discovery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .empty-state-actions { display: flex; justify-content: center; }
 }
 
 @media (max-width: 420px) {

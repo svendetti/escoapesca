@@ -284,8 +284,11 @@ export function TripDiscoveryPage() {
         <div className="empty-state">
           <span aria-hidden="true">≈</span>
           <h2>Nessuna uscita con questi filtri</h2>
-          <p>Prova ad ampliare la ricerca o torna a controllare presto.</p>
-          <button className="button button-secondary" type="button" onClick={resetFilters}>Mostra tutto il Lazio</button>
+          <p>Non trovi quella giusta? Proponi tu la prossima uscita e condividila con altri pescatori.</p>
+          <div className="empty-state-actions">
+            <Link className="button button-primary" to="/crea-uscita">Proponi un’uscita</Link>
+            <button className="button button-secondary" type="button" onClick={resetFilters}>Mostra tutto il Lazio</button>
+          </div>
         </div>
       ) : (
         <div className={`discovery-grid${searching ? " is-searching" : ""}`} aria-live="polite">
