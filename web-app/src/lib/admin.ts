@@ -13,6 +13,30 @@ export type AdminMetrics = {
   usersWithAcceptedParticipation: number;
   registeredToParticipationRatio: number | null;
   createdToRealTripRatio: number | null;
+  activeUsers: number;
+  disabledUsers: number;
+  newUsers7Days: number;
+  newUsers30Days: number;
+  activeTrips: number;
+  openTrips: number;
+  confirmedStatusTrips: number;
+  completedTrips: number;
+  cancelledTrips: number;
+  overdueTrips: number;
+  openTripsWithoutRequests: number;
+  pendingRequests: number;
+  rejectedRequests: number;
+  cancelledRequests: number;
+  availablePlaces: number;
+  feedbackReceived: number;
+  missingFeedback: number;
+  averageRating: number | null;
+  wouldRepeatRatio: number | null;
+  profileCompletionRatio: number | null;
+  requestAcceptanceRatio: number | null;
+  confirmedToRealTripRatio: number | null;
+  feedbackCompletionRatio: number | null;
+  averageRequestsPerTrip: number | null;
 };
 
 export type AdminUser = {
@@ -121,6 +145,10 @@ export function formatRatio(value: number | null): string {
   return value === null ? "—" : `${Math.round(value * 100)}%`;
 }
 
+export function formatDecimal(value: number | null, digits = 1): string {
+  return value === null ? "—" : value.toFixed(digits);
+}
+
 export async function loadAdminDashboard(limit = 100): Promise<AdminDashboard> {
   const { data, error } = await requireSupabase().rpc("get_admin_dashboard", { p_limit: limit });
   if (error) throw error;
@@ -141,6 +169,30 @@ export async function loadAdminDashboard(limit = 100): Promise<AdminDashboard> {
       usersWithAcceptedParticipation: numberValue(metric.users_with_accepted_participation),
       registeredToParticipationRatio: nullableNumber(metric.registered_to_participation_ratio),
       createdToRealTripRatio: nullableNumber(metric.created_to_real_trip_ratio),
+      activeUsers: numberValue(metric.active_users),
+      disabledUsers: numberValue(metric.disabled_users),
+      newUsers7Days: numberValue(metric.new_users_7_days),
+      newUsers30Days: numberValue(metric.new_users_30_days),
+      activeTrips: numberValue(metric.active_trips),
+      openTrips: numberValue(metric.open_trips),
+      confirmedStatusTrips: numberValue(metric.confirmed_status_trips),
+      completedTrips: numberValue(metric.completed_trips),
+      cancelledTrips: numberValue(metric.cancelled_trips),
+      overdueTrips: numberValue(metric.overdue_trips),
+      openTripsWithoutRequests: numberValue(metric.open_trips_without_requests),
+      pendingRequests: numberValue(metric.pending_requests),
+      rejectedRequests: numberValue(metric.rejected_requests),
+      cancelledRequests: numberValue(metric.cancelled_requests),
+      availablePlaces: numberValue(metric.available_places),
+      feedbackReceived: numberValue(metric.feedback_received),
+      missingFeedback: numberValue(metric.missing_feedback),
+      averageRating: nullableNumber(metric.average_rating),
+      wouldRepeatRatio: nullableNumber(metric.would_repeat_ratio),
+      profileCompletionRatio: nullableNumber(metric.profile_completion_ratio),
+      requestAcceptanceRatio: nullableNumber(metric.request_acceptance_ratio),
+      confirmedToRealTripRatio: nullableNumber(metric.confirmed_to_real_trip_ratio),
+      feedbackCompletionRatio: nullableNumber(metric.feedback_completion_ratio),
+      averageRequestsPerTrip: nullableNumber(metric.average_requests_per_trip),
     },
     users: rows(source.users).map((row) => ({
       id: String(row.id), email: String(row.email), displayName: String(row.display_name),

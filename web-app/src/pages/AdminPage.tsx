@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   betaGoalProgress,
   cancelTripAsAdmin,
+  formatDecimal,
   formatRatio,
   loadAdminDashboard,
   setAdminUserStatus,
@@ -108,15 +109,65 @@ export function AdminPage() {
 
   const { metrics } = dashboard;
   const goalProgress = betaGoalProgress(metrics.realTrips);
-  const metricCards = [
-    ["Utenti registrati", metrics.registeredUsers],
-    ["Profili completati", metrics.completedProfiles],
-    ["Uscite create", metrics.createdTrips],
-    ["Richieste", metrics.participationRequests],
-    ["Richieste accettate", metrics.acceptedRequests],
-    ["Uscite confermate", metrics.confirmedTrips],
-    ["Uscite dichiarate", metrics.reportedTrips],
-    ["Partecipanti alla seconda uscita", metrics.repeatParticipants],
+  const pulseCards = [
+    ["Utenti Beta", metrics.registeredUsers],
+    ["Nuovi utenti · 7 gg", metrics.newUsers7Days],
+    ["Uscite attive", metrics.activeTrips],
+    ["Confermate ora", metrics.confirmedStatusTrips],
+    ["Da chiudere", metrics.overdueTrips],
+    ["Richieste in attesa", metrics.pendingRequests],
+    ["Uscite reali", metrics.realTrips],
+    ["Feedback mancanti", metrics.missingFeedback],
+  ] as const;
+
+  const metricGroups = [
+    {
+      title: "Utenti",
+      cards: [
+        ["Attivi", metrics.activeUsers],
+        ["Disabilitati", metrics.disabledUsers],
+        ["Nuovi · 30 gg", metrics.newUsers30Days],
+        ["Profili completati", metrics.completedProfiles],
+      ],
+    },
+    {
+      title: "Uscite",
+      cards: [
+        ["Create", metrics.createdTrips],
+        ["Aperte", metrics.openTrips],
+        ["Confermate almeno una volta", metrics.confirmedTrips],
+        ["Concluse", metrics.completedTrips],
+        ["Annullate", metrics.cancelledTrips],
+        ["Aperte senza richieste", metrics.openTripsWithoutRequests],
+        ["Posti disponibili", metrics.availablePlaces],
+      ],
+    },
+    {
+      title: "Richieste e feedback",
+      cards: [
+        ["Richieste totali", metrics.participationRequests],
+        ["Accettate", metrics.acceptedRequests],
+        ["Rifiutate", metrics.rejectedRequests],
+        ["Annullate dall’utente", metrics.cancelledRequests],
+        ["Feedback ricevuti", metrics.feedbackReceived],
+        ["Valutazione media", metrics.averageRating === null ? "—" : `${formatDecimal(metrics.averageRating)}/5`],
+        ["Pescherebbe di nuovo", formatRatio(metrics.wouldRepeatRatio)],
+        ["Uscite dichiarate", metrics.reportedTrips],
+        ["Utenti alla seconda uscita", metrics.repeatParticipants],
+      ],
+    },
+    {
+      title: "Conversioni",
+      cards: [
+        ["Registrazione → profilo", formatRatio(metrics.profileCompletionRatio)],
+        ["Registrati → partecipazione", formatRatio(metrics.registeredToParticipationRatio)],
+        ["Richiesta → accettazione", formatRatio(metrics.requestAcceptanceRatio)],
+        ["Creata → realmente svolta", formatRatio(metrics.createdToRealTripRatio)],
+        ["Confermata → realmente svolta", formatRatio(metrics.confirmedToRealTripRatio)],
+        ["Feedback completati", formatRatio(metrics.feedbackCompletionRatio)],
+        ["Richieste medie per uscita", formatDecimal(metrics.averageRequestsPerTrip, 2)],
+      ],
+    },
   ] as const;
 
   return (
@@ -141,11 +192,26 @@ export function AdminPage() {
         <p>{goalProgress < 100 ? `Mancano ${Math.max(0, 5 - metrics.realTrips)} uscite validate.` : "Prima milestone raggiunta."}</p>
       </section>
 
-      <div className="admin-metrics">
-        {metricCards.map(([label, value]) => <article key={label}><span>{label}</span><strong>{value}</strong></article>)}
-        <article><span>Registrati → partecipazione</span><strong>{formatRatio(metrics.registeredToParticipationRatio)}</strong></article>
-        <article><span>Creata → realmente svolta</span><strong>{formatRatio(metrics.createdToRealTripRatio)}</strong></article>
-      </div>
+      <section className="admin-metric-overview" aria-labelledby="admin-pulse-title">
+        <div className="admin-metric-heading">
+          <h2 id="admin-pulse-title">Polso operativo</h2>
+          <p>Esclude gli account di test. Attive: aperte o confermate e non terminate. Da chiudere: terminate ma ancora aperte o confermate.</p>
+        </div>
+        <div className="admin-metrics admin-metrics-pulse">
+          {pulseCards.map(([label, value]) => <article key={label}><span>{label}</span><strong>{value}</strong></article>)}
+        </div>
+      </section>
+
+      <section className="admin-metric-groups" aria-label="Dettaglio metriche Beta">
+        {metricGroups.map((group) => (
+          <article className="admin-metric-group" key={group.title}>
+            <h2>{group.title}</h2>
+            <div className="admin-metrics">
+              {group.cards.map(([label, value]) => <article key={label}><span>{label}</span><strong>{value}</strong></article>)}
+            </div>
+          </article>
+        ))}
+      </section>
 
       <details className="admin-section" open>
         <summary>Utenti <span>{dashboard.users.length}</span></summary>
