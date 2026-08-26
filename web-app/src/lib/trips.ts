@@ -163,29 +163,64 @@ type ParticipationManagementRow = {
   participant_id: string;
   participant_user_id: string;
   display_name: string;
+  age_band: TripParticipationRequest["ageBand"];
+  municipality_name: string | null;
+  generic_zone: string | null;
   skill_level: TripParticipationRequest["skillLevel"];
+  technique_names: string[] | null;
+  water_type: TripParticipationRequest["waterType"];
+  bio: string | null;
+  profile_photo_key: string | null;
   participation_status: TripParticipationStatus;
   requested_at: string;
   decided_at: string | null;
 };
 
+export function mapParticipationManagementRow(
+  row: ParticipationManagementRow,
+): TripParticipationRequest {
+  return {
+    id: row.participant_id,
+    userId: row.participant_user_id,
+    displayName: row.display_name,
+    ageBand: row.age_band,
+    municipalityName: row.municipality_name,
+    genericZone: row.generic_zone,
+    skillLevel: row.skill_level,
+    techniqueNames: row.technique_names ?? [],
+    waterType: row.water_type,
+    bio: row.bio,
+    photoKey: row.profile_photo_key,
+    photoUrl: null,
+    status: row.participation_status,
+    requestedAt: row.requested_at,
+    decidedAt: row.decided_at,
+  };
+}
+
 export async function loadTripParticipationRequests(
   tripId: string,
 ): Promise<TripParticipationRequest[]> {
-  const { data, error } = await requireSupabase().rpc(
+  const supabase = requireSupabase();
+  const { data, error } = await supabase.rpc(
     "list_trip_participation_requests",
     { p_trip_id: tripId },
   );
 
   if (error) throw error;
-  return ((data ?? []) as ParticipationManagementRow[]).map((row) => ({
-    id: row.participant_id,
-    userId: row.participant_user_id,
-    displayName: row.display_name,
-    skillLevel: row.skill_level,
-    status: row.participation_status,
-    requestedAt: row.requested_at,
-    decidedAt: row.decided_at,
+  const requests = ((data ?? []) as ParticipationManagementRow[])
+    .map(mapParticipationManagementRow);
+
+  return Promise.all(requests.map(async (request) => {
+    if (!request.photoKey) return request;
+
+    const { data: signedPhoto, error: photoError } = await supabase.storage
+      .from("profile-photos")
+      .createSignedUrl(request.photoKey, 300);
+
+    return photoError || !signedPhoto?.signedUrl
+      ? request
+      : { ...request, photoUrl: signedPhoto.signedUrl };
   }));
 }
 

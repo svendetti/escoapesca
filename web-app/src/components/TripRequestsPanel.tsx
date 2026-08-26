@@ -8,10 +8,12 @@ import {
   mergeParticipationDecision,
 } from "../lib/trips";
 import type {
+  AgeBand,
   FishingTrip,
   SkillLevel,
   TripParticipationRequest,
   TripParticipationStatus,
+  WaterType,
 } from "../types/domain";
 
 const STATUS_LABELS: Record<TripParticipationStatus, string> = {
@@ -28,6 +30,21 @@ const SKILL_LABELS: Record<SkillLevel, string> = {
   beginner: "Principiante",
   intermediate: "Intermedio",
   expert: "Esperto",
+};
+
+const AGE_LABELS: Record<AgeBand, string> = {
+  "18_24": "18–24 anni",
+  "25_34": "25–34 anni",
+  "35_44": "35–44 anni",
+  "45_54": "45–54 anni",
+  "55_64": "55–64 anni",
+  "65_plus": "65 anni o più",
+};
+
+const WATER_LABELS: Record<WaterType, string> = {
+  sea: "Mare",
+  freshwater: "Acque interne",
+  both: "Mare e acque interne",
 };
 
 const requestedFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -49,6 +66,7 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
   const [confirming, setConfirming] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [expandedProfiles, setExpandedProfiles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
@@ -67,6 +85,15 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
 
     return () => { active = false; };
   }, [trip.id]);
+
+  function toggleProfile(requestId: string) {
+    setExpandedProfiles((current) => {
+      const next = new Set(current);
+      if (next.has(requestId)) next.delete(requestId);
+      else next.add(requestId);
+      return next;
+    });
+  }
 
   const summary = useMemo(() => ({
     pending: requests.filter((request) => request.status === "requested").length,
@@ -164,6 +191,7 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
         <div className="request-list">
           {requests.map((request) => {
             const busy = actionId === request.id;
+            const expanded = expandedProfiles.has(request.id);
             const canAccept = canManage
               && request.status === "requested"
               && availablePlaces > 0;
@@ -173,14 +201,32 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
               <article className="request-card" key={request.id}>
                 <div className="request-person">
                   <span className="request-avatar" aria-hidden="true">
-                    {request.displayName.trim().charAt(0).toUpperCase() || "?"}
+                    {request.photoUrl ? (
+                      <img src={request.photoUrl} alt="" />
+                    ) : (
+                      request.displayName.trim().charAt(0).toUpperCase() || "?"
+                    )}
                   </span>
-                  <div>
+                  <div className="request-person-copy">
                     <h3>{request.displayName}</h3>
                     <p>
+                      {request.municipalityName || request.genericZone || "Zona non indicata"}
+                      {request.ageBand ? ` · ${AGE_LABELS[request.ageBand]}` : ""}
+                    </p>
+                    <p>
                       {request.skillLevel ? SKILL_LABELS[request.skillLevel] : "Livello non indicato"}
+                      {request.techniqueNames.length > 0 ? ` · ${request.techniqueNames.join(", ")}` : ""}
                       {" · "}Richiesta {requestedFormatter.format(new Date(request.requestedAt))}
                     </p>
+                    <button
+                      aria-controls={`request-profile-${request.id}`}
+                      aria-expanded={expanded}
+                      className="request-profile-toggle"
+                      type="button"
+                      onClick={() => toggleProfile(request.id)}
+                    >
+                      {expanded ? "Nascondi profilo" : "Vedi profilo"}
+                    </button>
                   </div>
                 </div>
                 <span className={`participation-state state-${request.status}`}>
@@ -204,6 +250,26 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
                     >
                       Rifiuta
                     </button>
+                  </div>
+                )}
+                {expanded && (
+                  <div className="request-profile-expanded" id={`request-profile-${request.id}`}>
+                    <div>
+                      <span>Preferenza acqua</span>
+                      <strong>{request.waterType ? WATER_LABELS[request.waterType] : "Non indicata"}</strong>
+                    </div>
+                    <div>
+                      <span>Zona</span>
+                      <strong>
+                        {[request.municipalityName, request.genericZone]
+                          .filter((value, index, values) => value && values.indexOf(value) === index)
+                          .join(" · ") || "Non indicata"}
+                      </strong>
+                    </div>
+                    <div className="request-profile-bio">
+                      <span>Bio</span>
+                      <p>{request.bio?.trim() || "Nessuna bio inserita."}</p>
+                    </div>
                   </div>
                 )}
               </article>

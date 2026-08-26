@@ -107,7 +107,15 @@ export type TripParticipationRequest = {
   id: string;
   userId: string;
   displayName: string;
+  ageBand: AgeBand | null;
+  municipalityName: string | null;
+  genericZone: string | null;
   skillLevel: SkillLevel | null;
+  techniqueNames: string[];
+  waterType: WaterType | null;
+  bio: string | null;
+  photoKey: string | null;
+  photoUrl: string | null;
   status: TripParticipationStatus;
   requestedAt: string;
   decidedAt: string | null;

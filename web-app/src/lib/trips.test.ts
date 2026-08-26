@@ -3,9 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
 import {
   discoveryRpcArgs,
+  loadTripParticipationRequests,
+  mapParticipationManagementRow,
   mergeParticipationDecision,
   mergeParticipationStatuses,
 } from "./trips";
+import { requireSupabase } from "./supabase";
 import type {
   FishingTripDiscovery,
   TripParticipationRequest,
@@ -82,5 +85,73 @@ describe("mergeParticipationDecision", () => {
     expect(updated[0].status).toBe("accepted");
     expect(updated[0].decidedAt).toBe("2026-08-20T15:00:00.000Z");
     expect(updated[1].status).toBe("requested");
+  });
+});
+
+describe("mapParticipationManagementRow", () => {
+  it("mappa soltanto i campi del mini-profilo autorizzato", () => {
+    const request = mapParticipationManagementRow({
+      participant_id: "participant-1",
+      participant_user_id: "user-1",
+      display_name: "Luca",
+      age_band: "35_44",
+      municipality_name: "Roma",
+      generic_zone: "Litorale",
+      skill_level: "intermediate",
+      technique_names: ["Spinning", "Surfcasting"],
+      water_type: "sea",
+      bio: "Pesco nel weekend.",
+      profile_photo_key: "user-1/avatar",
+      participation_status: "requested",
+      requested_at: "2026-08-20T14:00:00.000Z",
+      decided_at: null,
+    });
+
+    expect(request).toMatchObject({
+      id: "participant-1",
+      displayName: "Luca",
+      municipalityName: "Roma",
+      techniqueNames: ["Spinning", "Surfcasting"],
+      photoKey: "user-1/avatar",
+      photoUrl: null,
+    });
+    expect(request).not.toHaveProperty("email");
+    expect(request).not.toHaveProperty("phone");
+  });
+
+  it("firma la foto privata per cinque minuti", async () => {
+    const createSignedUrl = vi.fn().mockResolvedValue({
+      data: { signedUrl: "https://example.test/temporary-photo" },
+      error: null,
+    });
+    vi.mocked(requireSupabase).mockReturnValue({
+      rpc: vi.fn().mockResolvedValue({
+        data: [{
+          participant_id: "participant-1",
+          participant_user_id: "user-1",
+          display_name: "Luca",
+          age_band: null,
+          municipality_name: null,
+          generic_zone: null,
+          skill_level: null,
+          technique_names: [],
+          water_type: null,
+          bio: null,
+          profile_photo_key: "user-1/avatar",
+          participation_status: "requested",
+          requested_at: "2026-08-20T14:00:00.000Z",
+          decided_at: null,
+        }],
+        error: null,
+      }),
+      storage: {
+        from: vi.fn().mockReturnValue({ createSignedUrl }),
+      },
+    } as never);
+
+    const [request] = await loadTripParticipationRequests("trip-1");
+
+    expect(createSignedUrl).toHaveBeenCalledWith("user-1/avatar", 300);
+    expect(request.photoUrl).toBe("https://example.test/temporary-photo");
   });
 });

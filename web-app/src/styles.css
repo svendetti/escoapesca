@@ -510,16 +510,25 @@ main > * { animation: page-arrive .5s ease-out both; }
 .request-list { display: grid; gap: .8rem; margin-top: 1rem; }
 .request-card { align-items: flex-start; background: rgba(255,255,255,.025); border: 1px solid var(--line); border-radius: 18px; display: grid; gap: .8rem; padding: 1rem; }
 .request-person { align-items: center; display: flex; gap: .8rem; min-width: 0; }
-.request-avatar { align-items: center; background: var(--foam); border: 1px solid rgba(104,245,218,.24); border-radius: 50%; color: var(--ocean); display: inline-flex; flex: 0 0 auto; font-weight: 800; height: 44px; justify-content: center; width: 44px; }
+.request-avatar { align-items: center; background: var(--foam); border: 1px solid rgba(104,245,218,.24); border-radius: 50%; color: var(--ocean); display: inline-flex; flex: 0 0 auto; font-weight: 800; height: 48px; justify-content: center; overflow: hidden; width: 48px; }
+.request-avatar img { height: 100%; object-fit: cover; width: 100%; }
+.request-person-copy { min-width: 0; }
 .request-person h3 { color: var(--ink); font-size: 1rem; margin: 0; }
 .request-person p { color: var(--muted); font-size: .8rem; margin: .2rem 0 0; }
+.request-profile-toggle { background: none; border: 0; color: var(--ocean); cursor: pointer; font: inherit; font-size: .8rem; font-weight: 750; margin-top: .45rem; padding: 0; text-decoration: underline; text-underline-offset: .18rem; }
 .request-actions { display: grid; gap: .55rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .request-actions .button { min-width: 0; padding-inline: .75rem; }
+.request-profile-expanded { background: rgba(3,16,27,.42); border-radius: 14px; display: grid; gap: .8rem; grid-column: 1 / -1; padding: .85rem; }
+.request-profile-expanded > div { display: grid; gap: .2rem; }
+.request-profile-expanded span { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+.request-profile-expanded strong, .request-profile-expanded p { color: var(--ink); font-size: .88rem; margin: 0; }
+.request-profile-bio { grid-column: 1 / -1; }
 
 @media (min-width: 700px) {
   .trip-requests-heading { align-items: center; flex-direction: row; justify-content: space-between; }
   .request-card { align-items: center; grid-template-columns: minmax(0, 1fr) auto auto; }
   .request-actions { min-width: 220px; }
+  .request-profile-expanded { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .private-details-card {
