@@ -108,7 +108,7 @@ export function ProfilePage() {
       }
       setPhotoFile(null);
       setCompletedAt((current) => current ?? new Date().toISOString());
-      setNotice({ kind: "success", text: "Profilo salvato. Sei pronto per il prossimo step della Beta." });
+      setNotice({ kind: "success", text: "Profilo completato. Ora puoi trovare un’uscita oppure proporne una." });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {
       setNotice({ kind: "error", text: readableError(caught) });

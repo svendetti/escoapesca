@@ -15,7 +15,7 @@ export function WelcomePage() {
       <p>
         {user
           ? "Proponi una nuova uscita oppure rivedi quelle che hai già organizzato."
-          : "Crea il tuo profilo pescatore. Nel prossimo step potrai trovare o proporre un’uscita, senza esporre pubblicamente gli spot protetti."}
+          : "Crea il tuo profilo pescatore, trova un’uscita oppure proponine una, senza esporre pubblicamente gli spot protetti."}
       </p>
       <div className="button-stack">
         {user ? (
