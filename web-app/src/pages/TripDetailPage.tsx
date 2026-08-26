@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
+import { TripShareActions } from "../components/TripShareActions";
 import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
 import { useAuth } from "../contexts/AuthContext";
@@ -126,6 +127,24 @@ export function TripDetailPage() {
 
       {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
+
+      {isOrganizer && (
+        <section className="trip-detail-card organizer-share">
+          <div>
+            <h2>Condividi l’uscita</h2>
+            <p>Invia la pagina pubblica senza esporre dettagli privati o dati dei partecipanti.</p>
+          </div>
+          <TripShareActions data={{
+            tripId: trip.id,
+            title: trip.title,
+            techniqueName: trip.techniqueName,
+            publicZone: trip.publicZone,
+            startsAt: trip.startsAt,
+            availablePlaces: null,
+            tripType: trip.tripType,
+          }} />
+        </section>
+      )}
 
       {canLeaveFeedback && (
         <section className="trip-detail-card">

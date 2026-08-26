@@ -3,11 +3,12 @@ import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripForm } from "../components/TripForm";
+import { TripShareActions } from "../components/TripShareActions";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
 import { loadProfile } from "../lib/profile";
 import { createFishingTrip, loadFishingTechniques } from "../lib/trips";
-import { hasErrors, validateTrip } from "../lib/validation";
+import { hasErrors, tripDateTimes, validateTrip } from "../lib/validation";
 import { EMPTY_TRIP } from "../types/domain";
 import type { CatalogItem, FieldErrors, TripValues } from "../types/domain";
 
@@ -70,7 +71,7 @@ export function CreateTripPage() {
     try {
       const tripId = await createFishingTrip(user.id, values);
       setCreatedTripId(tripId);
-      setNotice({ kind: "success", text: "Uscita pubblicata. Ora puoi rivederla, modificarla o annullarla." });
+      setNotice({ kind: "success", text: "Uscita pubblicata. Condividila per trovare i primi compagni di pesca." });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {
       setNotice({ kind: "error", text: readableError(caught) });
@@ -94,14 +95,32 @@ export function CreateTripPage() {
   }
 
   if (createdTripId) {
+    const createdTimes = tripDateTimes(values);
+    const techniqueName = techniques.find((item) => item.id === values.techniqueId)?.label
+      ?? "Pesca";
     return (
       <section className="page-narrow auth-card center-card">
         <div className="success-mark" aria-hidden="true">✓</div>
         <h1>Uscita creata</h1>
         {notice && <Notice kind={notice.kind}>{notice.text}</Notice>}
         <p>I dettagli precisi di un’uscita protetta non sono salvati nella parte pubblica.</p>
+        {createdTimes && (
+          <section className="post-create-share">
+            <h2>Condividi l’uscita</h2>
+            <p>Invia il link pubblico: funziona anche per chi non ha ancora un account.</p>
+            <TripShareActions data={{
+              tripId: createdTripId,
+              title: values.title,
+              techniqueName,
+              publicZone: values.publicZone,
+              startsAt: createdTimes.startsAt.toISOString(),
+              availablePlaces: Math.max(values.maxParticipants - 1, 0),
+              tripType: values.tripType,
+            }} />
+          </section>
+        )}
         <div className="button-stack">
-          <Link className="button button-primary" to={`/uscite/${createdTripId}`}>Vedi l’uscita</Link>
+          <Link className="button button-secondary" to={`/uscite/${createdTripId}`}>Vedi l’uscita</Link>
           <Link className="button button-secondary" to="/mie-uscite">Le mie uscite</Link>
           <button className="button button-secondary" type="button" onClick={() => {
             setValues(EMPTY_TRIP);

@@ -622,3 +622,27 @@ main > * { animation: page-arrive .5s ease-out both; }
   .public-trip-header > a:last-child { font-size: .86rem; }
   .public-trip-footer { align-items: flex-start; flex-direction: column; gap: .45rem; }
 }
+
+.post-create-share {
+  background: var(--foam);
+  border: 1px solid rgba(7,86,104,.22);
+  border-radius: 18px;
+  margin-top: 1.2rem;
+  padding: 1rem;
+  text-align: left;
+}
+.post-create-share h2,
+.organizer-share h2 { margin: 0 0 .35rem; }
+.post-create-share > p,
+.organizer-share > div > p { color: var(--muted); margin: 0 0 1rem; }
+.trip-share-actions { display: grid; gap: .65rem; }
+.trip-share-public-link { font-size: .84rem; font-weight: 700; justify-self: start; }
+.trip-share-feedback { color: var(--success); font-size: .82rem; min-height: 1.2rem; }
+.organizer-share { display: grid; gap: 1rem; }
+
+@media (min-width: 700px) {
+  .trip-share-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trip-share-public-link,
+  .trip-share-feedback { grid-column: 1 / -1; }
+  .organizer-share { align-items: start; grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr); }
+}
