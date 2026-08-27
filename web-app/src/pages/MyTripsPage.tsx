@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { loadMyTripFeedback } from "../lib/feedback";
 import { readableError } from "../lib/errors";
 import {
+  canLeaveTripFeedback,
   dashboardTripBucket,
   loadMyTripParticipations,
   tripTimePhase,
@@ -111,12 +112,14 @@ function participatingTrip(
 }
 
 function canLeaveFeedback(trip: DashboardTrip) {
-  if (trip.feedbackSubmitted || tripTimePhase(trip.startsAt, trip.endsAt) !== "past") {
-    return false;
-  }
-  if (!["confirmed", "completed"].includes(trip.status)) return false;
-  return trip.role === "organizer"
-    || ["confirmed", "completed"].includes(trip.participationStatus ?? "");
+  return canLeaveTripFeedback(
+    trip.role,
+    trip.startsAt,
+    trip.endsAt,
+    trip.status,
+    trip.participationStatus,
+    trip.feedbackSubmitted,
+  );
 }
 
 function statusLabel(trip: DashboardTrip) {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
-import { dashboardTripBucket, tripTimePhase } from "./myTrips";
+import { canLeaveTripFeedback, dashboardTripBucket, tripTimePhase } from "./myTrips";
 
 const NOW = new Date("2026-08-25T10:00:00.000Z").getTime();
 
@@ -57,5 +57,28 @@ describe("dashboardTripBucket", () => {
       "rejected",
       NOW,
     )).toBe("past");
+  });
+});
+
+describe("canLeaveTripFeedback", () => {
+  it("condivide la stessa eleggibilità tra home e Le mie uscite", () => {
+    expect(canLeaveTripFeedback(
+      "participant",
+      "2026-08-25T06:00:00.000Z",
+      "2026-08-25T09:00:00.000Z",
+      "confirmed",
+      "confirmed",
+      false,
+      NOW,
+    )).toBe(true);
+    expect(canLeaveTripFeedback(
+      "participant",
+      "2026-08-25T06:00:00.000Z",
+      "2026-08-25T09:00:00.000Z",
+      "confirmed",
+      "confirmed",
+      true,
+      NOW,
+    )).toBe(false);
   });
 });

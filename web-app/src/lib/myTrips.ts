@@ -113,3 +113,20 @@ export function dashboardTripBucket(
 
   return role === "organizer" ? "organized" : "participating";
 }
+
+export function canLeaveTripFeedback(
+  role: DashboardTripRole,
+  startsAt: string,
+  endsAt: string,
+  tripStatus: TripStatus,
+  participationStatus: TripParticipationStatus | null,
+  feedbackSubmitted: boolean,
+  now = Date.now(),
+) {
+  if (feedbackSubmitted || tripTimePhase(startsAt, endsAt, now) !== "past") {
+    return false;
+  }
+  if (!["confirmed", "completed"].includes(tripStatus)) return false;
+  return role === "organizer"
+    || ["confirmed", "completed"].includes(participationStatus ?? "");
+}

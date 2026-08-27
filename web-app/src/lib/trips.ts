@@ -222,14 +222,8 @@ export async function loadTripParticipationRequests(
   tripId: string,
 ): Promise<TripParticipationRequest[]> {
   const supabase = requireSupabase();
-  const { data, error } = await supabase.rpc(
-    "list_trip_participation_requests",
-    { p_trip_id: tripId },
-  );
-
-  if (error) throw error;
-  const requests = ((data ?? []) as ParticipationManagementRow[])
-    .map(mapParticipationManagementRow);
+  const rows = await loadParticipationManagementRows(tripId);
+  const requests = rows.map(mapParticipationManagementRow);
 
   return Promise.all(requests.map(async (request) => {
     if (!request.photoKey) return request;
@@ -242,6 +236,33 @@ export async function loadTripParticipationRequests(
       ? request
       : { ...request, photoUrl: signedPhoto.signedUrl };
   }));
+}
+
+async function loadParticipationManagementRows(tripId: string) {
+  const { data, error } = await requireSupabase().rpc(
+    "list_trip_participation_requests",
+    { p_trip_id: tripId },
+  );
+
+  if (error) throw error;
+  return (data ?? []) as ParticipationManagementRow[];
+}
+
+export type TripParticipationRequestSummary = {
+  requested: number;
+  accepted: number;
+};
+
+export async function loadTripParticipationRequestSummary(
+  tripId: string,
+): Promise<TripParticipationRequestSummary> {
+  const rows = await loadParticipationManagementRows(tripId);
+
+  return rows.reduce<TripParticipationRequestSummary>((summary, row) => {
+    if (row.participation_status === "requested") summary.requested += 1;
+    if (row.participation_status === "accepted") summary.accepted += 1;
+    return summary;
+  }, { requested: 0, accepted: 0 });
 }
 
 type ParticipationDecisionRow = {

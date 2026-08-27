@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
 import {
   discoveryRpcArgs,
+  loadTripParticipationRequestSummary,
   loadTripParticipationRequests,
   mapParticipationManagementRow,
   mergeParticipationDecision,
@@ -169,5 +170,26 @@ describe("normalizeParticipationRequestMessage", () => {
   it("rifiuta messaggi oltre 300 caratteri", () => {
     expect(() => normalizeParticipationRequestMessage("a".repeat(301))).toThrow(/300/);
     expect(normalizeParticipationRequestMessage("a".repeat(300))).toHaveLength(300);
+  });
+});
+
+describe("loadTripParticipationRequestSummary", () => {
+  it("conta soltanto richieste da valutare e partecipanti accettati", async () => {
+    vi.mocked(requireSupabase).mockReturnValue({
+      rpc: vi.fn().mockResolvedValue({
+        data: [
+          { participation_status: "requested" },
+          { participation_status: "requested" },
+          { participation_status: "accepted" },
+          { participation_status: "rejected" },
+        ],
+        error: null,
+      }),
+    } as never);
+
+    await expect(loadTripParticipationRequestSummary("trip-1")).resolves.toEqual({
+      requested: 2,
+      accepted: 1,
+    });
   });
 });
