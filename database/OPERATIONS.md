@@ -91,4 +91,12 @@ python tools/validate_database_schema.py
 python tools/validate_step3.py
 ```
 
+### Delivery email
+
+La migration `028_email_delivery_outbox.sql` crea una outbox separata da `app_events.processed_at`, RPC accessibili soltanto al `service_role` e il job Cron `escoapesca-process-email-outbox`. Il worker Supabase è in `supabase/functions/process-email-outbox/`.
+
+Prima di abilitare l’invio reale configurare i secret `EMAIL_PROVIDER`, `RESEND_API_KEY`, `EMAIL_FROM` e `APP_BASE_URL` sulla Edge Function. URL progetto e chiave pubblicabile usati dal Cron devono risiedere in Vault come `escoapesca_project_url` e `escoapesca_publishable_key`. Non salvare chiavi nel repository.
+
+Il worker applica cinque tentativi massimi con backoff 2/4/8/16 minuti e recupera claim interrotti dopo 15 minuti. Un provider non configurato non preleva la coda.
+
 I controlli statici non sostituiscono i test SQL. In questo workspace non sono installati né `psql` né Docker: entrambi i file in `database/tests/` devono essere eseguiti sul progetto Supabase dedicato prima di aprire la Beta.

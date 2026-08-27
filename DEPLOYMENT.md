@@ -47,3 +47,34 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 ## Verifica finale
 
 Eseguire PageSpeed Insights e Search Console sull’URL HTTPS definitivo. Controllare LCP, INP, CLS, indicizzazione, sitemap, canonical e anteprima social.
+
+## Email transazionali P0.8
+
+Il delivery usa `app_events` e le notifiche in-app esistenti come sorgente. La tabella `email_outbox` mantiene uno stato separato e non contiene indirizzi email. Il worker `process-email-outbox` risolve l’indirizzo esclusivamente tramite Supabase Auth Admin, usa deep-link autenticati verso `app.escoapesca.it` e non riceve coordinate, punti precisi o note private.
+
+Configurazione richiesta nei secret della Edge Function:
+
+```text
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=<secret provider>
+EMAIL_FROM=EscoAPesca <mittente-verificato@example.com>
+APP_BASE_URL=https://app.escoapesca.it
+```
+
+`RESEND_API_URL` è opzionale e usa come default `https://api.resend.com/emails`. Se provider, API key o mittente non sono configurati, il worker risponde con errore di configurazione prima di prelevare righe: le consegne restano `pending` e il flusso utente non viene coinvolto.
+
+Il job Cron `escoapesca-process-email-outbox` richiama il worker ogni minuto. URL progetto e chiave pubblicabile sono conservati in Supabase Vault con i nomi `escoapesca_project_url` e `escoapesca_publishable_key`; non devono essere inseriti in migration o file sorgente. Il provider riceve l’ID del delivery come `Idempotency-Key`, mentre il database impone l’unicità di evento, destinatario e canale.
+
+Verifiche operative:
+
+```sql
+select status, count(*) from public.email_outbox group by status order by status;
+select jobid, jobname, schedule, active from cron.job where jobname = 'escoapesca-process-email-outbox';
+select status, start_time, end_time, return_message
+from cron.job_run_details
+where jobid = (select jobid from cron.job where jobname = 'escoapesca-process-email-outbox')
+order by start_time desc
+limit 10;
+```
+
+Gli errori definitivi restano in `email_outbox.last_error` dopo cinque tentativi. Per evitare esposizioni, non loggare mai l’indirizzo del destinatario o contenuti privati.
