@@ -31,6 +31,16 @@ const EVENT_COPY = {
     subject: (title) => `Dettagli incontro aggiornati: ${title}`,
     message: (title) => `I dettagli dell’incontro per “${title}” sono disponibili su EscoAPesca.`,
   },
+  feedback_requested: {
+    subject: (title) => `Com’è andata “${title}”?`,
+    message: () => "Com’è andata l’uscita? Bastano pochi secondi.",
+    feedbackCta: true,
+  },
+  feedback_reminder: {
+    subject: (title) => `Un promemoria per “${title}”`,
+    message: () => "Com’è andata l’uscita? Il tuo feedback richiede solo pochi secondi.",
+    feedbackCta: true,
+  },
 };
 
 function cleanInline(value, fallback) {
@@ -55,17 +65,19 @@ export function buildEmailContent(delivery, appBaseUrl = "https://app.escoapesca
   const title = cleanInline(delivery.trip_title, "la tua uscita");
   const actor = cleanInline(delivery.actor_name, "Un pescatore");
   const baseUrl = new URL(appBaseUrl);
-  const ctaUrl = new URL(`/uscite/${encodeURIComponent(delivery.trip_id)}`, baseUrl).toString();
+  const tripPath = `/uscite/${encodeURIComponent(delivery.trip_id)}`;
+  const ctaUrl = new URL(copy.feedbackCta ? `${tripPath}/feedback` : tripPath, baseUrl).toString();
+  const ctaLabel = copy.feedbackCta ? "Lascia il feedback" : "Vedi l’uscita";
   const subject = cleanInline(copy.subject(title), "Aggiornamento EscoAPesca").slice(0, 160);
   const message = copy.message(title, actor);
 
   return {
     subject,
-    text: `${message}\n\nVedi l’uscita: ${ctaUrl}`,
+    text: `${message}\n\n${ctaLabel}: ${ctaUrl}`,
     html: [
       '<div style="font-family:Arial,sans-serif;color:#0b2333;line-height:1.5">',
       `<p>${escapeHtml(message)}</p>`,
-      `<p><a href="${escapeHtml(ctaUrl)}" style="background:#075668;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">Vedi l’uscita</a></p>`,
+      `<p><a href="${escapeHtml(ctaUrl)}" style="background:#075668;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">${ctaLabel}</a></p>`,
       '<p style="font-size:12px;color:#526671">EscoAPesca · Beta Lazio</p>',
       "</div>",
     ].join(""),

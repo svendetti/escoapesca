@@ -13,8 +13,10 @@ const delivery = {
   actor_name: "Ada & Luca",
 };
 
-test("copre gli otto eventi critici", () => {
+test("copre gli eventi operativi e i prompt feedback", () => {
   assert.deepEqual([...SUPPORTED_EMAIL_EVENTS].sort(), [
+    "feedback_reminder",
+    "feedback_requested",
     "participation_accepted",
     "participation_cancelled",
     "participation_rejected",
@@ -48,4 +50,16 @@ test("non include dettagli privati nell'email di aggiornamento incontro", () => 
   });
   assert.match(content.text, /disponibili su EscoAPesca/);
   assert.doesNotMatch(content.text.toLowerCase(), /coordinate|latitudine|longitudine|punto preciso|note private/);
+});
+
+test("porta richiesta e reminder direttamente al feedback", () => {
+  for (const event_type of ["feedback_requested", "feedback_reminder"]) {
+    const content = buildEmailContent({ ...delivery, event_type });
+    assert.equal(
+      content.ctaUrl,
+      "https://app.escoapesca.it/uscite/27be0ea7-abce-4b4a-a445-b4a6043a0b1c/feedback",
+    );
+    assert.match(content.text, /pochi secondi/i);
+    assert.match(content.html, /Lascia il feedback/);
+  }
 });

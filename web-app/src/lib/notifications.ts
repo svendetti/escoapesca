@@ -97,6 +97,10 @@ export function notificationCopy(notification: AppNotification) {
       return { title: "Uscita annullata", message: `L’organizzatore ha annullato${trip}.`, target: null };
     case "trip_private_details_updated":
       return { title: "Dettagli incontro aggiornati", message: `Sono cambiati i dettagli privati di${trip}.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
+    case "feedback_requested":
+      return { title: "Com’è andata l’uscita?", message: "Bastano pochi secondi per lasciare il tuo feedback.", target: notification.tripId ? `/uscite/${notification.tripId}/feedback` : null };
+    case "feedback_reminder":
+      return { title: "Promemoria feedback", message: "Non hai ancora raccontato com’è andata: bastano pochi secondi.", target: notification.tripId ? `/uscite/${notification.tripId}/feedback` : null };
     default:
       return { title: "Aggiornamento uscita", message: `Ci sono novità per${trip}.`, target: null };
   }

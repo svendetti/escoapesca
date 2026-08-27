@@ -99,4 +99,8 @@ Prima di abilitare l’invio reale configurare i secret `EMAIL_PROVIDER`, `RESEN
 
 Il worker applica cinque tentativi massimi con backoff 2/4/8/16 minuti e recupera claim interrotti dopo 15 minuti. Un provider non configurato non preleva la coda.
 
+### Prompt feedback
+
+La migration `030_feedback_prompt_scheduler.sql` pianifica il job `escoapesca-enqueue-feedback-prompts` ogni 15 minuti. Il job accoda la prima richiesta circa 3 ore dopo `ends_at` e un solo reminder dopo altre 48 ore, esclusivamente per organizzatore e partecipanti confermati/completati che non hanno ancora inviato feedback. I delay sono parametri della funzione `private.enqueue_due_feedback_prompts`.
+
 I controlli statici non sostituiscono i test SQL. In questo workspace non sono installati né `psql` né Docker: entrambi i file in `database/tests/` devono essere eseguiti sul progetto Supabase dedicato prima di aprire la Beta.

@@ -138,7 +138,9 @@ export type AppNotificationType =
   | "trip_confirmed"
   | "trip_updated"
   | "trip_cancelled"
-  | "trip_private_details_updated";
+  | "trip_private_details_updated"
+  | "feedback_requested"
+  | "feedback_reminder";
 
 export type AppNotification = {
   id: string;

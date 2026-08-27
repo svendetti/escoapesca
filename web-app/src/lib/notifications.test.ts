@@ -30,4 +30,9 @@ describe("notificationCopy", () => {
   it("non collega una uscita annullata non più accessibile", () => {
     expect(notificationCopy(notification("trip_cancelled")).target).toBeNull();
   });
+
+  it("porta richiesta e reminder alla pagina feedback", () => {
+    expect(notificationCopy(notification("feedback_requested")).target).toBe("/uscite/trip-1/feedback");
+    expect(notificationCopy(notification("feedback_reminder")).target).toBe("/uscite/trip-1/feedback");
+  });
 });
