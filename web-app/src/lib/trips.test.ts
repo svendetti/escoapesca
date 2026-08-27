@@ -9,6 +9,7 @@ import {
   mergeParticipationDecision,
   mergeParticipationStatuses,
   normalizeParticipationRequestMessage,
+  saveTripPrivateDetails,
 } from "./trips";
 import { requireSupabase } from "./supabase";
 import type {
@@ -190,6 +191,56 @@ describe("loadTripParticipationRequestSummary", () => {
     await expect(loadTripParticipationRequestSummary("trip-1")).resolves.toEqual({
       requested: 2,
       accepted: 1,
+    });
+  });
+});
+
+describe("saveTripPrivateDetails", () => {
+  it("non tenta di aggiornare trip_id durante il salvataggio", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    const updateSelect = vi.fn().mockReturnValue({ maybeSingle });
+    const updateEq = vi.fn().mockReturnValue({ select: updateSelect });
+    const update = vi.fn().mockReturnValue({ eq: updateEq });
+    const single = vi.fn().mockResolvedValue({
+      data: {
+        trip_id: "trip-1",
+        meeting_point_text: "Parcheggio del porto",
+        exact_lat: 41.7502,
+        exact_lon: 12.2871,
+        private_notes: "Davanti al ristorante",
+        updated_at: "2026-08-27T13:30:00.000Z",
+      },
+      error: null,
+    });
+    const insertSelect = vi.fn().mockReturnValue({ single });
+    const insert = vi.fn().mockReturnValue({ select: insertSelect });
+    const from = vi.fn().mockReturnValue({ update, insert });
+    vi.mocked(requireSupabase).mockReturnValue({ from } as never);
+
+    await expect(saveTripPrivateDetails("trip-1", {
+      meetingPointText: " Parcheggio del porto ",
+      exactLat: "41.7502",
+      exactLon: "12.2871",
+      privateNotes: " Davanti al ristorante ",
+    })).resolves.toMatchObject({
+      tripId: "trip-1",
+      meetingPointText: "Parcheggio del porto",
+      exactLat: 41.7502,
+      exactLon: 12.2871,
+    });
+
+    expect(update).toHaveBeenCalledWith({
+      meeting_point_text: "Parcheggio del porto",
+      exact_lat: 41.7502,
+      exact_lon: 12.2871,
+      private_notes: "Davanti al ristorante",
+    });
+    expect(insert).toHaveBeenCalledWith({
+      trip_id: "trip-1",
+      meeting_point_text: "Parcheggio del porto",
+      exact_lat: 41.7502,
+      exact_lon: 12.2871,
+      private_notes: "Davanti al ristorante",
     });
   });
 });

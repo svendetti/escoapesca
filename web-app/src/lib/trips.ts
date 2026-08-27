@@ -506,20 +506,31 @@ export async function saveTripPrivateDetails(
   values: TripPrivateDetailsValues,
 ): Promise<TripPrivateDetails> {
   const hasCoordinates = values.exactLat.trim() && values.exactLon.trim();
-  const { data, error } = await requireSupabase()
+  const writableDetails = {
+    meeting_point_text: values.meetingPointText.trim(),
+    exact_lat: hasCoordinates ? Number(values.exactLat) : null,
+    exact_lon: hasCoordinates ? Number(values.exactLon) : null,
+    private_notes: values.privateNotes.trim() || null,
+  };
+  const supabase = requireSupabase();
+  const { data: updated, error: updateError } = await supabase
     .from("trip_private_details")
-    .upsert({
-      trip_id: tripId,
-      meeting_point_text: values.meetingPointText.trim(),
-      exact_lat: hasCoordinates ? Number(values.exactLat) : null,
-      exact_lon: hasCoordinates ? Number(values.exactLon) : null,
-      private_notes: values.privateNotes.trim() || null,
-    }, { onConflict: "trip_id" })
+    .update(writableDetails)
+    .eq("trip_id", tripId)
+    .select("trip_id, meeting_point_text, exact_lat, exact_lon, private_notes, updated_at")
+    .maybeSingle();
+
+  if (updateError) throw updateError;
+  if (updated) return mapPrivateDetails(updated as PrivateDetailsRow);
+
+  const { data: inserted, error: insertError } = await supabase
+    .from("trip_private_details")
+    .insert({ trip_id: tripId, ...writableDetails })
     .select("trip_id, meeting_point_text, exact_lat, exact_lon, private_notes, updated_at")
     .single();
 
-  if (error) throw error;
-  return mapPrivateDetails(data as PrivateDetailsRow);
+  if (insertError) throw insertError;
+  return mapPrivateDetails(inserted as PrivateDetailsRow);
 }
 
 export function privateDetailsToValues(
