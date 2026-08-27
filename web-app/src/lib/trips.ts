@@ -151,8 +151,26 @@ async function participationAction(
   return result.participation_status;
 }
 
-export function requestTripParticipation(tripId: string) {
-  return participationAction("request_trip_participation", tripId);
+export const MAX_REQUEST_MESSAGE_LENGTH = 300;
+
+export function normalizeParticipationRequestMessage(message: string) {
+  const normalized = message.trim();
+  if (normalized.length > MAX_REQUEST_MESSAGE_LENGTH) {
+    throw new Error(`Il messaggio può contenere al massimo ${MAX_REQUEST_MESSAGE_LENGTH} caratteri.`);
+  }
+  return normalized || null;
+}
+
+export async function requestTripParticipation(tripId: string, message = "") {
+  const { data, error } = await requireSupabase().rpc("request_trip_participation", {
+    p_trip_id: tripId,
+    p_request_message: normalizeParticipationRequestMessage(message),
+  });
+
+  if (error) throw error;
+  const result = ((data ?? []) as ParticipationActionRow[])[0];
+  if (!result) throw new Error("La richiesta non ha restituito uno stato valido.");
+  return result.participation_status;
 }
 
 export function cancelTripParticipation(tripId: string) {
@@ -171,6 +189,7 @@ type ParticipationManagementRow = {
   water_type: TripParticipationRequest["waterType"];
   bio: string | null;
   profile_photo_key: string | null;
+  request_message: string | null;
   participation_status: TripParticipationStatus;
   requested_at: string;
   decided_at: string | null;
@@ -192,6 +211,7 @@ export function mapParticipationManagementRow(
     bio: row.bio,
     photoKey: row.profile_photo_key,
     photoUrl: null,
+    requestMessage: row.request_message,
     status: row.participation_status,
     requestedAt: row.requested_at,
     decidedAt: row.decided_at,

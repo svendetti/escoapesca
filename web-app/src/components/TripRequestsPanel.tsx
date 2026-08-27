@@ -252,6 +252,12 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
                     </button>
                   </div>
                 )}
+                {request.requestMessage && (
+                  <div className="request-message">
+                    <span>Messaggio per l’organizzatore</span>
+                    <p>{request.requestMessage}</p>
+                  </div>
+                )}
                 {expanded && (
                   <div className="request-profile-expanded" id={`request-profile-${request.id}`}>
                     <div>

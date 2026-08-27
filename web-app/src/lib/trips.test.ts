@@ -7,6 +7,7 @@ import {
   mapParticipationManagementRow,
   mergeParticipationDecision,
   mergeParticipationStatuses,
+  normalizeParticipationRequestMessage,
 } from "./trips";
 import { requireSupabase } from "./supabase";
 import type {
@@ -102,6 +103,7 @@ describe("mapParticipationManagementRow", () => {
       water_type: "sea",
       bio: "Pesco nel weekend.",
       profile_photo_key: "user-1/avatar",
+      request_message: "Ci vediamo sul posto.",
       participation_status: "requested",
       requested_at: "2026-08-20T14:00:00.000Z",
       decided_at: null,
@@ -114,6 +116,7 @@ describe("mapParticipationManagementRow", () => {
       techniqueNames: ["Spinning", "Surfcasting"],
       photoKey: "user-1/avatar",
       photoUrl: null,
+      requestMessage: "Ci vediamo sul posto.",
     });
     expect(request).not.toHaveProperty("email");
     expect(request).not.toHaveProperty("phone");
@@ -138,6 +141,7 @@ describe("mapParticipationManagementRow", () => {
           water_type: null,
           bio: null,
           profile_photo_key: "user-1/avatar",
+          request_message: null,
           participation_status: "requested",
           requested_at: "2026-08-20T14:00:00.000Z",
           decided_at: null,
@@ -153,5 +157,17 @@ describe("mapParticipationManagementRow", () => {
 
     expect(createSignedUrl).toHaveBeenCalledWith("user-1/avatar", 300);
     expect(request.photoUrl).toBe("https://example.test/temporary-photo");
+  });
+});
+
+describe("normalizeParticipationRequestMessage", () => {
+  it("applica trim e converte il vuoto in null", () => {
+    expect(normalizeParticipationRequestMessage("  Ci sono!  ")).toBe("Ci sono!");
+    expect(normalizeParticipationRequestMessage("   ")).toBeNull();
+  });
+
+  it("rifiuta messaggi oltre 300 caratteri", () => {
+    expect(() => normalizeParticipationRequestMessage("a".repeat(301))).toThrow(/300/);
+    expect(normalizeParticipationRequestMessage("a".repeat(300))).toHaveLength(300);
   });
 });

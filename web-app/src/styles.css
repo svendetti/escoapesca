@@ -480,6 +480,12 @@ main > * { animation: page-arrive .5s ease-out both; }
 .own-trip-badge { color: var(--signal); font-size: .76rem; font-weight: 700; }
 .discovery-actions { align-items: center; display: flex; flex-wrap: wrap; gap: .65rem; justify-content: space-between; margin-top: 1rem; }
 .discovery-actions .button { flex: 1 1 180px; }
+.request-message-form { background: rgba(3,16,27,.42); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: .65rem; margin-top: .85rem; padding: .85rem; }
+.request-message-form label { color: var(--ink); font-size: .86rem; font-weight: 700; }
+.request-message-form-footer { align-items: flex-end; display: flex; flex-wrap: wrap; gap: .65rem; justify-content: space-between; }
+.request-message-form-footer > span { color: var(--muted); font-size: .75rem; }
+.request-message-form-footer .inline-actions { flex: 1 1 260px; justify-content: flex-end; }
+.request-message-form-footer .button { min-width: 0; }
 .participation-state { background: rgba(255,255,255,.045); border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .8rem; font-weight: 700; padding: .52rem .72rem; }
 .participation-state.state-requested,
 .participation-state.state-accepted,
@@ -523,6 +529,9 @@ main > * { animation: page-arrive .5s ease-out both; }
 .request-profile-expanded span { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; }
 .request-profile-expanded strong, .request-profile-expanded p { color: var(--ink); font-size: .88rem; margin: 0; }
 .request-profile-bio { grid-column: 1 / -1; }
+.request-message { background: rgba(104,245,218,.06); border-left: 3px solid var(--ocean); border-radius: 0 12px 12px 0; grid-column: 1 / -1; padding: .7rem .8rem; }
+.request-message span { color: var(--ocean); font-size: .7rem; font-weight: 750; text-transform: uppercase; }
+.request-message p { color: var(--ink); font-size: .88rem; margin: .3rem 0 0; white-space: pre-wrap; }
 
 @media (min-width: 700px) {
   .trip-requests-heading { align-items: center; flex-direction: row; justify-content: space-between; }

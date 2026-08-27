@@ -7,6 +7,7 @@ import {
   cancelTripParticipation,
   loadDiscoverableTrips,
   loadFishingTechniques,
+  MAX_REQUEST_MESSAGE_LENGTH,
   requestTripParticipation,
 } from "../lib/trips";
 import {
@@ -64,12 +65,19 @@ function DiscoveryCard({
   trip: FishingTripDiscovery;
   currentUserId: string;
   busy: boolean;
-  onRequest: (tripId: string) => void;
+  onRequest: (tripId: string, message: string) => Promise<void>;
   onCancel: (tripId: string) => void;
 }) {
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestMessage, setRequestMessage] = useState("");
   const startsAt = new Date(trip.startsAt);
   const endsAt = new Date(trip.endsAt);
   const ownTrip = trip.organizerUserId === currentUserId;
+
+  function openRequestForm() {
+    setRequestMessage("");
+    setShowRequestForm(true);
+  }
 
   return (
     <article className="discovery-card">
@@ -107,7 +115,7 @@ function DiscoveryCard({
         ) : trip.participationStatus === "cancelled" ? (
           <>
             <span className="participation-state">{PARTICIPATION_LABELS.cancelled}</span>
-            <button className="button button-primary" disabled={busy} type="button" onClick={() => onRequest(trip.id)}>
+            <button className="button button-primary" disabled={busy} type="button" onClick={openRequestForm}>
               {busy ? "Invio…" : "Invia di nuovo"}
             </button>
           </>
@@ -116,11 +124,43 @@ function DiscoveryCard({
             {PARTICIPATION_LABELS[trip.participationStatus]}
           </span>
         ) : (
-          <button className="button button-primary" disabled={busy} type="button" onClick={() => onRequest(trip.id)}>
+          <button className="button button-primary" disabled={busy} type="button" onClick={openRequestForm}>
             {busy ? "Invio…" : "Chiedi di partecipare"}
           </button>
         )}
       </div>
+      {showRequestForm && [null, "cancelled"].includes(trip.participationStatus) && (
+        <form
+          className="request-message-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onRequest(trip.id, requestMessage);
+          }}
+        >
+          <label htmlFor={`request-message-${trip.id}`}>
+            Messaggio per l’organizzatore <span className="optional">opzionale</span>
+          </label>
+          <textarea
+            id={`request-message-${trip.id}`}
+            maxLength={MAX_REQUEST_MESSAGE_LENGTH}
+            placeholder="Es. Pesco spesso in zona e ho macchina e waders."
+            rows={3}
+            value={requestMessage}
+            onChange={(event) => setRequestMessage(event.target.value)}
+          />
+          <div className="request-message-form-footer">
+            <span>{requestMessage.length}/{MAX_REQUEST_MESSAGE_LENGTH}</span>
+            <div className="inline-actions">
+              <button className="button button-primary" disabled={busy} type="submit">
+                {busy ? "Invio…" : "Invia richiesta"}
+              </button>
+              <button className="button button-secondary" disabled={busy} type="button" onClick={() => setShowRequestForm(false)}>
+                Annulla
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
     </article>
   );
 }
@@ -177,12 +217,12 @@ export function TripDiscoveryPage() {
     )));
   }
 
-  async function requestParticipation(tripId: string) {
+  async function requestParticipation(tripId: string, requestMessage: string) {
     setActionTripId(tripId);
     setError(null);
     setNotice(null);
     try {
-      const status = await requestTripParticipation(tripId);
+      const status = await requestTripParticipation(tripId, requestMessage);
       updateParticipationStatus(tripId, status);
       setNotice("Richiesta inviata. Lo stato è visibile direttamente sulla card dell’uscita.");
     } catch (caught) {
@@ -298,7 +338,7 @@ export function TripDiscoveryPage() {
               trip={trip}
               currentUserId={user?.id ?? ""}
               busy={actionTripId === trip.id}
-              onRequest={(tripId) => void requestParticipation(tripId)}
+              onRequest={requestParticipation}
               onCancel={(tripId) => void cancelParticipation(tripId)}
             />
           ))}

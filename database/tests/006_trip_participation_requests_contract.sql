@@ -7,7 +7,7 @@ BEGIN
   FROM pg_policies
   WHERE schemaname = 'public'
     AND tablename = 'trip_participants'
-    AND policyname = 'trip_participants_select_own'
+    AND policyname = 'trip_participants_select_own_or_organizer'
     AND cmd = 'SELECT'
     AND 'authenticated' = ANY (roles);
 
@@ -26,13 +26,13 @@ BEGIN
     RAISE EXCEPTION 'Le partecipazioni non devono essere scrivibili direttamente';
   END IF;
 
-  IF to_regprocedure('public.request_trip_participation(uuid)') IS NULL
+  IF to_regprocedure('public.request_trip_participation(uuid,text)') IS NULL
      OR to_regprocedure('public.cancel_trip_participation(uuid)') IS NULL THEN
     RAISE EXCEPTION 'RPC di richiesta o annullamento partecipazione mancante';
   END IF;
 
   IF NOT has_function_privilege(
-    'authenticated', 'public.request_trip_participation(uuid)', 'EXECUTE'
+    'authenticated', 'public.request_trip_participation(uuid,text)', 'EXECUTE'
   ) OR NOT has_function_privilege(
     'authenticated', 'public.cancel_trip_participation(uuid)', 'EXECUTE'
   ) THEN
@@ -40,7 +40,7 @@ BEGIN
   END IF;
 
   IF has_function_privilege(
-    'anon', 'public.request_trip_participation(uuid)', 'EXECUTE'
+    'anon', 'public.request_trip_participation(uuid,text)', 'EXECUTE'
   ) OR has_function_privilege(
     'anon', 'public.cancel_trip_participation(uuid)', 'EXECUTE'
   ) THEN
@@ -50,7 +50,7 @@ BEGIN
   IF NOT (
     SELECT prosecdef
     FROM pg_proc
-    WHERE oid = 'public.request_trip_participation(uuid)'::regprocedure
+    WHERE oid = 'public.request_trip_participation(uuid,text)'::regprocedure
   ) OR NOT (
     SELECT prosecdef
     FROM pg_proc

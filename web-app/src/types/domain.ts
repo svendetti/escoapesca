@@ -116,6 +116,7 @@ export type TripParticipationRequest = {
   bio: string | null;
   photoKey: string | null;
   photoUrl: string | null;
+  requestMessage: string | null;
   status: TripParticipationStatus;
   requestedAt: string;
   decidedAt: string | null;

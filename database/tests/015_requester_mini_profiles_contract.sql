@@ -3,6 +3,7 @@ BEGIN;
 DO $$
 DECLARE
   function_result text;
+  participant_policy text;
   storage_policy text;
 BEGIN
   IF to_regprocedure('public.list_trip_participation_requests(uuid)') IS NULL THEN
@@ -35,15 +36,33 @@ BEGIN
     RAISE EXCEPTION 'authenticated must execute list_trip_participation_requests';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1
+  SELECT qual
+  INTO participant_policy
     FROM pg_policies
     WHERE schemaname = 'public'
       AND tablename = 'trip_participants'
       AND policyname = 'trip_participants_select_own_or_organizer'
-      AND cmd = 'SELECT'
-  ) THEN
+      AND cmd = 'SELECT';
+
+  IF participant_policy IS NULL
+    OR participant_policy NOT ILIKE '%user_id%auth.uid()%'
+    OR participant_policy NOT ILIKE '%private.is_active_trip_organizer%'
+  THEN
     RAISE EXCEPTION 'combined participant/organizer SELECT policy is missing';
+  END IF;
+
+  IF to_regprocedure('private.is_active_trip_organizer(uuid)') IS NULL
+    OR NOT (
+      SELECT prosecdef
+      FROM pg_proc
+      WHERE oid = 'private.is_active_trip_organizer(uuid)'::regprocedure
+    )
+    OR NOT has_function_privilege(
+      'authenticated', 'private.is_active_trip_organizer(uuid)', 'EXECUTE'
+    )
+    OR has_schema_privilege('authenticated', 'private', 'USAGE')
+  THEN
+    RAISE EXCEPTION 'private organizer helper privileges are not policy-only';
   END IF;
 
   IF (
