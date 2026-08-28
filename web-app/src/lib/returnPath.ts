@@ -38,6 +38,17 @@ export function normalizeInternalReturnPath(value: string | null | undefined) {
   }
 }
 
+export function normalizeAppReturnUrl(value: string | null | undefined) {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value, APP_ORIGIN);
+    if (parsed.origin !== APP_ORIGIN) return null;
+    return normalizeInternalReturnPath(`${parsed.pathname}${parsed.search}${parsed.hash}`);
+  } catch {
+    return null;
+  }
+}
+
 export function encodeStoredReturnPath(path: string, now = Date.now()) {
   const normalized = normalizeInternalReturnPath(path);
   if (!normalized) return null;

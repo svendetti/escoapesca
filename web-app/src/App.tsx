@@ -5,6 +5,7 @@ import { AuthGuard } from "./components/AuthGuard";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AdminPage } from "./pages/AdminPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
+import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { CreateTripPage } from "./pages/CreateTripPage";
 import { DisabledAccountPage } from "./pages/DisabledAccountPage";
 import { EditTripPage } from "./pages/EditTripPage";
@@ -29,6 +30,7 @@ export function App() {
             <Route path="accedi" element={<LoginPage />} />
             <Route path="registrati" element={<RegisterPage />} />
             <Route path="controlla-email" element={<CheckEmailPage />} />
+            <Route path="conferma-email" element={<ConfirmEmailPage />} />
             <Route path="password-dimenticata" element={<ForgotPasswordPage />} />
             <Route path="aggiorna-password" element={<UpdatePasswordPage />} />
             <Route path="account-disabilitato" element={<DisabledAccountPage />} />

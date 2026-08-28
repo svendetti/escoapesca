@@ -51,7 +51,7 @@ export function CheckEmailPage() {
       <h1>Controlla la tua email</h1>
       <p>
         Se l’indirizzo può ricevere email, abbiamo inviato un link di conferma{email ? <> a <strong>{email}</strong></> : null}.
-        Dopo il clic potrai completare il profilo pescatore.
+        Apri il link e premi “Conferma email”; poi potrai completare il profilo pescatore.
       </p>
       <p className="field-help">Controlla anche lo spam e usa sempre il link più recente.</p>
       {notice && <Notice kind={notice.kind}>{notice.text}</Notice>}

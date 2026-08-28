@@ -57,3 +57,24 @@ Prima di aprire le registrazioni restano da configurare in Supabase Auth:
 - eventuale SMTP personalizzato, necessario sul piano Free per personalizzare i template email dei nuovi progetti.
 
 Il dominio definitivo della SPA è `https://app.escoapesca.it`.
+
+## Conferma email resistente al prefetch
+
+I filtri di sicurezza di alcuni provider possono aprire automaticamente i link
+ricevuti e consumare una `ConfirmationURL` prima dell'utente. Il template Auth
+**Confirm signup** deve quindi portare alla pagina intermedia, che verifica il
+token soltanto dopo la pressione del pulsante:
+
+```html
+<h2>Conferma il tuo indirizzo email</h2>
+<p>Premi il pulsante per completare la registrazione a EscoAPesca.</p>
+<p>
+  <a href="https://app.escoapesca.it/conferma-email?token_hash={{ .TokenHash }}&amp;type=email&amp;next={{ .RedirectTo }}">
+    Conferma email
+  </a>
+</p>
+```
+
+Il template va applicato in **Authentication → Email Templates → Confirm
+signup**. Non usare direttamente `{{ .ConfirmationURL }}`: una semplice
+richiesta GET confermerebbe nuovamente l'account senza un'azione esplicita.

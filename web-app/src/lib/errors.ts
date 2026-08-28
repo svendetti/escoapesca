@@ -1,6 +1,7 @@
 const AUTH_MESSAGES: Array<[RegExp, string]> = [
   [/invalid login credentials/i, "Email o password non corretti."],
   [/email not confirmed/i, "Conferma l’email prima di accedere."],
+  [/token has expired|token not found|invalid token|otp expired/i, "Il link di conferma non è valido o è scaduto. Richiedi una nuova email."],
   [/user already registered/i, "Esiste già un account con questa email."],
   [/password should be at least/i, "La password non rispetta i requisiti minimi."],
   [/rate limit/i, "Troppi tentativi. Attendi qualche minuto e riprova."],

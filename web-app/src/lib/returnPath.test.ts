@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   decodeStoredReturnPath,
   encodeStoredReturnPath,
+  normalizeAppReturnUrl,
   normalizeInternalReturnPath,
   postAuthPath,
   withReturnPath,
@@ -23,6 +24,14 @@ describe("return path", () => {
     expect(decodeStoredReturnPath(encoded, 1_001)).toBe("/u/abc");
     expect(decodeStoredReturnPath(encoded, 8 * 24 * 60 * 60 * 1000)).toBeNull();
     expect(decodeStoredReturnPath("{not-json")).toBeNull();
+  });
+
+  it("converte soltanto URL di ritorno appartenenti all'app", () => {
+    expect(normalizeAppReturnUrl(
+      "https://app.escoapesca.it/profilo?returnTo=%2Fu%2Ftrip-1",
+    )).toBe("/profilo?returnTo=%2Fu%2Ftrip-1");
+    expect(normalizeAppReturnUrl("/profilo")).toBe("/profilo");
+    expect(normalizeAppReturnUrl("https://evil.example/profilo")).toBeNull();
   });
 
   it("propaga il returnTo codificato sulle route auth", () => {
