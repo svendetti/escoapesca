@@ -3,6 +3,7 @@ import {
   decodeStoredReturnPath,
   encodeStoredReturnPath,
   normalizeInternalReturnPath,
+  postAuthPath,
   withReturnPath,
 } from "./returnPath";
 
@@ -29,5 +30,20 @@ describe("return path", () => {
       "/accedi?returnTo=%2Fu%2Fa%3Fx%3D1",
     );
     expect(withReturnPath("/registrati", null)).toBe("/registrati");
+  });
+
+  it("torna al deep-link dopo il login se il profilo è completo", () => {
+    expect(postAuthPath("/uscite/trip-1", true)).toBe("/uscite/trip-1");
+  });
+
+  it("preserva il deep-link durante il completamento obbligatorio del profilo", () => {
+    expect(postAuthPath("/uscite/trip-1", false)).toBe(
+      "/profilo?returnTo=%2Fuscite%2Ftrip-1",
+    );
+  });
+
+  it("non produce redirect esterni dopo il login", () => {
+    expect(postAuthPath("https://evil.example/path", true)).toBe("/profilo");
+    expect(postAuthPath(null, true)).toBe("/profilo");
   });
 });

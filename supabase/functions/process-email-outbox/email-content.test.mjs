@@ -30,7 +30,10 @@ test("copre gli eventi operativi e i prompt feedback", () => {
 
 test("genera il deep-link autenticato e una CTA operativa", () => {
   const content = buildEmailContent(delivery);
-  assert.equal(content.ctaUrl, "https://app.escoapesca.it/uscite/27be0ea7-abce-4b4a-a445-b4a6043a0b1c");
+  assert.equal(
+    content.ctaUrl,
+    "https://app.escoapesca.it/accedi?returnTo=%2Fuscite%2F27be0ea7-abce-4b4a-a445-b4a6043a0b1c",
+  );
   assert.match(content.text, /Vedi l’uscita/);
   assert.match(content.html, /Vedi l’uscita/);
 });
@@ -66,7 +69,7 @@ test("porta richiesta e reminder direttamente al feedback", () => {
     const content = buildEmailContent({ ...delivery, event_type });
     assert.equal(
       content.ctaUrl,
-      "https://app.escoapesca.it/uscite/27be0ea7-abce-4b4a-a445-b4a6043a0b1c/feedback",
+      "https://app.escoapesca.it/accedi?returnTo=%2Fuscite%2F27be0ea7-abce-4b4a-a445-b4a6043a0b1c%2Ffeedback",
     );
     assert.match(content.text, /pochi secondi/i);
     assert.match(content.html, /Lascia il feedback/);

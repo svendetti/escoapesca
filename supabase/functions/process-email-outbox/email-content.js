@@ -66,7 +66,11 @@ export function buildEmailContent(delivery, appBaseUrl = "https://app.escoapesca
   const actor = cleanInline(delivery.actor_name, "Un pescatore");
   const baseUrl = new URL(appBaseUrl);
   const tripPath = `/uscite/${encodeURIComponent(delivery.trip_id)}`;
-  const ctaUrl = new URL(copy.feedbackCta ? `${tripPath}/feedback` : tripPath, baseUrl).toString();
+  const destinationPath = copy.feedbackCta ? `${tripPath}/feedback` : tripPath;
+  const ctaUrl = new URL(
+    `/accedi?returnTo=${encodeURIComponent(destinationPath)}`,
+    baseUrl,
+  ).toString();
   const ctaLabel = copy.feedbackCta ? "Lascia il feedback" : "Vedi l’uscita";
   const subject = cleanInline(copy.subject(title), "Aggiornamento EscoAPesca").slice(0, 160);
   const message = copy.message(title, actor);

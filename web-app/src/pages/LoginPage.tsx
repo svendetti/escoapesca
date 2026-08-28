@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
 import {
   consumeReturnPath,
   normalizeInternalReturnPath,
   peekReturnPath,
+  postAuthPath,
   rememberReturnPath,
   withReturnPath,
 } from "../lib/returnPath";
@@ -29,7 +30,31 @@ export function LoginPage() {
     : null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (user) return <Navigate to="/profilo" replace />;
+  const continueAfterAuthentication = useCallback(async (userId: string) => {
+    const client = requireSupabase();
+    const destination = requestedReturnPath ?? peekReturnPath();
+    const { data: profile, error: profileError } = await client
+      .from("fisher_profiles")
+      .select("completed_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (profileError) throw profileError;
+
+    const target = postAuthPath(destination, Boolean(profile?.completed_at));
+    if (profile?.completed_at && destination) consumeReturnPath();
+    navigate(target, { replace: true });
+  }, [navigate, requestedReturnPath]);
+
+  useEffect(() => {
+    if (!user || submitting) return;
+    let active = true;
+    void continueAfterAuthentication(user.id).catch((caught) => {
+      if (active) setError(readableError(caught));
+    });
+    return () => {
+      active = false;
+    };
+  }, [continueAfterAuthentication, submitting, user]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,31 +68,20 @@ export function LoginPage() {
         password,
       });
       if (authError) throw authError;
-
-      const destination = requestedReturnPath ?? peekReturnPath();
-      if (!destination) {
-        navigate("/profilo", { replace: true });
-        return;
-      }
-
-      const { data: profile } = await client
-        .from("fisher_profiles")
-        .select("completed_at")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
-
-      if (!profile?.completed_at) {
-        navigate(withReturnPath("/profilo", destination), { replace: true });
-        return;
-      }
-
-      consumeReturnPath();
-      navigate(destination, { replace: true });
+      await continueAfterAuthentication(data.user.id);
     } catch (caught) {
       setError(readableError(caught));
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (user) {
+    return (
+      <div className="page-status">
+        {error ?? "Apertura della pagina richiesta…"}
+      </div>
+    );
   }
 
   return (

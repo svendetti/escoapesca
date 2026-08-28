@@ -87,3 +87,11 @@ export function withReturnPath(route: string, returnPath: string | null) {
     ? `${route}?returnTo=${encodeURIComponent(returnPath)}`
     : route;
 }
+
+export function postAuthPath(returnPath: string | null, profileComplete: boolean) {
+  const normalized = normalizeInternalReturnPath(returnPath);
+  if (!normalized) return "/profilo";
+  return profileComplete
+    ? normalized
+    : withReturnPath("/profilo", normalized);
+}
