@@ -401,6 +401,7 @@ export function AdminPage() {
               Le uscite e ogni dato collegato verranno eliminati definitivamente.
               Gli utenti registrati e i loro profili saranno conservati.
             </p>
+            {error && <Notice kind="error">{error}</Notice>}
             <label>
               Scrivi <strong className="admin-confirmation-token">{ADMIN_RESET_CONFIRMATION}</strong> per continuare
               <input

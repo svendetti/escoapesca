@@ -46,9 +46,9 @@ BEGIN
   ]
   LOOP
     IF function_definition NOT LIKE
-      format('%%delete from public.%s%%', deleted_table)
+      format('%%delete from public.%s where true%%', deleted_table)
     THEN
-      RAISE EXCEPTION 'Tabella operativa non azzerata: %', deleted_table;
+      RAISE EXCEPTION 'Tabella operativa non azzerata con WHERE esplicito: %', deleted_table;
     END IF;
   END LOOP;
 
