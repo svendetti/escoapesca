@@ -31,6 +31,13 @@ describe("notificationCopy", () => {
     expect(notificationCopy(notification("trip_cancelled")).target).toBeNull();
   });
 
+  it("distingue l'accettazione dalla conferma e apre l'uscita corretta", () => {
+    const copy = notificationCopy(notification("participation_accepted"));
+    expect(copy.title).toContain("in attesa di conferma");
+    expect(copy.message).toContain("deve ancora confermare");
+    expect(copy.target).toBe("/uscite/trip-1");
+  });
+
   it("porta richiesta e reminder alla pagina feedback", () => {
     expect(notificationCopy(notification("feedback_requested")).target).toBe("/uscite/trip-1/feedback");
     expect(notificationCopy(notification("feedback_reminder")).target).toBe("/uscite/trip-1/feedback");

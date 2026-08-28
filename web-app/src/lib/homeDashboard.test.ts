@@ -132,6 +132,7 @@ describe("buildHomeDashboard", () => {
     expect(result.nextTrip?.id).toBe("participating-1");
     expect(result.actions[0].title).toBe("La tua richiesta è stata accettata");
     expect(result.actions[0].priority).toBe(6);
+    expect(result.actions[0].to).toBe("/uscite/participating-1");
   });
 
   it("riusa una notifica feedback non letta come azione operativa", () => {

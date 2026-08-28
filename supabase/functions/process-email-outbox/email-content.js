@@ -9,7 +9,7 @@ const EVENT_COPY = {
   },
   participation_accepted: {
     subject: (title) => `Richiesta accettata per ${title}`,
-    message: (title) => `La tua richiesta per “${title}” è stata accettata.`,
+    message: (title) => `La tua richiesta per “${title}” è stata accettata. L’organizzatore deve ancora confermare definitivamente l’uscita.`,
   },
   participation_rejected: {
     subject: (title) => `Aggiornamento richiesta per ${title}`,
@@ -17,7 +17,7 @@ const EVENT_COPY = {
   },
   trip_confirmed: {
     subject: (title) => `Uscita confermata: ${title}`,
-    message: (title) => `L’uscita “${title}” è confermata.`,
+    message: (title) => `L’uscita “${title}” è confermata. Apri EscoAPesca per controllare i dettagli dell’incontro.`,
   },
   trip_cancelled: {
     subject: (title) => `Uscita annullata: ${title}`,

@@ -6,8 +6,15 @@ import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
+import { loadMyTripParticipations } from "../lib/myTrips";
+import { participationProgressNotice } from "../lib/participationProgress";
 import { cancelFishingTrip, loadFishingTripForViewer } from "../lib/trips";
-import type { FishingTrip, RecommendedLevel, TripStatus } from "../types/domain";
+import type {
+  FishingTrip,
+  RecommendedLevel,
+  TripParticipationStatus,
+  TripStatus,
+} from "../types/domain";
 
 const STATUS_LABELS: Record<TripStatus, string> = {
   draft: "Bozza",
@@ -42,6 +49,7 @@ export function TripDetailPage() {
   const location = useLocation();
   const navigationNotice = (location.state as { notice?: string } | null)?.notice;
   const [trip, setTrip] = useState<FishingTrip | null>(null);
+  const [participationStatus, setParticipationStatus] = useState<TripParticipationStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(navigationNotice ?? null);
   const [error, setError] = useState<string | null>(null);
@@ -53,9 +61,18 @@ export function TripDetailPage() {
     if (!user || !tripId) return;
     let active = true;
 
-    void loadFishingTripForViewer(tripId)
-      .then((loaded) => {
-        if (active) setTrip(loaded);
+    void Promise.all([
+      loadFishingTripForViewer(tripId),
+      loadMyTripParticipations().catch(() => []),
+    ])
+      .then(([loaded, participations]) => {
+        if (active) {
+          setTrip(loaded);
+          setParticipationStatus(
+            participations.find((participation) => participation.id === tripId)
+              ?.participationStatus ?? null,
+          );
+        }
       })
       .catch((caught) => {
         if (active) setError(readableError(caught));
@@ -104,6 +121,7 @@ export function TripDetailPage() {
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
   const canLeaveFeedback = endsAt.getTime() <= Date.now()
     && ["confirmed", "completed"].includes(trip.status);
+  const progressNotice = participationProgressNotice(participationStatus);
 
   return (
     <section className="page-wide trip-detail-page">
@@ -185,9 +203,9 @@ export function TripDetailPage() {
             ? { ...current, status: "confirmed", updatedAt: new Date().toISOString() }
             : current)}
         />
-      ) : (
-        <Notice kind="success">La tua partecipazione a questa uscita è confermata.</Notice>
-      )}
+      ) : progressNotice ? (
+        <Notice kind={progressNotice.kind}>{progressNotice.message}</Notice>
+      ) : null}
 
       {trip.tripType === "protected" ? (
         <Notice kind="info">La posizione precisa non è pubblica e resta separata dalla zona generica.</Notice>
@@ -197,7 +215,11 @@ export function TripDetailPage() {
           <p className="preserve-lines">{trip.publicMeetingPoint}</p>
         </section>
       ) : null}
-      <TripPrivateDetailsPanel trip={trip} isOrganizer={isOrganizer} />
+      <TripPrivateDetailsPanel
+        trip={trip}
+        isOrganizer={isOrganizer}
+        participationStatus={participationStatus}
+      />
 
 
       {trip.status === "cancelled" && (

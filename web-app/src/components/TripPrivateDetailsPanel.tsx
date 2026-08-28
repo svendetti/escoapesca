@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { Notice } from "./Notice";
 import { readableError } from "../lib/errors";
+import { privateDetailsUnavailableMessage } from "../lib/participationProgress";
 import {
   loadTripPrivateDetails,
   privateDetailsToValues,
@@ -13,14 +14,16 @@ import {
   type FishingTrip,
   type TripPrivateDetails,
   type TripPrivateDetailsValues,
+  type TripParticipationStatus,
 } from "../types/domain";
 
 type Props = {
   trip: FishingTrip;
   isOrganizer: boolean;
+  participationStatus: TripParticipationStatus | null;
 };
 
-export function TripPrivateDetailsPanel({ trip, isOrganizer }: Props) {
+export function TripPrivateDetailsPanel({ trip, isOrganizer, participationStatus }: Props) {
   const [details, setDetails] = useState<TripPrivateDetails | null>(null);
   const [values, setValues] = useState<TripPrivateDetailsValues>({
     ...EMPTY_TRIP_PRIVATE_DETAILS,
@@ -99,7 +102,9 @@ export function TripPrivateDetailsPanel({ trip, isOrganizer }: Props) {
         <h2 id="private-details-title">Punto d’incontro</h2>
         {error && <Notice kind="error">{error}</Notice>}
         {!error && !details ? (
-          <Notice kind="info">L’organizzatore non ha ancora pubblicato le indicazioni riservate.</Notice>
+          <Notice kind="info">
+            {privateDetailsUnavailableMessage(participationStatus, trip.status)}
+          </Notice>
         ) : details ? (
           <div className="private-details-content">
             <p className="private-meeting-point preserve-lines">{details.meetingPointText}</p>

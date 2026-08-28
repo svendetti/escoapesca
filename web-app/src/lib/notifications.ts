@@ -86,7 +86,11 @@ export function notificationCopy(notification: AppNotification) {
     case "participation_cancelled":
       return { title: "Richiesta annullata", message: `${actor} ha annullato la richiesta per${trip}.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
     case "participation_accepted":
-      return { title: "Richiesta accettata", message: `La tua richiesta per${trip} è stata accettata.`, target: "/trova-uscita" };
+      return {
+        title: "Richiesta accettata — in attesa di conferma",
+        message: `La tua richiesta per${trip} è stata accettata. L’organizzatore deve ancora confermare definitivamente l’uscita.`,
+        target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita",
+      };
     case "participation_rejected":
       return { title: "Richiesta non accettata", message: `La tua richiesta per${trip} non è stata accettata.`, target: "/trova-uscita" };
     case "trip_confirmed":

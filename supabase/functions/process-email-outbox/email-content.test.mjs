@@ -52,6 +52,15 @@ test("non include dettagli privati nell'email di aggiornamento incontro", () => 
   assert.doesNotMatch(content.text.toLowerCase(), /coordinate|latitudine|longitudine|punto preciso|note private/);
 });
 
+test("distingue l'accettazione dalla conferma definitiva", () => {
+  const accepted = buildEmailContent({ ...delivery, event_type: "participation_accepted" });
+  const confirmed = buildEmailContent({ ...delivery, event_type: "trip_confirmed" });
+
+  assert.match(accepted.text, /deve ancora confermare definitivamente/i);
+  assert.match(confirmed.text, /è confermata/i);
+  assert.match(confirmed.text, /dettagli dell’incontro/i);
+});
+
 test("porta richiesta e reminder direttamente al feedback", () => {
   for (const event_type of ["feedback_requested", "feedback_reminder"]) {
     const content = buildEmailContent({ ...delivery, event_type });

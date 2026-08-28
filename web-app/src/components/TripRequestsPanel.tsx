@@ -177,6 +177,12 @@ export function TripRequestsPanel({ trip, onConfirmed }: Props) {
       {canManage && summary.accepted < 1 && (
         <p className="confirmation-hint">Accetta almeno una persona prima di confermare definitivamente.</p>
       )}
+      {canManage && summary.accepted > 0 && (
+        <Notice kind="info">
+          Hai accettato {summary.accepted === 1 ? "un partecipante" : `${summary.accepted} partecipanti`}.
+          Conferma l’uscita per rendere definitive le partecipazioni e sbloccare i dettagli riservati.
+        </Notice>
+      )}
       {trip.status === "confirmed" && (
         <Notice kind="info">Uscita confermata. I partecipanti autorizzati possono vedere i dettagli riservati.</Notice>
       )}
