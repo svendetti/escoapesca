@@ -19,7 +19,7 @@ BEGIN
       OR has_function_privilege('authenticated', procedure.oid, 'EXECUTE')
     );
 
-  IF client_function_count <> 14 THEN
+  IF client_function_count <> 15 THEN
     RAISE EXCEPTION
       'Inventario SECURITY DEFINER client-facing inatteso: % funzioni',
       client_function_count;
@@ -73,6 +73,8 @@ BEGIN
     'anon', 'public.admin_set_user_status(uuid,text,text)', 'EXECUTE'
   ) OR has_function_privilege(
     'anon', 'public.admin_cancel_fishing_trip(uuid,text)', 'EXECUTE'
+  ) OR has_function_privilege(
+    'anon', 'public.admin_reset_operational_data(text)', 'EXECUTE'
   ) THEN
     RAISE EXCEPTION 'Una RPC admin è eseguibile da anon';
   END IF;
@@ -99,6 +101,16 @@ BEGIN
   INTO function_definition;
   IF function_definition NOT ILIKE '%private.require_current_admin%' THEN
     RAISE EXCEPTION 'admin_cancel_fishing_trip non verifica il ruolo admin';
+  END IF;
+
+  SELECT pg_get_functiondef(
+    'public.admin_reset_operational_data(text)'::regprocedure
+  )
+  INTO function_definition;
+  IF function_definition NOT ILIKE '%private.require_current_admin%'
+    OR function_definition NOT ILIKE '%ELIMINA USCITE%'
+  THEN
+    RAISE EXCEPTION 'admin_reset_operational_data non è protetta correttamente';
   END IF;
 
   SELECT pg_get_functiondef(
@@ -386,6 +398,12 @@ BEGIN
       'Test negativo P0.11'
     );
     RAISE EXCEPTION 'Non-admin ha eseguito admin_cancel_fishing_trip';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+
+  BEGIN
+    PERFORM public.admin_reset_operational_data('ELIMINA USCITE');
+    RAISE EXCEPTION 'Non-admin ha eseguito admin_reset_operational_data';
   EXCEPTION WHEN insufficient_privilege THEN NULL;
   END;
 

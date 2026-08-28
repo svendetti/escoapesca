@@ -119,6 +119,21 @@ export type AdminDashboard = {
   actions: AdminAction[];
 };
 
+export const ADMIN_RESET_CONFIRMATION = "ELIMINA USCITE";
+
+export type AdminOperationalResetResult = {
+  usersPreserved: number;
+  tripsDeleted: number;
+  participationsDeleted: number;
+  privateDetailsDeleted: number;
+  feedbackDeleted: number;
+  notificationsDeleted: number;
+  eventsDeleted: number;
+  emailDeliveriesDeleted: number;
+  adminActionsDeleted: number;
+  operationalRowsDeleted: number;
+};
+
 type JsonRow = Record<string, unknown>;
 
 function numberValue(value: unknown): number {
@@ -249,4 +264,30 @@ export async function cancelTripAsAdmin(tripId: string, reason: string) {
     p_reason: reason.trim(),
   });
   if (error) throw error;
+}
+
+export async function resetAdminOperationalData(
+  confirmation: string,
+): Promise<AdminOperationalResetResult> {
+  const { data, error } = await requireSupabase().rpc("admin_reset_operational_data", {
+    p_confirmation: confirmation.trim(),
+  });
+  if (error) throw error;
+
+  const result = (data ?? {}) as JsonRow;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("escoapesca:notifications-updated"));
+  }
+  return {
+    usersPreserved: numberValue(result.users_preserved),
+    tripsDeleted: numberValue(result.trips_deleted),
+    participationsDeleted: numberValue(result.participations_deleted),
+    privateDetailsDeleted: numberValue(result.private_details_deleted),
+    feedbackDeleted: numberValue(result.feedback_deleted),
+    notificationsDeleted: numberValue(result.notifications_deleted),
+    eventsDeleted: numberValue(result.events_deleted),
+    emailDeliveriesDeleted: numberValue(result.email_deliveries_deleted),
+    adminActionsDeleted: numberValue(result.admin_actions_deleted),
+    operationalRowsDeleted: numberValue(result.operational_rows_deleted),
+  };
 }

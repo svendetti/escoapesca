@@ -43,12 +43,19 @@
 .admin-rating { color: #ffe585; font-weight: 800; }
 .admin-comment { background: rgba(255,255,255,.035); border-radius: 10px; color: var(--muted); line-height: 1.5; margin: 0; padding: .65rem .75rem; white-space: pre-wrap; }
 .admin-empty { color: var(--muted); margin: .3rem; }
+.admin-danger-zone { align-items: flex-start; background: rgba(84,18,27,.36); border: 1px solid rgba(255,135,147,.42); border-radius: 18px; display: flex; gap: 1.25rem; justify-content: space-between; margin: 1.5rem 0; padding: 1.1rem; }
+.admin-danger-zone h2 { font-size: 1.15rem; margin: .35rem 0; }
+.admin-danger-zone p { color: var(--muted); line-height: 1.55; margin: 0; max-width: 760px; }
+.admin-danger-zone .button { flex: 0 0 auto; }
 .admin-modal-backdrop { align-items: center; background: rgba(0,10,17,.82); display: flex; inset: 0; justify-content: center; padding: 1rem; position: fixed; z-index: 100; }
 .admin-modal { background: #061f2c; border: 1px solid rgba(104,245,218,.3); border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,.45); max-width: 520px; padding: 1.3rem; width: 100%; }
 .admin-modal h2 { font-size: 1.35rem; margin: .5rem 0; }
 .admin-modal p { color: var(--muted); }
 .admin-modal label { display: flex; flex-direction: column; font-weight: 700; gap: .45rem; }
 .admin-modal textarea { resize: vertical; }
+.admin-reset-modal { border-color: rgba(255,135,147,.5); }
+.admin-reset-modal input { width: 100%; }
+.admin-confirmation-token { color: #ffc0c6; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 .admin-modal-actions { display: flex; gap: .7rem; justify-content: flex-end; margin-top: 1rem; }
 
 @media (min-width: 760px) {
@@ -59,6 +66,8 @@
 @media (max-width: 600px) {
   .admin-heading { flex-direction: column; }
   .admin-heading .button { width: 100%; }
+  .admin-danger-zone { flex-direction: column; }
+  .admin-danger-zone .button { width: 100%; }
   .admin-goal > div:first-child { align-items: flex-start; flex-direction: column; gap: .25rem; }
   .admin-card dl { grid-template-columns: 1fr; }
   .admin-modal-actions .button { flex: 1; }

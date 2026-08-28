@@ -3,7 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const rpc = vi.fn();
 vi.mock("./supabase", () => ({ requireSupabase: () => ({ rpc }) }));
 
-import { betaGoalProgress, formatDecimal, formatRatio, loadAdminDashboard } from "./admin";
+import {
+  ADMIN_RESET_CONFIRMATION,
+  betaGoalProgress,
+  formatDecimal,
+  formatRatio,
+  loadAdminDashboard,
+  resetAdminOperationalData,
+} from "./admin";
 
 describe("admin helpers", () => {
   beforeEach(() => rpc.mockReset());
@@ -55,5 +62,34 @@ describe("admin helpers", () => {
     expect(dashboard.metrics.feedbackCompletionRatio).toBe(0.75);
     expect(dashboard.metrics.averageRequestsPerTrip).toBe(1.5);
     expect(dashboard.users[0].displayName).toBe("Ada");
+  });
+
+  it("richiede la conferma esplicita e mappa il risultato del reset", async () => {
+    rpc.mockResolvedValue({
+      data: {
+        users_preserved: 4,
+        trips_deleted: 3,
+        participations_deleted: 2,
+        private_details_deleted: 1,
+        feedback_deleted: 1,
+        notifications_deleted: 5,
+        events_deleted: 6,
+        email_deliveries_deleted: 4,
+        admin_actions_deleted: 0,
+        operational_rows_deleted: 22,
+      },
+      error: null,
+    });
+
+    const result = await resetAdminOperationalData(` ${ADMIN_RESET_CONFIRMATION} `);
+
+    expect(rpc).toHaveBeenCalledWith("admin_reset_operational_data", {
+      p_confirmation: ADMIN_RESET_CONFIRMATION,
+    });
+    expect(result).toMatchObject({
+      usersPreserved: 4,
+      tripsDeleted: 3,
+      operationalRowsDeleted: 22,
+    });
   });
 });

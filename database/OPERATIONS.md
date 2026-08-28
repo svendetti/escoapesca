@@ -111,4 +111,14 @@ protezione password compromesse sono in
 
 La migration `030_feedback_prompt_scheduler.sql` pianifica il job `escoapesca-enqueue-feedback-prompts` ogni 15 minuti. Il job accoda la prima richiesta circa 3 ore dopo `ends_at` e un solo reminder dopo altre 48 ore, esclusivamente per organizzatore e partecipanti confermati/completati che non hanno ancora inviato feedback. I delay sono parametri della funzione `private.enqueue_due_feedback_prompts`.
 
+### Reset operativo Admin
+
+La migration `032_admin_operational_reset.sql` espone la RPC distruttiva
+`admin_reset_operational_data`, protetta sia dal ruolo Admin verificato nel
+database sia dalla frase `ELIMINA USCITE`. Elimina esclusivamente dati operativi
+della Beta e conserva account, profili, preferenze, consensi, ruoli e cataloghi.
+Applicare la migration ed eseguire
+`database/tests/020_admin_operational_reset_contract.sql` prima della
+pubblicazione del relativo bottone Admin. Il test non esegue il reset.
+
 I controlli statici non sostituiscono i test SQL. In questo workspace non sono installati né `psql` né Docker: entrambi i file in `database/tests/` devono essere eseguiti sul progetto Supabase dedicato prima di aprire la Beta.

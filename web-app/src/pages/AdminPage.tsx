@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import {
+  ADMIN_RESET_CONFIRMATION,
   betaGoalProgress,
   cancelTripAsAdmin,
   formatDecimal,
   formatRatio,
   loadAdminDashboard,
+  resetAdminOperationalData,
   setAdminUserStatus,
 } from "../lib/admin";
 import type { AdminDashboard, AdminTrip, AdminUser } from "../lib/admin";
@@ -51,6 +53,8 @@ export function AdminPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [reason, setReason] = useState("");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetConfirmation, setResetConfirmation] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -69,10 +73,42 @@ export function AdminPage() {
   }, []);
 
   function startAction(action: PendingAction) {
+    setResetOpen(false);
     setPendingAction(action);
     setReason("");
     setError(null);
     setSuccess(null);
+  }
+
+  function startReset() {
+    setPendingAction(null);
+    setResetOpen(true);
+    setResetConfirmation("");
+    setError(null);
+    setSuccess(null);
+  }
+
+  async function confirmReset() {
+    if (
+      submitting
+      || resetConfirmation.trim().toUpperCase() !== ADMIN_RESET_CONFIRMATION
+    ) return;
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      const result = await resetAdminOperationalData(resetConfirmation);
+      setSuccess(
+        `Reset completato: ${result.tripsDeleted} uscite e ${result.operationalRowsDeleted} record operativi eliminati. ${result.usersPreserved} utenti preservati.`,
+      );
+      setResetOpen(false);
+      setResetConfirmation("");
+      await refresh();
+    } catch (caught) {
+      setError(readableError(caught));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function confirmAction() {
@@ -213,6 +249,21 @@ export function AdminPage() {
         ))}
       </section>
 
+      <section className="admin-danger-zone" aria-labelledby="admin-reset-title">
+        <div>
+          <div className="eyebrow">Strumenti di test · solo Admin</div>
+          <h2 id="admin-reset-title">Azzera i dati operativi</h2>
+          <p>
+            Elimina uscite, richieste, partecipazioni, dettagli privati, feedback,
+            notifiche, eventi, email in coda e registro moderazione.
+            Account, profili, preferenze, consensi e ruoli restano invariati.
+          </p>
+        </div>
+        <button className="button button-danger" type="button" onClick={startReset}>
+          Elimina tutti i dati operativi
+        </button>
+      </section>
+
       <details className="admin-section" open>
         <summary>Utenti <span>{dashboard.users.length}</span></summary>
         <div className="admin-list">
@@ -328,6 +379,60 @@ export function AdminPage() {
               <button className="button button-secondary" disabled={submitting} type="button" onClick={() => setPendingAction(null)}>Indietro</button>
               <button className="button button-danger" disabled={submitting || reason.trim().length < 3} type="button" onClick={() => void confirmAction()}>
                 {submitting ? "Salvataggio…" : "Conferma"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+
+      {resetOpen && (
+        <div className="admin-modal-backdrop" role="presentation">
+          <section
+            className="admin-modal admin-reset-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-reset-dialog-title"
+            aria-describedby="admin-reset-warning"
+          >
+            <div className="eyebrow">Operazione irreversibile</div>
+            <h2 id="admin-reset-dialog-title">Elimina tutti i dati operativi</h2>
+            <p id="admin-reset-warning">
+              Le uscite e ogni dato collegato verranno eliminati definitivamente.
+              Gli utenti registrati e i loro profili saranno conservati.
+            </p>
+            <label>
+              Scrivi <strong className="admin-confirmation-token">{ADMIN_RESET_CONFIRMATION}</strong> per continuare
+              <input
+                autoComplete="off"
+                autoFocus
+                spellCheck={false}
+                value={resetConfirmation}
+                onChange={(event) => setResetConfirmation(event.target.value)}
+              />
+            </label>
+            <div className="admin-modal-actions">
+              <button
+                className="button button-secondary"
+                disabled={submitting}
+                type="button"
+                onClick={() => {
+                  setResetOpen(false);
+                  setResetConfirmation("");
+                }}
+              >
+                Annulla
+              </button>
+              <button
+                className="button button-danger"
+                disabled={
+                  submitting
+                  || resetConfirmation.trim().toUpperCase() !== ADMIN_RESET_CONFIRMATION
+                }
+                type="button"
+                onClick={() => void confirmReset()}
+              >
+                {submitting ? "Eliminazione…" : "Elimina definitivamente"}
               </button>
             </div>
           </section>

@@ -32,6 +32,7 @@ dinamico e grant espliciti. PUBLIC non può eseguirle.
 | --- | --- | --- | --- |
 | private.is_active_trip_organizer | authenticated, solo da policy | auth.uid, utente attivo, ownership uscita | schema private senza USAGE client |
 | admin_cancel_fishing_trip | authenticated | require_current_admin, input validati, audit | solo admin a runtime |
+| admin_reset_operational_data | authenticated | require_current_admin, frase esplicita, lock atomico, elenco chiuso di tabelle operative | solo admin a runtime; preserva identità, profili, preferenze, consensi e ruoli |
 | admin_set_user_status | authenticated | require_current_admin, input validati, protezione self-disable | solo admin a runtime |
 | get_admin_dashboard | authenticated | require_current_admin, limite 1–200 | solo admin a runtime |
 | cancel_trip_participation | authenticated | auth.uid e ownership della richiesta requested | consente anche a un disabilitato di ritirare solo la propria richiesta |
@@ -69,7 +70,8 @@ soltanto al service_role e non fanno parte della superficie client.
 ## Security Advisor
 
 La migration 031 aggiunge policy deny-all esplicite a admin_actions, app_events
-ed email_outbox, già prive di grant client e con RLS forzata.
+ed email_outbox, già prive di grant client e con RLS forzata. La migration 032
+aggiunge il reset operativo admin-only con conferma testuale e senza grant anon.
 
 Avvisi residui motivati:
 
