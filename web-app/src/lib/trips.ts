@@ -338,6 +338,8 @@ const TRIP_SELECT = `
   status,
   cancelled_at,
   cancellation_reason,
+  hidden_by_admin_at,
+  hidden_by_admin_reason,
   created_at,
   updated_at,
   fishing_techniques (name)
@@ -362,6 +364,8 @@ type TripRow = {
   status: FishingTrip["status"];
   cancelled_at: string | null;
   cancellation_reason: string | null;
+  hidden_by_admin_at: string | null;
+  hidden_by_admin_reason: string | null;
   created_at: string;
   updated_at: string;
   fishing_techniques: { name: string } | Array<{ name: string }> | null;
@@ -392,6 +396,8 @@ function mapTrip(row: TripRow): FishingTrip {
     status: row.status,
     cancelledAt: row.cancelled_at,
     cancellationReason: row.cancellation_reason,
+    hiddenByAdminAt: row.hidden_by_admin_at,
+    hiddenByAdminReason: row.hidden_by_admin_reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -441,6 +447,32 @@ export async function loadMyFishingTrips(userId: string): Promise<FishingTrip[]>
 
   if (error) throw error;
   return (data as unknown as TripRow[]).map(mapTrip);
+}
+
+type HiddenTripRow = {
+  trip_id: string;
+};
+
+export async function loadMyHiddenTripIds(): Promise<Set<string>> {
+  const { data, error } = await requireSupabase().rpc("list_my_hidden_trip_ids");
+  if (error) throw error;
+  return new Set(((data ?? []) as HiddenTripRow[]).map((row) => row.trip_id));
+}
+
+export async function setTripHistoryHidden(tripId: string, hidden: boolean) {
+  const { error } = await requireSupabase().rpc("set_my_trip_history_hidden", {
+    p_trip_id: tripId,
+    p_hidden: hidden,
+  });
+  if (error) throw error;
+}
+
+export async function deleteFishingTripDraft(tripId: string) {
+  const { data, error } = await requireSupabase().rpc("delete_my_fishing_trip_draft", {
+    p_trip_id: tripId,
+  });
+  if (error) throw error;
+  return data as string;
 }
 
 export async function loadFishingTrip(userId: string, tripId: string): Promise<FishingTrip> {

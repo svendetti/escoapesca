@@ -69,6 +69,8 @@ export type AdminTrip = {
   participantCount: number;
   pendingCount: number;
   acceptedCount: number;
+  hiddenByAdminAt: string | null;
+  hiddenByAdminReason: string | null;
   createdAt: string;
 };
 
@@ -230,7 +232,10 @@ export async function loadAdminDashboard(limit = 100): Promise<AdminDashboard> {
       startsAt: String(row.starts_at), endsAt: String(row.ends_at), provinceCode: String(row.province_code),
       publicZone: String(row.public_zone), tripType: String(row.trip_type), maxParticipants: numberValue(row.max_participants),
       participantCount: numberValue(row.participant_count), pendingCount: numberValue(row.pending_count),
-      acceptedCount: numberValue(row.accepted_count), createdAt: String(row.created_at),
+      acceptedCount: numberValue(row.accepted_count),
+      hiddenByAdminAt: row.hidden_by_admin_at ? String(row.hidden_by_admin_at) : null,
+      hiddenByAdminReason: row.hidden_by_admin_reason ? String(row.hidden_by_admin_reason) : null,
+      createdAt: String(row.created_at),
     })),
     participations: rows(source.participations).map((row) => ({
       id: String(row.id), tripId: String(row.trip_id), tripTitle: String(row.trip_title),
@@ -301,6 +306,19 @@ export async function deleteDisabledAdminUser(
 export async function cancelTripAsAdmin(tripId: string, reason: string) {
   const { error } = await requireSupabase().rpc("admin_cancel_fishing_trip", {
     p_trip_id: tripId,
+    p_reason: reason.trim(),
+  });
+  if (error) throw error;
+}
+
+export async function setTripVisibilityAsAdmin(
+  tripId: string,
+  hidden: boolean,
+  reason: string,
+) {
+  const { error } = await requireSupabase().rpc("admin_set_fishing_trip_visibility", {
+    p_trip_id: tripId,
+    p_hidden: hidden,
     p_reason: reason.trim(),
   });
   if (error) throw error;

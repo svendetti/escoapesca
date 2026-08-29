@@ -13,6 +13,7 @@ import {
   loadAdminDashboard,
   resetAdminOperationalData,
   setAdminUserStatus,
+  setTripVisibilityAsAdmin,
 } from "../lib/admin";
 import type { AdminDashboard, AdminTrip, AdminUser } from "../lib/admin";
 import { readableError } from "../lib/errors";
@@ -34,12 +35,15 @@ const actionLabels: Record<string, string> = {
   user_reenabled: "Utente riattivato",
   user_deleted: "Utente eliminato definitivamente",
   trip_moderated_cancelled: "Uscita annullata dall’Admin",
+  trip_hidden: "Uscita oscurata dall’Admin",
+  trip_restored: "Uscita ripristinata dall’Admin",
 };
 
 type PendingAction =
   | { kind: "user"; user: AdminUser; nextStatus: "active" | "disabled" }
   | { kind: "delete-user"; user: AdminUser }
-  | { kind: "trip"; trip: AdminTrip };
+  | { kind: "cancel-trip"; trip: AdminTrip }
+  | { kind: "trip-visibility"; trip: AdminTrip; hidden: boolean };
 
 function formatDate(value: string | null) {
   return value ? dateFormatter.format(new Date(value)) : "—";
@@ -153,9 +157,18 @@ export function AdminPage() {
         setSuccess(
           `Utente eliminato definitivamente. Eliminate anche ${result.deletedTrips} uscite organizzate.`,
         );
-      } else {
+      } else if (pendingAction.kind === "cancel-trip") {
         await cancelTripAsAdmin(pendingAction.trip.id, reason);
         setSuccess("Uscita annullata e partecipanti notificati.");
+      } else {
+        await setTripVisibilityAsAdmin(
+          pendingAction.trip.id,
+          pendingAction.hidden,
+          reason,
+        );
+        setSuccess(pendingAction.hidden
+          ? "Uscita oscurata dalle pagine pubbliche. L’organizzatore è stato avvisato."
+          : "Uscita ripristinata nelle pagine pubbliche. L’organizzatore è stato avvisato.");
       }
       setPendingAction(null);
       setReason("");
@@ -352,7 +365,9 @@ export function AdminPage() {
             <article className="admin-card" key={trip.id}>
               <div className="admin-card-title">
                 <div><Link to={`/uscite/${trip.id}`}><strong>{trip.title}</strong></Link><small>{trip.organizerName} · {trip.techniqueName}</small></div>
-                <span className={`admin-status ${trip.status}`}>{statusLabels[trip.status] ?? trip.status}</span>
+                <span className={`admin-status ${trip.hiddenByAdminAt ? "hidden" : trip.status}`}>
+                  {trip.hiddenByAdminAt ? "Oscurata" : statusLabels[trip.status] ?? trip.status}
+                </span>
               </div>
               <dl>
                 <div><dt>Quando</dt><dd>{formatDate(trip.startsAt)}</dd></div>
@@ -360,9 +375,31 @@ export function AdminPage() {
                 <div><dt>Partecipazioni</dt><dd>{trip.participantCount} totali · {trip.pendingCount} in attesa</dd></div>
                 <div><dt>Tipo</dt><dd>{trip.tripType === "protected" ? "Protetta" : "Libera"}</dd></div>
               </dl>
-              {!(["completed", "cancelled"].includes(trip.status)) && (
-                <button className="button button-danger" type="button" onClick={() => startAction({ kind: "trip", trip })}>Annulla come Admin</button>
+              {trip.hiddenByAdminReason && (
+                <p className="admin-comment">Motivo oscuramento: {trip.hiddenByAdminReason}</p>
               )}
+              <div className="admin-trip-actions">
+                {!(["completed", "cancelled"].includes(trip.status)) && (
+                  <button
+                    className="button button-danger"
+                    type="button"
+                    onClick={() => startAction({ kind: "cancel-trip", trip })}
+                  >
+                    Annulla come Admin
+                  </button>
+                )}
+                <button
+                  className={`button ${trip.hiddenByAdminAt ? "button-secondary" : "button-danger"}`}
+                  type="button"
+                  onClick={() => startAction({
+                    kind: "trip-visibility",
+                    trip,
+                    hidden: !trip.hiddenByAdminAt,
+                  })}
+                >
+                  {trip.hiddenByAdminAt ? "Ripristina uscita" : "Oscura uscita"}
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -419,16 +456,22 @@ export function AdminPage() {
           <section className={`admin-modal ${pendingAction.kind === "delete-user" ? "admin-delete-user-modal" : ""}`} role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
             <div className="eyebrow">{pendingAction.kind === "delete-user" ? "Operazione irreversibile" : "Conferma moderazione"}</div>
             <h2 id="admin-action-title">
-              {pendingAction.kind === "trip"
+              {pendingAction.kind === "cancel-trip"
                 ? `Annulla “${pendingAction.trip.title}”`
-                : pendingAction.kind === "delete-user"
-                  ? `Elimina ${pendingAction.user.displayName}`
-                  : `${pendingAction.nextStatus === "disabled" ? "Disabilita" : "Riattiva"} ${pendingAction.user.displayName}`}
+                : pendingAction.kind === "trip-visibility"
+                  ? `${pendingAction.hidden ? "Oscura" : "Ripristina"} “${pendingAction.trip.title}”`
+                  : pendingAction.kind === "delete-user"
+                    ? `Elimina ${pendingAction.user.displayName}`
+                    : `${pendingAction.nextStatus === "disabled" ? "Disabilita" : "Riattiva"} ${pendingAction.user.displayName}`}
             </h2>
             <p>
               {pendingAction.kind === "delete-user"
                 ? "Account, profilo, foto, consensi, partecipazioni, feedback e uscite organizzate verranno eliminati definitivamente. L’azione sarà registrata senza conservare i dati identificativi dell’utente."
-                : "La motivazione verrà conservata nel registro amministrativo."}
+                : pendingAction.kind === "trip-visibility"
+                  ? pendingAction.hidden
+                    ? "L’uscita non comparirà più in Trova né nella pagina pubblica. Storico, feedback e audit resteranno integri e l’organizzatore verrà avvisato."
+                    : "L’uscita tornerà visibile dove il suo stato e la data lo consentono. L’organizzatore verrà avvisato."
+                  : "La motivazione verrà conservata nel registro amministrativo."}
             </p>
             <label>Motivazione
               <textarea maxLength={1000} rows={4} value={reason} onChange={(event) => setReason(event.target.value)} autoFocus />
@@ -450,7 +493,7 @@ export function AdminPage() {
                 setDeleteConfirmation("");
               }}>Indietro</button>
               <button
-                className="button button-danger"
+                className={`button ${pendingAction.kind === "trip-visibility" && !pendingAction.hidden ? "button-primary" : "button-danger"}`}
                 disabled={
                   submitting
                   || reason.trim().length < 3

@@ -22,6 +22,14 @@ const EVENT_COPY = {
   trip_confirmed: (trip) => ({ title: "Uscita confermata", body: `“${trip}” è confermata.` }),
   trip_updated: (trip) => ({ title: "Uscita modificata", body: `Controlla gli aggiornamenti di “${trip}”.` }),
   trip_cancelled: (trip) => ({ title: "Uscita annullata", body: `“${trip}” è stata annullata.` }),
+  trip_hidden_by_admin: (trip) => ({
+    title: "Uscita oscurata",
+    body: `“${trip}” non è più visibile nelle pagine pubbliche.`,
+  }),
+  trip_restored_by_admin: (trip) => ({
+    title: "Uscita ripristinata",
+    body: `“${trip}” è nuovamente visibile.`,
+  }),
   trip_private_details_updated: (trip) => ({
     title: "Dettagli incontro aggiornati",
     body: `Sono cambiati i dettagli privati di “${trip}”.`,

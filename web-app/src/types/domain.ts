@@ -83,6 +83,8 @@ export type FishingTrip = {
   status: TripStatus;
   cancelledAt: string | null;
   cancellationReason: string | null;
+  hiddenByAdminAt: string | null;
+  hiddenByAdminReason: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -138,6 +140,8 @@ export type AppNotificationType =
   | "trip_confirmed"
   | "trip_updated"
   | "trip_cancelled"
+  | "trip_hidden_by_admin"
+  | "trip_restored_by_admin"
   | "trip_private_details_updated"
   | "feedback_requested"
   | "feedback_reminder";

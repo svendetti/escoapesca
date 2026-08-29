@@ -134,3 +134,6 @@
 @media (max-width: 390px) {
   .admin-user-details dl { grid-template-columns: 1fr; }
 }
+
+.admin-status.hidden { background: rgba(255, 193, 92, .14); color: #ffd995; }
+.admin-trip-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: .9rem; }

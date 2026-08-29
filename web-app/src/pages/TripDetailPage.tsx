@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripInvitePanel } from "../components/TripInvitePanel";
 import { TripShareActions } from "../components/TripShareActions";
@@ -11,7 +11,7 @@ import { loadMyTripFeedback } from "../lib/feedback";
 import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
 import { shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
-import { cancelFishingTrip, loadFishingTripForViewer } from "../lib/trips";
+import { cancelFishingTrip, deleteFishingTripDraft, loadFishingTripForViewer } from "../lib/trips";
 import type { FishingTrip, RecommendedLevel, TripParticipationStatus, TripStatus } from "../types/domain";
 
 const STATUS_LABELS: Record<TripStatus, string> = {
@@ -26,9 +26,10 @@ const dayFormatter = new Intl.DateTimeFormat("it-IT", {
 const timeFormatter = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" });
 
 export function TripDetailPage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { tripId = "" } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigationNotice = (location.state as { notice?: string } | null)?.notice;
   const [trip, setTrip] = useState<FishingTrip | null>(null);
   const [participationStatus, setParticipationStatus] = useState<TripParticipationStatus | null>(null);
@@ -39,6 +40,8 @@ export function TripDetailPage() {
   const [showCancellation, setShowCancellation] = useState(false);
   const [reason, setReason] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [showDraftDeletion, setShowDraftDeletion] = useState(false);
+  const [deletingDraft, setDeletingDraft] = useState(false);
 
   useEffect(() => {
     if (!user || !tripId) return;
@@ -75,6 +78,22 @@ export function TripDetailPage() {
       setError(readableError(caught));
     } finally {
       setCancelling(false);
+    }
+  }
+
+  async function deleteDraft() {
+    if (!trip) return;
+    setDeletingDraft(true);
+    setError(null);
+    try {
+      await deleteFishingTripDraft(trip.id);
+      navigate("/mie-uscite", {
+        replace: true,
+        state: { notice: "Bozza eliminata definitivamente." },
+      });
+    } catch (caught) {
+      setError(readableError(caught));
+      setDeletingDraft(false);
     }
   }
 
@@ -118,8 +137,14 @@ export function TripDetailPage() {
 
       {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
+      {trip.hiddenByAdminAt && (isOrganizer || isAdmin) && (
+        <Notice kind="error">
+          Questa uscita è stata oscurata dall’amministrazione e non compare nelle pagine pubbliche.
+          {trip.hiddenByAdminReason ? ` Motivo: ${trip.hiddenByAdminReason}` : ""}
+        </Notice>
+      )}
 
-      {showShare && (
+      {showShare && !trip.hiddenByAdminAt && (
         <section className="trip-detail-card organizer-share">
           <div>
             <h2>Condividi l’uscita</h2>
@@ -200,6 +225,29 @@ export function TripDetailPage() {
         <section className="trip-detail-card cancelled-summary">
           <h2>Uscita annullata</h2>
           <p>{trip.cancellationReason || "Nessuna motivazione indicata."}</p>
+        </section>
+      )}
+
+      {isOrganizer && trip.status === "draft" && (
+        <section className="danger-zone">
+          <div>
+            <h2>Elimina la bozza</h2>
+            <p>È vuota per gli altri utenti e non contiene partecipazioni: questa azione è definitiva.</p>
+          </div>
+          {!showDraftDeletion ? (
+            <button className="button button-danger" type="button" onClick={() => setShowDraftDeletion(true)}>
+              Elimina bozza
+            </button>
+          ) : (
+            <div className="inline-actions">
+              <button className="button button-danger" disabled={deletingDraft} type="button" onClick={() => void deleteDraft()}>
+                {deletingDraft ? "Eliminazione…" : "Conferma eliminazione"}
+              </button>
+              <button className="button button-secondary" disabled={deletingDraft} type="button" onClick={() => setShowDraftDeletion(false)}>
+                Indietro
+              </button>
+            </div>
+          )}
         </section>
       )}
 

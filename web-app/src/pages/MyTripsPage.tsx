@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { loadMyTripFeedback } from "../lib/feedback";
@@ -12,7 +12,11 @@ import {
   type DashboardTripRole,
   type FishingTripParticipation,
 } from "../lib/myTrips";
-import { loadMyFishingTrips } from "../lib/trips";
+import {
+  loadMyFishingTrips,
+  loadMyHiddenTripIds,
+  setTripHistoryHidden,
+} from "../lib/trips";
 import type {
   FishingTrip,
   TripParticipationStatus,
@@ -66,9 +70,15 @@ type DashboardTrip = {
   participationStatus: TripParticipationStatus | null;
   organizerName: string | null;
   feedbackSubmitted: boolean;
+  hidden: boolean;
+  adminHidden: boolean;
 };
 
-function organizedTrip(trip: FishingTrip, feedbackTripIds: Set<string>): DashboardTrip {
+function organizedTrip(
+  trip: FishingTrip,
+  feedbackTripIds: Set<string>,
+  hiddenTripIds: Set<string>,
+): DashboardTrip {
   return {
     key: `organizer-${trip.id}`,
     id: trip.id,
@@ -85,12 +95,15 @@ function organizedTrip(trip: FishingTrip, feedbackTripIds: Set<string>): Dashboa
     participationStatus: null,
     organizerName: null,
     feedbackSubmitted: feedbackTripIds.has(trip.id),
+    hidden: hiddenTripIds.has(trip.id),
+    adminHidden: Boolean(trip.hiddenByAdminAt),
   };
 }
 
 function participatingTrip(
   trip: FishingTripParticipation,
   feedbackTripIds: Set<string>,
+  hiddenTripIds: Set<string>,
 ): DashboardTrip {
   return {
     key: `participant-${trip.participantId}`,
@@ -108,6 +121,8 @@ function participatingTrip(
     participationStatus: trip.participationStatus,
     organizerName: trip.organizerName,
     feedbackSubmitted: feedbackTripIds.has(trip.id),
+    hidden: hiddenTripIds.has(trip.id),
+    adminHidden: false,
   };
 }
 
@@ -124,6 +139,7 @@ function canLeaveFeedback(trip: DashboardTrip) {
 
 function statusLabel(trip: DashboardTrip) {
   const phase = tripTimePhase(trip.startsAt, trip.endsAt);
+  if (trip.adminHidden) return "Oscurata dall’Admin";
   if (trip.status === "cancelled") return "Annullata";
   if (trip.feedbackSubmitted && phase === "past") return "Feedback inviato";
 
@@ -203,7 +219,7 @@ function TripCardContent({ trip }: { trip: DashboardTrip }) {
   return (
     <>
       <div className="trip-card-heading">
-        <span className={`trip-status status-${trip.status}`}>{statusLabel(trip)}</span>
+        <span className={`trip-status status-${trip.adminHidden ? "hidden" : trip.status}`}>{statusLabel(trip)}</span>
         <span className="trip-privacy">{trip.tripType === "protected" ? "Spot protetto" : "Uscita libera"}</span>
       </div>
       <h3>{trip.title}</h3>
@@ -226,19 +242,42 @@ function TripCardContent({ trip }: { trip: DashboardTrip }) {
   );
 }
 
-function TripCard({ trip }: { trip: DashboardTrip }) {
+function TripCard({
+  trip,
+  onToggleHidden,
+  historyUpdating,
+}: {
+  trip: DashboardTrip;
+  onToggleHidden?: (trip: DashboardTrip) => void;
+  historyUpdating?: boolean;
+}) {
   const destination = cardDestination(trip);
-  if (destination) {
-    return (
-      <Link className="trip-list-card" to={destination}>
-        <article><TripCardContent trip={trip} /></article>
-      </Link>
-    );
-  }
 
   return (
     <article className="trip-list-card">
-      <TripCardContent trip={trip} />
+      {destination ? (
+        <Link className="trip-list-card-link" to={destination}>
+          <TripCardContent trip={trip} />
+        </Link>
+      ) : (
+        <TripCardContent trip={trip} />
+      )}
+      {onToggleHidden && (
+        <div className="trip-history-actions">
+          <button
+            className="button button-secondary"
+            disabled={historyUpdating}
+            type="button"
+            onClick={() => onToggleHidden(trip)}
+          >
+            {historyUpdating
+              ? "Aggiornamento…"
+              : trip.hidden
+                ? "Ripristina nello storico"
+                : "Nascondi dal mio storico"}
+          </button>
+        </div>
+      )}
     </article>
   );
 }
@@ -247,10 +286,14 @@ function TripSection({
   title,
   trips,
   emptyMessage,
+  onToggleHidden,
+  updatingTripId,
 }: {
   title: string;
   trips: DashboardTrip[];
   emptyMessage: string;
+  onToggleHidden?: (trip: DashboardTrip) => void;
+  updatingTripId?: string | null;
 }) {
   const sectionId = `section-${title.toLowerCase().replace(/\s/g, "-")}`;
   return (
@@ -258,7 +301,14 @@ function TripSection({
       <h2 id={sectionId}>{title} ({trips.length})</h2>
       {trips.length > 0 ? (
         <div className="trip-list-grid">
-          {trips.map((trip) => <TripCard key={trip.key} trip={trip} />)}
+          {trips.map((trip) => (
+            <TripCard
+              key={trip.key}
+              trip={trip}
+              onToggleHidden={onToggleHidden}
+              historyUpdating={updatingTripId === trip.id}
+            />
+          ))}
         </div>
       ) : (
         <p>{emptyMessage}</p>
@@ -269,9 +319,14 @@ function TripSection({
 
 export function MyTripsPage() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigationNotice = (location.state as { notice?: string } | null)?.notice;
   const [organized, setOrganized] = useState<FishingTrip[]>([]);
   const [participating, setParticipating] = useState<FishingTripParticipation[]>([]);
   const [feedbackTripIds, setFeedbackTripIds] = useState<Set<string>>(new Set());
+  const [hiddenTripIds, setHiddenTripIds] = useState<Set<string>>(new Set());
+  const [updatingTripId, setUpdatingTripId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(navigationNotice ?? null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -283,12 +338,14 @@ export function MyTripsPage() {
       loadMyFishingTrips(user.id),
       loadMyTripParticipations(),
       loadMyTripFeedback(),
+      loadMyHiddenTripIds(),
     ])
-      .then(([loadedOrganized, loadedParticipating, loadedFeedback]) => {
+      .then(([loadedOrganized, loadedParticipating, loadedFeedback, loadedHiddenTripIds]) => {
         if (!active) return;
         setOrganized(loadedOrganized);
         setParticipating(loadedParticipating);
         setFeedbackTripIds(new Set(loadedFeedback.map((item) => item.tripId)));
+        setHiddenTripIds(loadedHiddenTripIds);
       })
       .catch((caught) => {
         if (active) setError(readableError(caught));
@@ -303,16 +360,22 @@ export function MyTripsPage() {
   const grouped = useMemo(() => {
     const now = Date.now();
     const entries = [
-      ...organized.map((trip) => organizedTrip(trip, feedbackTripIds)),
-      ...participating.map((trip) => participatingTrip(trip, feedbackTripIds)),
+      ...organized.map((trip) => organizedTrip(trip, feedbackTripIds, hiddenTripIds)),
+      ...participating.map((trip) => participatingTrip(trip, feedbackTripIds, hiddenTripIds)),
     ];
     const result = {
       organized: [] as DashboardTrip[],
       participating: [] as DashboardTrip[],
       past: [] as DashboardTrip[],
+      hidden: [] as DashboardTrip[],
     };
 
     for (const trip of entries) {
+      if (trip.hidden) {
+        result.hidden.push(trip);
+        continue;
+      }
+
       const bucket = dashboardTripBucket(
         trip.role,
         trip.startsAt,
@@ -327,8 +390,31 @@ export function MyTripsPage() {
     result.organized.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     result.participating.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
     result.past.sort((a, b) => b.endsAt.localeCompare(a.endsAt));
+    result.hidden.sort((a, b) => b.endsAt.localeCompare(a.endsAt));
     return result;
-  }, [organized, participating, feedbackTripIds]);
+  }, [organized, participating, feedbackTripIds, hiddenTripIds]);
+
+  async function toggleHistoryVisibility(trip: DashboardTrip) {
+    setUpdatingTripId(trip.id);
+    setError(null);
+    setNotice(null);
+    try {
+      await setTripHistoryHidden(trip.id, !trip.hidden);
+      setHiddenTripIds((current) => {
+        const next = new Set(current);
+        if (trip.hidden) next.delete(trip.id);
+        else next.add(trip.id);
+        return next;
+      });
+      setNotice(trip.hidden
+        ? "Uscita ripristinata nel tuo storico."
+        : "Uscita nascosta. Potrai ripristinarla dall’archivio personale.");
+    } catch (caught) {
+      setError(readableError(caught));
+    } finally {
+      setUpdatingTripId(null);
+    }
+  }
 
   if (loading) return <div className="page-status">Caricamento delle tue uscite…</div>;
 
@@ -343,10 +429,10 @@ export function MyTripsPage() {
         <Link className="button button-primary" to="/crea-uscita">Crea un’uscita</Link>
       </div>
 
+      {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
 
-      {!error && (
-        <>
+      <>
           <TripSection
             title="Organizzate da me"
             trips={grouped.organized}
@@ -358,12 +444,22 @@ export function MyTripsPage() {
             emptyMessage="Non hai partecipazioni attive. Trova un’uscita compatibile per iniziare."
           />
           <TripSection
-            title="Passate e archiviate"
+            title="Passate"
             trips={grouped.past}
             emptyMessage="Qui compariranno le uscite terminate, annullate o non confermate."
+            onToggleHidden={(trip) => void toggleHistoryVisibility(trip)}
+            updatingTripId={updatingTripId}
           />
-        </>
-      )}
+          {grouped.hidden.length > 0 && (
+            <TripSection
+              title="Archivio personale"
+              trips={grouped.hidden}
+              emptyMessage="Non hai uscite nascoste."
+              onToggleHidden={(trip) => void toggleHistoryVisibility(trip)}
+              updatingTripId={updatingTripId}
+            />
+          )}
+      </>
     </section>
   );
 }

@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
 import {
+  deleteFishingTripDraft,
   discoveryRpcArgs,
+  loadMyHiddenTripIds,
   loadTripParticipationRequestSummary,
   loadTripParticipationRequests,
   mapParticipationManagementRow,
@@ -10,6 +12,7 @@ import {
   mergeParticipationStatuses,
   normalizeParticipationRequestMessage,
   saveTripPrivateDetails,
+  setTripHistoryHidden,
 } from "./trips";
 import { requireSupabase } from "./supabase";
 import type {
@@ -69,6 +72,31 @@ describe("mergeParticipationStatuses", () => {
     } as FishingTripDiscovery;
 
     expect(mergeParticipationStatuses([trip], [])[0].participationStatus).toBeNull();
+  });
+});
+
+describe("trip history actions", () => {
+  it("carica gli identificativi nascosti e invia le azioni protette", async () => {
+    const rpc = vi.fn()
+      .mockResolvedValueOnce({
+        data: [{ trip_id: "trip-1" }, { trip_id: "trip-2" }],
+        error: null,
+      })
+      .mockResolvedValue({ data: [], error: null });
+    vi.mocked(requireSupabase).mockReturnValue({ rpc } as never);
+
+    await expect(loadMyHiddenTripIds()).resolves.toEqual(new Set(["trip-1", "trip-2"]));
+    await setTripHistoryHidden("trip-1", true);
+    await deleteFishingTripDraft("draft-1");
+
+    expect(rpc).toHaveBeenNthCalledWith(1, "list_my_hidden_trip_ids");
+    expect(rpc).toHaveBeenNthCalledWith(2, "set_my_trip_history_hidden", {
+      p_trip_id: "trip-1",
+      p_hidden: true,
+    });
+    expect(rpc).toHaveBeenNthCalledWith(3, "delete_my_fishing_trip_draft", {
+      p_trip_id: "draft-1",
+    });
   });
 });
 

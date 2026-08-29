@@ -38,6 +38,14 @@ describe("notificationCopy", () => {
     expect(copy.target).toBe("/uscite/trip-1");
   });
 
+  it("spiega oscuramento e ripristino senza dichiarare l’identità verificata", () => {
+    const hidden = notificationCopy(notification("trip_hidden_by_admin"));
+    const restored = notificationCopy(notification("trip_restored_by_admin"));
+    expect(hidden.title).toContain("oscurata");
+    expect(hidden.target).toBe("/uscite/trip-1");
+    expect(restored.title).toContain("ripristinata");
+  });
+
   it("porta richiesta e reminder alla pagina feedback", () => {
     expect(notificationCopy(notification("feedback_requested")).target).toBe("/uscite/trip-1/feedback");
     expect(notificationCopy(notification("feedback_reminder")).target).toBe("/uscite/trip-1/feedback");

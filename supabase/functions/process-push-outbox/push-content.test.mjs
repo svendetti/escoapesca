@@ -6,6 +6,8 @@ test("copre inviti, flusso uscite e prova push", () => {
   assert.ok(SUPPORTED_PUSH_EVENTS.includes("trip_invitation_sent"));
   assert.ok(SUPPORTED_PUSH_EVENTS.includes("push_test"));
   assert.ok(SUPPORTED_PUSH_EVENTS.includes("trip_private_details_updated"));
+  assert.ok(SUPPORTED_PUSH_EVENTS.includes("trip_hidden_by_admin"));
+  assert.ok(SUPPORTED_PUSH_EVENTS.includes("trip_restored_by_admin"));
 });
 
 test("l’invito apre la scheda senza dati privati nel payload", () => {

@@ -14,6 +14,7 @@ import {
   formatRatio,
   loadAdminDashboard,
   resetAdminOperationalData,
+  setTripVisibilityAsAdmin,
 } from "./admin";
 
 describe("admin helpers", () => {
@@ -54,7 +55,15 @@ describe("admin helpers", () => {
         average_requests_per_trip: "1.5",
       },
       users: [{ id: "u1", email: "a@example.it", display_name: "Ada", status: "active", created_at: "2026-01-01" }],
-      trips: [], participations: [], feedback: [], actions: [],
+      trips: [{
+        id: "trip-1", title: "Spinning a Ostia", organizer_user_id: "u1",
+        organizer_name: "Ada", technique_name: "Spinning", status: "open",
+        starts_at: "2026-09-01", ends_at: "2026-09-01", province_code: "RM",
+        public_zone: "Ostia", trip_type: "free", max_participants: 4,
+        participant_count: 1, pending_count: 0, accepted_count: 1,
+        hidden_by_admin_at: "2026-08-29", hidden_by_admin_reason: "Contenuto duplicato",
+        created_at: "2026-08-20",
+      }], participations: [], feedback: [], actions: [],
     }, error: null });
 
     const dashboard = await loadAdminDashboard();
@@ -69,6 +78,19 @@ describe("admin helpers", () => {
     expect(dashboard.metrics.feedbackCompletionRatio).toBe(0.75);
     expect(dashboard.metrics.averageRequestsPerTrip).toBe(1.5);
     expect(dashboard.users[0].displayName).toBe("Ada");
+    expect(dashboard.trips[0].hiddenByAdminReason).toBe("Contenuto duplicato");
+  });
+
+  it("invia oscuramento e ripristino alla funzione protetta", async () => {
+    rpc.mockResolvedValue({ data: [], error: null });
+
+    await setTripVisibilityAsAdmin("trip-1", true, " contenuto duplicato ");
+
+    expect(rpc).toHaveBeenCalledWith("admin_set_fishing_trip_visibility", {
+      p_trip_id: "trip-1",
+      p_hidden: true,
+      p_reason: "contenuto duplicato",
+    });
   });
 
   it("richiede la conferma esplicita e mappa il risultato del reset", async () => {

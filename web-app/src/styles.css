@@ -434,6 +434,15 @@ main > * { animation: page-arrive .5s ease-out both; }
   box-shadow: 0 20px 50px rgba(0,0,0,.18);
   transform: translateY(-2px);
 }
+.trip-list-card-link { color: inherit; display: block; text-decoration: none; }
+.trip-history-actions {
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+.trip-history-actions .button { min-width: 0; }
 .trip-list-card h3 { color: var(--ink); font-family: "Outfit", sans-serif; font-size: 1.35rem; font-weight: 500; margin: 1rem 0 .35rem; }
 .trip-card-heading { align-items: center; display: flex; flex-wrap: wrap; gap: .55rem; justify-content: space-between; }
 .trip-status, .trip-privacy {
@@ -446,6 +455,7 @@ main > * { animation: page-arrive .5s ease-out both; }
 .status-cancelled { background: rgba(255,135,147,.12); color: #ffc0c6; }
 .status-confirmed { background: rgba(216,255,95,.12); color: var(--signal); }
 .status-completed { background: rgba(234,253,251,.09); color: var(--muted); }
+.status-hidden { background: rgba(255,193,92,.14); color: #ffd995; }
 .trip-privacy { border: 1px solid var(--line); color: var(--muted); }
 .trip-date { color: var(--ocean); font-weight: 600; margin: 0; }
 .trip-card-meta { color: var(--muted); display: flex; flex-wrap: wrap; font-size: .86rem; gap: .45rem 1rem; margin-top: .9rem; }

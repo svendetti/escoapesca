@@ -32,6 +32,8 @@ function organized(overrides: Partial<FishingTrip> = {}): FishingTrip {
     status: "open",
     cancelledAt: null,
     cancellationReason: null,
+    hiddenByAdminAt: null,
+    hiddenByAdminReason: null,
     createdAt: "2026-08-20T10:00:00.000Z",
     updatedAt: "2026-08-20T10:00:00.000Z",
     ...overrides,

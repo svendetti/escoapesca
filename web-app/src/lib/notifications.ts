@@ -101,6 +101,18 @@ export function notificationCopy(notification: AppNotification) {
       return { title: "Uscita modificata", message: `L’organizzatore ha aggiornato${trip}. Controlla data e informazioni pubbliche.`, target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita" };
     case "trip_cancelled":
       return { title: "Uscita annullata", message: `L’organizzatore ha annullato${trip}.`, target: null };
+    case "trip_hidden_by_admin":
+      return {
+        title: "Uscita oscurata",
+        message: `L’amministrazione ha nascosto${trip} dalle pagine pubbliche. Apri la scheda per maggiori informazioni.`,
+        target: notification.tripId ? `/uscite/${notification.tripId}` : "/mie-uscite",
+      };
+    case "trip_restored_by_admin":
+      return {
+        title: "Uscita ripristinata",
+        message: `L’amministrazione ha reso nuovamente visibile${trip}.`,
+        target: notification.tripId ? `/uscite/${notification.tripId}` : "/mie-uscite",
+      };
     case "trip_private_details_updated":
       return { title: "Dettagli incontro aggiornati", message: `Sono cambiati i dettagli privati di${trip}.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
     case "feedback_requested":
