@@ -15,7 +15,10 @@ label:not(.choice-chip):not(.legal-check) > .field-label-line {
 label:not(.choice-chip):not(.legal-check) > .optional,
 .file-label > span:not(.field-help):not(.form-error) {
   align-self: baseline;
+  grid-column: 2;
+  grid-row: 1;
   justify-self: end;
+  text-align: right;
 }
 
 .form-grid > label { align-content: start; }
