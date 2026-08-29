@@ -81,23 +81,25 @@ export function TripForm({
 
       <fieldset>
         <legend>Quando</legend>
-        <div className="form-grid three-columns">
+        <div className="trip-schedule-grid">
           <label>
             Data
             <input type="date" name="date" value={values.date} onChange={updateText} />
             <FormError message={errors.date} />
           </label>
-          <label>
-            Inizio indicativo
-            <input type="time" name="startTime" value={values.startTime} onChange={updateText} />
-            <FormError message={errors.startTime} />
-          </label>
-          <label>
-            Fine indicativa
-            <input type="time" name="endTime" value={values.endTime} onChange={updateText} />
-            <span className="field-help">Se è prima dell’inizio, si intende il giorno dopo.</span>
-            <FormError message={errors.endTime} />
-          </label>
+          <div className="trip-time-fields">
+            <label>
+              Inizio indicativo
+              <input type="time" name="startTime" value={values.startTime} onChange={updateText} />
+              <FormError message={errors.startTime} />
+            </label>
+            <label>
+              Fine indicativa
+              <input type="time" name="endTime" value={values.endTime} onChange={updateText} />
+              <FormError message={errors.endTime} />
+            </label>
+            <span className="field-help trip-time-help">Se è prima dell’inizio, si intende il giorno dopo.</span>
+          </div>
         </div>
       </fieldset>
 
@@ -132,9 +134,11 @@ export function TripForm({
         <legend>Per chi e come</legend>
         <div className="form-grid">
           <label>
-            Partecipanti totali
+            <span className="field-label-line">
+              <span>Partecipanti totali</span>
+              <span className="field-help">Organizzatore incluso</span>
+            </span>
             <input type="number" min={2} max={20} name="maxParticipants" value={values.maxParticipants} onChange={updateText} />
-            <span className="field-help">Organizzatore incluso.</span>
             <FormError message={errors.maxParticipants} />
           </label>
           <label>

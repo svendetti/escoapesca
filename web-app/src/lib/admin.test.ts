@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const rpc = vi.fn();
-vi.mock("./supabase", () => ({ requireSupabase: () => ({ rpc }) }));
+const invoke = vi.fn();
+vi.mock("./supabase", () => ({
+  requireSupabase: () => ({ rpc, functions: { invoke } }),
+}));
 
 import {
   ADMIN_RESET_CONFIRMATION,
   betaGoalProgress,
+  deleteDisabledAdminUser,
   formatDecimal,
   formatRatio,
   loadAdminDashboard,
@@ -13,7 +17,10 @@ import {
 } from "./admin";
 
 describe("admin helpers", () => {
-  beforeEach(() => rpc.mockReset());
+  beforeEach(() => {
+    rpc.mockReset();
+    invoke.mockReset();
+  });
 
   it("calcola il progresso verso le 5 uscite reali", () => {
     expect(betaGoalProgress(0)).toBe(0);
@@ -91,5 +98,27 @@ describe("admin helpers", () => {
       tripsDeleted: 3,
       operationalRowsDeleted: 22,
     });
+  });
+
+  it("invia l'eliminazione utente alla funzione protetta e mappa il risultato", async () => {
+    invoke.mockResolvedValue({
+      data: { deleted_user_id: "u2", deleted_trip_count: 2 },
+      error: null,
+    });
+
+    const result = await deleteDisabledAdminUser(
+      "u2",
+      " account di prova ",
+      " elimina utente ",
+    );
+
+    expect(invoke).toHaveBeenCalledWith("admin-delete-user", {
+      body: {
+        userId: "u2",
+        reason: "account di prova",
+        confirmation: "ELIMINA UTENTE",
+      },
+    });
+    expect(result).toEqual({ deletedUserId: "u2", deletedTrips: 2 });
   });
 });

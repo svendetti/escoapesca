@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import {
+  ADMIN_DELETE_USER_CONFIRMATION,
   ADMIN_RESET_CONFIRMATION,
   betaGoalProgress,
   cancelTripAsAdmin,
+  deleteDisabledAdminUser,
   formatDecimal,
   formatRatio,
   loadAdminDashboard,
@@ -30,11 +32,13 @@ const statusLabels: Record<string, string> = {
 const actionLabels: Record<string, string> = {
   user_disabled: "Utente disabilitato",
   user_reenabled: "Utente riattivato",
+  user_deleted: "Utente eliminato definitivamente",
   trip_moderated_cancelled: "Uscita annullata dall’Admin",
 };
 
 type PendingAction =
   | { kind: "user"; user: AdminUser; nextStatus: "active" | "disabled" }
+  | { kind: "delete-user"; user: AdminUser }
   | { kind: "trip"; trip: AdminTrip };
 
 function formatDate(value: string | null) {
@@ -45,6 +49,15 @@ function yesNo(value: boolean) {
   return value ? "Sì" : "No";
 }
 
+function userInitials(displayName: string) {
+  return displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "U";
+}
+
 export function AdminPage() {
   const { user } = useAuth();
   const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
@@ -53,6 +66,7 @@ export function AdminPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [reason, setReason] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [resetOpen, setResetOpen] = useState(false);
   const [resetConfirmation, setResetConfirmation] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -76,12 +90,14 @@ export function AdminPage() {
     setResetOpen(false);
     setPendingAction(action);
     setReason("");
+    setDeleteConfirmation("");
     setError(null);
     setSuccess(null);
   }
 
   function startReset() {
     setPendingAction(null);
+    setDeleteConfirmation("");
     setResetOpen(true);
     setResetConfirmation("");
     setError(null);
@@ -124,12 +140,26 @@ export function AdminPage() {
       if (pendingAction.kind === "user") {
         await setAdminUserStatus(pendingAction.user.id, pendingAction.nextStatus, reason);
         setSuccess(pendingAction.nextStatus === "disabled" ? "Utente disabilitato." : "Utente riattivato.");
+      } else if (pendingAction.kind === "delete-user") {
+        if (deleteConfirmation.trim().toUpperCase() !== ADMIN_DELETE_USER_CONFIRMATION) {
+          setError(`Scrivi ${ADMIN_DELETE_USER_CONFIRMATION} per continuare.`);
+          return;
+        }
+        const result = await deleteDisabledAdminUser(
+          pendingAction.user.id,
+          reason,
+          deleteConfirmation,
+        );
+        setSuccess(
+          `Utente eliminato definitivamente. Eliminate anche ${result.deletedTrips} uscite organizzate.`,
+        );
       } else {
         await cancelTripAsAdmin(pendingAction.trip.id, reason);
         setSuccess("Uscita annullata e partecipanti notificati.");
       }
       setPendingAction(null);
       setReason("");
+      setDeleteConfirmation("");
       await refresh();
     } catch (caught) {
       setError(readableError(caught));
@@ -266,29 +296,51 @@ export function AdminPage() {
 
       <details className="admin-section" open>
         <summary>Utenti <span>{dashboard.users.length}</span></summary>
-        <div className="admin-list">
+        <div className="admin-user-list">
           {dashboard.users.map((appUser) => (
-            <article className="admin-card" key={appUser.id}>
-              <div className="admin-card-title">
-                <div><strong>{appUser.displayName}</strong><small>{appUser.email}</small></div>
+            <details className="admin-user-item" key={appUser.id}>
+              <summary>
+                <span className="admin-user-avatar" aria-hidden="true">{userInitials(appUser.displayName)}</span>
+                <span className="admin-user-identity">
+                  <strong>{appUser.displayName}</strong>
+                  <small>
+                    {appUser.email} · {[appUser.municipalityName, appUser.provinceCode].filter(Boolean).join(" · ") || "Zona non indicata"}
+                  </small>
+                </span>
                 <span className={`admin-status ${appUser.status}`}>{statusLabels[appUser.status]}</span>
+                <span className="admin-user-chevron" aria-hidden="true">⌄</span>
+              </summary>
+              <div className="admin-user-details">
+                <dl>
+                  <div><dt>Zona</dt><dd>{[appUser.municipalityName, appUser.provinceCode].filter(Boolean).join(" · ") || "Non indicata"}</dd></div>
+                  <div><dt>Profilo</dt><dd>{appUser.profileCompletedAt ? "Completo" : "Incompleto"}</dd></div>
+                  <div><dt>Email</dt><dd>{appUser.emailVerifiedAt ? "Confermata" : "Non confermata"}</dd></div>
+                  <div><dt>Registrazione</dt><dd>{formatDate(appUser.createdAt)}</dd></div>
+                  <div><dt>Account di test</dt><dd>{yesNo(appUser.isTest)}</dd></div>
+                  <div><dt>Disattivato il</dt><dd>{formatDate(appUser.disabledAt)}</dd></div>
+                </dl>
+                {appUser.id !== user?.id && (
+                  <div className="admin-user-actions">
+                    <button
+                      className={`button ${appUser.status === "active" ? "button-danger" : "button-secondary"}`}
+                      type="button"
+                      onClick={() => startAction({ kind: "user", user: appUser, nextStatus: appUser.status === "active" ? "disabled" : "active" })}
+                    >
+                      {appUser.status === "active" ? "Disabilita utente" : "Riattiva utente"}
+                    </button>
+                    {appUser.status === "disabled" && (
+                      <button
+                        className="button button-danger"
+                        type="button"
+                        onClick={() => startAction({ kind: "delete-user", user: appUser })}
+                      >
+                        Elimina definitivamente
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
-              <dl>
-                <div><dt>Zona</dt><dd>{[appUser.municipalityName, appUser.provinceCode].filter(Boolean).join(" · ") || "Non indicata"}</dd></div>
-                <div><dt>Profilo</dt><dd>{appUser.profileCompletedAt ? "Completo" : "Incompleto"}</dd></div>
-                <div><dt>Email</dt><dd>{appUser.emailVerifiedAt ? "Confermata" : "Non confermata"}</dd></div>
-                <div><dt>Registrazione</dt><dd>{formatDate(appUser.createdAt)}</dd></div>
-              </dl>
-              {appUser.id !== user?.id && (
-                <button
-                  className={`button ${appUser.status === "active" ? "button-danger" : "button-secondary"}`}
-                  type="button"
-                  onClick={() => startAction({ kind: "user", user: appUser, nextStatus: appUser.status === "active" ? "disabled" : "active" })}
-                >
-                  {appUser.status === "active" ? "Disabilita utente" : "Riattiva utente"}
-                </button>
-              )}
-            </article>
+            </details>
           ))}
         </div>
       </details>
@@ -364,21 +416,57 @@ export function AdminPage() {
 
       {pendingAction && (
         <div className="admin-modal-backdrop" role="presentation">
-          <section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
-            <div className="eyebrow">Conferma moderazione</div>
+          <section className={`admin-modal ${pendingAction.kind === "delete-user" ? "admin-delete-user-modal" : ""}`} role="dialog" aria-modal="true" aria-labelledby="admin-action-title">
+            <div className="eyebrow">{pendingAction.kind === "delete-user" ? "Operazione irreversibile" : "Conferma moderazione"}</div>
             <h2 id="admin-action-title">
               {pendingAction.kind === "trip"
                 ? `Annulla “${pendingAction.trip.title}”`
-                : `${pendingAction.nextStatus === "disabled" ? "Disabilita" : "Riattiva"} ${pendingAction.user.displayName}`}
+                : pendingAction.kind === "delete-user"
+                  ? `Elimina ${pendingAction.user.displayName}`
+                  : `${pendingAction.nextStatus === "disabled" ? "Disabilita" : "Riattiva"} ${pendingAction.user.displayName}`}
             </h2>
-            <p>La motivazione verrà conservata nel registro amministrativo.</p>
+            <p>
+              {pendingAction.kind === "delete-user"
+                ? "Account, profilo, foto, consensi, partecipazioni, feedback e uscite organizzate verranno eliminati definitivamente. L’azione sarà registrata senza conservare i dati identificativi dell’utente."
+                : "La motivazione verrà conservata nel registro amministrativo."}
+            </p>
             <label>Motivazione
               <textarea maxLength={1000} rows={4} value={reason} onChange={(event) => setReason(event.target.value)} autoFocus />
             </label>
+            {pendingAction.kind === "delete-user" && (
+              <label>
+                Scrivi <strong className="admin-confirmation-token">{ADMIN_DELETE_USER_CONFIRMATION}</strong> per continuare
+                <input
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                />
+              </label>
+            )}
             <div className="admin-modal-actions">
-              <button className="button button-secondary" disabled={submitting} type="button" onClick={() => setPendingAction(null)}>Indietro</button>
-              <button className="button button-danger" disabled={submitting || reason.trim().length < 3} type="button" onClick={() => void confirmAction()}>
-                {submitting ? "Salvataggio…" : "Conferma"}
+              <button className="button button-secondary" disabled={submitting} type="button" onClick={() => {
+                setPendingAction(null);
+                setDeleteConfirmation("");
+              }}>Indietro</button>
+              <button
+                className="button button-danger"
+                disabled={
+                  submitting
+                  || reason.trim().length < 3
+                  || (
+                    pendingAction.kind === "delete-user"
+                    && deleteConfirmation.trim().toUpperCase() !== ADMIN_DELETE_USER_CONFIRMATION
+                  )
+                }
+                type="button"
+                onClick={() => void confirmAction()}
+              >
+                {submitting
+                  ? "Salvataggio…"
+                  : pendingAction.kind === "delete-user"
+                    ? "Elimina definitivamente"
+                    : "Conferma"}
               </button>
             </div>
           </section>

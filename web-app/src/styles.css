@@ -154,6 +154,10 @@ input, select, textarea {
 textarea { resize: vertical; }
 input:focus, select:focus, textarea:focus { border-color: var(--ocean); box-shadow: 0 0 0 3px rgba(7,86,104,.12); outline: none; }
 .form-grid { display: grid; gap: 1rem; }
+.trip-schedule-grid { display: grid; gap: 1rem; }
+.trip-time-fields { display: grid; gap: .75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.trip-time-help { grid-column: 1 / -1; }
+.field-label-line { align-items: baseline; display: flex; flex-wrap: wrap; gap: .25rem .55rem; justify-content: space-between; }
 .field-error { color: var(--danger); font-size: .8rem; font-weight: 650; }
 .field-help, .optional { color: var(--muted); font-size: .78rem; font-weight: 500; }
 .auth-links { align-items: center; color: var(--muted); display: flex; flex-wrap: wrap; font-size: .9rem; gap: .6rem 1rem; justify-content: space-between; margin-top: 1.25rem; }
@@ -212,6 +216,7 @@ legend { color: var(--ocean-dark); font-size: 1.15rem; font-weight: 850; padding
   .auth-card { padding: 2rem; }
   .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-grid.three-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .trip-schedule-grid { align-items: start; grid-template-columns: minmax(180px, .7fr) minmax(0, 1.3fr); }
   .trip-type-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .profile-heading { align-items: center; flex-direction: row; justify-content: space-between; }
   fieldset { padding: 1.6rem; }

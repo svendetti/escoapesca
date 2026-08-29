@@ -120,6 +120,7 @@ export type AdminDashboard = {
 };
 
 export const ADMIN_RESET_CONFIRMATION = "ELIMINA USCITE";
+export const ADMIN_DELETE_USER_CONFIRMATION = "ELIMINA UTENTE";
 
 export type AdminOperationalResetResult = {
   usersPreserved: number;
@@ -132,6 +133,11 @@ export type AdminOperationalResetResult = {
   emailDeliveriesDeleted: number;
   adminActionsDeleted: number;
   operationalRowsDeleted: number;
+};
+
+export type AdminDeleteUserResult = {
+  deletedUserId: string;
+  deletedTrips: number;
 };
 
 type JsonRow = Record<string, unknown>;
@@ -256,6 +262,40 @@ export async function setAdminUserStatus(userId: string, status: "active" | "dis
     p_reason: reason.trim(),
   });
   if (error) throw error;
+}
+
+async function edgeFunctionError(error: unknown): Promise<Error> {
+  const context = (error as { context?: unknown } | null)?.context;
+  if (context instanceof Response) {
+    try {
+      const body = await context.clone().json() as { message?: string };
+      if (body.message) return new Error(body.message);
+    } catch {
+      // Mantiene il messaggio SDK quando il body non è JSON.
+    }
+  }
+  return error instanceof Error ? error : new Error(String(error));
+}
+
+export async function deleteDisabledAdminUser(
+  userId: string,
+  reason: string,
+  confirmation: string,
+): Promise<AdminDeleteUserResult> {
+  const { data, error } = await requireSupabase().functions.invoke("admin-delete-user", {
+    body: {
+      userId,
+      reason: reason.trim(),
+      confirmation: confirmation.trim().toUpperCase(),
+    },
+  });
+  if (error) throw await edgeFunctionError(error);
+
+  const result = (data ?? {}) as JsonRow;
+  return {
+    deletedUserId: String(result.deleted_user_id ?? userId),
+    deletedTrips: numberValue(result.deleted_trip_count),
+  };
 }
 
 export async function cancelTripAsAdmin(tripId: string, reason: string) {

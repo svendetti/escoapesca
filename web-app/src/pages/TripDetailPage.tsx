@@ -6,8 +6,10 @@ import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
+import { loadMyTripFeedback } from "../lib/feedback";
 import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
+import { shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
 import { cancelFishingTrip, loadFishingTripForViewer } from "../lib/trips";
 import type {
   FishingTrip,
@@ -50,6 +52,7 @@ export function TripDetailPage() {
   const navigationNotice = (location.state as { notice?: string } | null)?.notice;
   const [trip, setTrip] = useState<FishingTrip | null>(null);
   const [participationStatus, setParticipationStatus] = useState<TripParticipationStatus | null>(null);
+  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(navigationNotice ?? null);
   const [error, setError] = useState<string | null>(null);
@@ -64,13 +67,17 @@ export function TripDetailPage() {
     void Promise.all([
       loadFishingTripForViewer(tripId),
       loadMyTripParticipations().catch(() => []),
+      loadMyTripFeedback().catch(() => null),
     ])
-      .then(([loaded, participations]) => {
+      .then(([loaded, participations, feedback]) => {
         if (active) {
           setTrip(loaded);
           setParticipationStatus(
             participations.find((participation) => participation.id === tripId)
               ?.participationStatus ?? null,
+          );
+          setHasSubmittedFeedback(
+            feedback ? feedback.some((entry) => entry.tripId === tripId) : null,
           );
         }
       })
@@ -119,8 +126,9 @@ export function TripDetailPage() {
   const endsAt = new Date(trip.endsAt);
   const isOrganizer = trip.organizerUserId === user?.id;
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
-  const canLeaveFeedback = endsAt.getTime() <= Date.now()
-    && ["confirmed", "completed"].includes(trip.status);
+  const showShare = isOrganizer && shouldShowTripShare(trip);
+  const canLeaveFeedback = hasSubmittedFeedback === false
+    && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
   const progressNotice = participationProgressNotice(participationStatus);
 
   return (
@@ -146,7 +154,7 @@ export function TripDetailPage() {
       {notice && <Notice kind="success">{notice}</Notice>}
       {error && <Notice kind="error">{error}</Notice>}
 
-      {isOrganizer && (
+      {showShare && (
         <section className="trip-detail-card organizer-share">
           <div>
             <h2>Condividi l’uscita</h2>
