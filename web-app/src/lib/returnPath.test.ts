@@ -52,7 +52,8 @@ describe("return path", () => {
   });
 
   it("non produce redirect esterni dopo il login", () => {
-    expect(postAuthPath("https://evil.example/path", true)).toBe("/profilo");
-    expect(postAuthPath(null, true)).toBe("/profilo");
+    expect(postAuthPath("https://evil.example/path", true)).toBe("/");
+    expect(postAuthPath(null, true)).toBe("/");
+    expect(postAuthPath(null, false)).toBe("/profilo");
   });
 });

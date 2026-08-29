@@ -60,9 +60,12 @@ export function AppLayout() {
           <nav aria-label="Navigazione principale">
             <NavLink className="nav-home" to="/" end>Home</NavLink>
             <NavLink to="/trova-uscita">Trova</NavLink>
-            <NavLink to="/mie-uscite">Le mie</NavLink>
+            <NavLink to="/mie-uscite">
+              <span className="nav-label-wide">Le mie uscite</span>
+              <span className="nav-label-short">Le mie</span>
+            </NavLink>
             <NavLink to="/crea-uscita">
-              <span className="nav-label-wide">Crea uscita</span>
+              <span className="nav-label-wide">Proponi</span>
               <span className="nav-label-short">Crea</span>
             </NavLink>
             <NavLink

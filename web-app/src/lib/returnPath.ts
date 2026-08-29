@@ -101,7 +101,7 @@ export function withReturnPath(route: string, returnPath: string | null) {
 
 export function postAuthPath(returnPath: string | null, profileComplete: boolean) {
   const normalized = normalizeInternalReturnPath(returnPath);
-  if (!normalized) return "/profilo";
+  if (!normalized) return profileComplete ? "/" : "/profilo";
   return profileComplete
     ? normalized
     : withReturnPath("/profilo", normalized);
