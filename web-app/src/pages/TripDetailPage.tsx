@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
+import { TripInvitePanel } from "../components/TripInvitePanel";
 import { TripShareActions } from "../components/TripShareActions";
 import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
@@ -11,39 +12,18 @@ import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
 import { shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
 import { cancelFishingTrip, loadFishingTripForViewer } from "../lib/trips";
-import type {
-  FishingTrip,
-  RecommendedLevel,
-  TripParticipationStatus,
-  TripStatus,
-} from "../types/domain";
+import type { FishingTrip, RecommendedLevel, TripParticipationStatus, TripStatus } from "../types/domain";
 
 const STATUS_LABELS: Record<TripStatus, string> = {
-  draft: "Bozza",
-  open: "Aperta",
-  confirmed: "Confermata",
-  completed: "Completata",
-  cancelled: "Annullata",
+  draft: "Bozza", open: "Aperta", confirmed: "Confermata", completed: "Completata", cancelled: "Annullata",
 };
-
 const LEVEL_LABELS: Record<RecommendedLevel, string> = {
-  any: "Qualsiasi livello",
-  beginner: "Principiante",
-  intermediate: "Intermedio",
-  expert: "Esperto",
+  any: "Qualsiasi livello", beginner: "Principiante", intermediate: "Intermedio", expert: "Esperto",
 };
-
 const dayFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
+  weekday: "long", day: "numeric", month: "long", year: "numeric",
 });
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
+const timeFormatter = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" });
 
 export function TripDetailPage() {
   const { user } = useAuth();
@@ -63,31 +43,21 @@ export function TripDetailPage() {
   useEffect(() => {
     if (!user || !tripId) return;
     let active = true;
-
     void Promise.all([
       loadFishingTripForViewer(tripId),
       loadMyTripParticipations().catch(() => []),
       loadMyTripFeedback().catch(() => null),
     ])
       .then(([loaded, participations, feedback]) => {
-        if (active) {
-          setTrip(loaded);
-          setParticipationStatus(
-            participations.find((participation) => participation.id === tripId)
-              ?.participationStatus ?? null,
-          );
-          setHasSubmittedFeedback(
-            feedback ? feedback.some((entry) => entry.tripId === tripId) : null,
-          );
-        }
+        if (!active) return;
+        setTrip(loaded);
+        setParticipationStatus(
+          participations.find((participation) => participation.id === tripId)?.participationStatus ?? null,
+        );
+        setHasSubmittedFeedback(feedback ? feedback.some((entry) => entry.tripId === tripId) : null);
       })
-      .catch((caught) => {
-        if (active) setError(readableError(caught));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
+      .catch((caught) => { if (active) setError(readableError(caught)); })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [tripId, user]);
 
@@ -109,7 +79,6 @@ export function TripDetailPage() {
   }
 
   if (loading) return <div className="page-status">Caricamento dell’uscita…</div>;
-
   if (error && !trip) {
     return (
       <section className="page-narrow auth-card center-card">
@@ -119,7 +88,6 @@ export function TripDetailPage() {
       </section>
     );
   }
-
   if (!trip) return null;
 
   const startsAt = new Date(trip.startsAt);
@@ -127,8 +95,7 @@ export function TripDetailPage() {
   const isOrganizer = trip.organizerUserId === user?.id;
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
   const showShare = isOrganizer && shouldShowTripShare(trip);
-  const canLeaveFeedback = hasSubmittedFeedback === false
-    && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
+  const canLeaveFeedback = hasSubmittedFeedback === false && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
   const progressNotice = participationProgressNotice(participationStatus);
 
   return (
@@ -146,9 +113,7 @@ export function TripDetailPage() {
           <h1>{trip.title}</h1>
           <p>{dayFormatter.format(startsAt)} · {timeFormatter.format(startsAt)}–{timeFormatter.format(endsAt)}</p>
         </div>
-        {canManage && (
-          <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>
-        )}
+        {canManage && <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>}
       </div>
 
       {notice && <Notice kind="success">{notice}</Notice>}
@@ -171,6 +136,8 @@ export function TripDetailPage() {
           }} />
         </section>
       )}
+
+      {canManage && <TripInvitePanel tripId={trip.id} />}
 
       {canLeaveFeedback && (
         <section className="trip-detail-card">
@@ -228,7 +195,6 @@ export function TripDetailPage() {
         isOrganizer={isOrganizer}
         participationStatus={participationStatus}
       />
-
 
       {trip.status === "cancelled" && (
         <section className="trip-detail-card cancelled-summary">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
+import { PushNotificationPanel } from "../components/PushNotificationPanel";
 import { readableError } from "../lib/errors";
 import {
   loadNotifications,
@@ -11,10 +12,7 @@ import {
 import type { AppNotification } from "../types/domain";
 
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
-  day: "numeric",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
+  day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
 });
 
 export function NotificationsPage() {
@@ -25,18 +23,18 @@ export function NotificationsPage() {
 
   useEffect(() => {
     let active = true;
-    void loadNotifications()
-      .then((loaded) => {
-        if (active) setNotifications(loaded);
-      })
-      .catch((caught) => {
-        if (active) setError(readableError(caught));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => { active = false; };
+    const load = () => {
+      void loadNotifications()
+        .then((loaded) => { if (active) setNotifications(loaded); })
+        .catch((caught) => { if (active) setError(readableError(caught)); })
+        .finally(() => { if (active) setLoading(false); });
+    };
+    load();
+    window.addEventListener("escoapesca:notifications-updated", load);
+    return () => {
+      active = false;
+      window.removeEventListener("escoapesca:notifications-updated", load);
+    };
   }, []);
 
   async function readOne(notificationId: string) {
@@ -46,11 +44,8 @@ export function NotificationsPage() {
         ? { ...notification, readAt }
         : notification
     )));
-    try {
-      await markNotificationRead(notificationId);
-    } catch (caught) {
-      setError(readableError(caught));
-    }
+    try { await markNotificationRead(notificationId); }
+    catch (caught) { setError(readableError(caught)); }
   }
 
   async function readAll() {
@@ -77,7 +72,7 @@ export function NotificationsPage() {
         <div>
           <div className="eyebrow">Aggiornamenti</div>
           <h1>Notifiche</h1>
-          <p>Richieste, decisioni e cambiamenti delle tue uscite.</p>
+          <p>Richieste, inviti, decisioni e cambiamenti delle tue uscite.</p>
         </div>
         {hasUnread && (
           <button className="button button-secondary" disabled={markingAll} type="button" onClick={() => void readAll()}>
@@ -86,13 +81,14 @@ export function NotificationsPage() {
         )}
       </div>
 
+      <PushNotificationPanel />
       {error && <Notice kind="error">{error}</Notice>}
 
       {!error && notifications.length === 0 ? (
         <div className="empty-state">
           <span aria-hidden="true">≈</span>
           <h2>Nessun aggiornamento</h2>
-          <p>Qui compariranno richieste, conferme e modifiche alle uscite.</p>
+          <p>Qui compariranno richieste, inviti, conferme e modifiche alle uscite.</p>
           <Link className="button button-primary" to="/trova-uscita">Trova un’uscita</Link>
         </div>
       ) : (
@@ -109,25 +105,20 @@ export function NotificationsPage() {
                 <time dateTime={notification.createdAt}>{dateFormatter.format(new Date(notification.createdAt))}</time>
               </>
             );
-
             return copy.target ? (
               <Link
                 className={`notification-card${notification.readAt ? "" : " unread"}`}
                 key={notification.id}
                 to={copy.target}
                 onClick={() => void readOne(notification.id)}
-              >
-                {content}
-              </Link>
+              >{content}</Link>
             ) : (
               <button
                 className={`notification-card${notification.readAt ? "" : " unread"}`}
                 key={notification.id}
                 type="button"
                 onClick={() => void readOne(notification.id)}
-              >
-                {content}
-              </button>
+              >{content}</button>
             );
           })}
         </div>

@@ -34,7 +34,6 @@ export async function loadNotifications(): Promise<AppNotification[]> {
     .select("id, notification_type, trip_id, payload, read_at, created_at")
     .order("created_at", { ascending: false })
     .limit(50);
-
   if (error) throw error;
   return ((data ?? []) as NotificationRow[]).map(mapNotification);
 }
@@ -44,7 +43,6 @@ export async function loadUnreadNotificationCount() {
     .from("notifications")
     .select("id", { count: "exact", head: true })
     .is("read_at", null);
-
   if (error) throw error;
   return count ?? 0;
 }
@@ -59,7 +57,6 @@ export async function markNotificationRead(notificationId: string) {
     .update({ read_at: new Date().toISOString() })
     .eq("id", notificationId)
     .is("read_at", null);
-
   if (error) throw error;
   announceNotificationUpdate();
 }
@@ -70,7 +67,6 @@ export async function markAllNotificationsRead() {
     .from("notifications")
     .update({ read_at: readAt })
     .is("read_at", null);
-
   if (error) throw error;
   announceNotificationUpdate();
   return readAt;
@@ -80,7 +76,7 @@ export function notificationCopy(notification: AppNotification) {
   const trip = notification.tripTitle ? ` “${notification.tripTitle}”` : "";
   const actor = notification.actorName ?? "Un pescatore";
 
-  switch (notification.type) {
+  switch (String(notification.type)) {
     case "participation_requested":
       return { title: "Nuova richiesta", message: `${actor} vuole partecipare a${trip}.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
     case "participation_cancelled":
@@ -93,10 +89,16 @@ export function notificationCopy(notification: AppNotification) {
       };
     case "participation_rejected":
       return { title: "Richiesta non accettata", message: `La tua richiesta per${trip} non è stata accettata.`, target: "/trova-uscita" };
+    case "trip_invitation_sent":
+      return {
+        title: "Invito a un’uscita",
+        message: `${actor} ti ha invitato a${trip}. L’invito non riserva il posto: apri la scheda per chiedere di partecipare.`,
+        target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita",
+      };
     case "trip_confirmed":
       return { title: "Uscita confermata", message: `L’uscita${trip} è confermata. Ora puoi vedere i dettagli privati.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
     case "trip_updated":
-      return { title: "Uscita modificata", message: `L’organizzatore ha aggiornato${trip}. Controlla data e informazioni pubbliche.`, target: "/trova-uscita" };
+      return { title: "Uscita modificata", message: `L’organizzatore ha aggiornato${trip}. Controlla data e informazioni pubbliche.`, target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita" };
     case "trip_cancelled":
       return { title: "Uscita annullata", message: `L’organizzatore ha annullato${trip}.`, target: null };
     case "trip_private_details_updated":
@@ -105,6 +107,8 @@ export function notificationCopy(notification: AppNotification) {
       return { title: "Com’è andata l’uscita?", message: "Bastano pochi secondi per lasciare il tuo feedback.", target: notification.tripId ? `/uscite/${notification.tripId}/feedback` : null };
     case "feedback_reminder":
       return { title: "Promemoria feedback", message: "Non hai ancora raccontato com’è andata: bastano pochi secondi.", target: notification.tripId ? `/uscite/${notification.tripId}/feedback` : null };
+    case "push_test":
+      return { title: "Notifiche sul telefono attive", message: "Il dispositivo può ricevere gli avvisi anche quando EscoAPesca è chiusa.", target: null };
     default:
       return { title: "Aggiornamento uscita", message: `Ci sono novità per${trip}.`, target: null };
   }
