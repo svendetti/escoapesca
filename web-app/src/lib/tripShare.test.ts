@@ -10,10 +10,13 @@ import {
 
 const shareData: TripShareData = {
   tripId: "27be0ea7-abce-4b4a-a445-b4a6043a0b1c",
+  publicCode: "EP-1234567890",
   title: "Spinning domenica mattina",
   techniqueName: "Spinning",
   publicZone: "Fiumicino",
   startsAt: "2030-01-06T08:00:00+01:00",
+  endsAt: "2030-01-06T23:59:59+01:00",
+  endPrecision: "date",
   availablePlaces: 2,
   tripType: "protected",
 };
@@ -45,7 +48,7 @@ describe("trip sharing", () => {
     const share = vi.fn().mockResolvedValue(undefined);
     await expect(shareTripNatively(shareData, share)).resolves.toBe("shared");
     expect(share).toHaveBeenCalledWith(expect.objectContaining({
-      title: shareData.title,
+      title: `${shareData.title} · ${shareData.publicCode}`,
       url: publicTripUrl(shareData.tripId),
     }));
     expect(share.mock.calls[0][0].text).not.toContain("Dettagli su EscoAPesca");

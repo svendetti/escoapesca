@@ -8,11 +8,13 @@ import {
 
 const futureTrip: PublicFishingTrip = {
   id: "4f0c90ab-1a44-4d98-9f15-cc8cbcc8ba25",
+  publicCode: "EP-1234567890",
   title: "Spinning domenica mattina",
   techniqueName: "Spinning",
   waterType: "sea",
   startsAt: "2030-01-02T08:00:00Z",
   endsAt: "2030-01-02T12:00:00Z",
+  endPrecision: "datetime",
   provinceCode: "RM",
   provinceName: "Roma",
   publicZone: "Fiumicino",
@@ -47,7 +49,7 @@ describe("public trip lifecycle", () => {
 
   it("genera una descrizione pubblica senza dettagli privati", () => {
     expect(publicTripShareDescription(futureTrip)).toBe(
-      "Uscita di pesca · Spot protetto · Fiumicino, Roma. Scopri i dettagli su EscoAPesca.",
+      "Spinning domenica mattina · EP-1234567890 · Spot protetto · Fiumicino, Roma. Scopri i dettagli su EscoAPesca.",
     );
   });
 });

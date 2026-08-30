@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
+import { TripGroupPanel } from "../components/TripGroupPanel";
 import { TripInvitePanel } from "../components/TripInvitePanel";
 import { TripShareActions } from "../components/TripShareActions";
 import { TripRequestsPanel } from "../components/TripRequestsPanel";
@@ -11,7 +12,14 @@ import { loadMyTripFeedback } from "../lib/feedback";
 import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
 import { shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
-import { cancelFishingTrip, deleteFishingTripDraft, loadFishingTripForViewer } from "../lib/trips";
+import { formatTripSchedule } from "../lib/tripExperience";
+import {
+  cancelFishingTrip,
+  deleteFishingTripDraft,
+  loadFishingTripForViewer,
+  loadTripOrganizerSummary,
+  type TripOrganizerSummary,
+} from "../lib/trips";
 import type { FishingTrip, RecommendedLevel, TripParticipationStatus, TripStatus } from "../types/domain";
 
 const STATUS_LABELS: Record<TripStatus, string> = {
@@ -20,10 +28,6 @@ const STATUS_LABELS: Record<TripStatus, string> = {
 const LEVEL_LABELS: Record<RecommendedLevel, string> = {
   any: "Qualsiasi livello", beginner: "Principiante", intermediate: "Intermedio", expert: "Esperto",
 };
-const dayFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "long", day: "numeric", month: "long", year: "numeric",
-});
-const timeFormatter = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" });
 
 export function TripDetailPage() {
   const { user, isAdmin } = useAuth();
@@ -32,6 +36,7 @@ export function TripDetailPage() {
   const navigate = useNavigate();
   const navigationNotice = (location.state as { notice?: string } | null)?.notice;
   const [trip, setTrip] = useState<FishingTrip | null>(null);
+  const [organizer, setOrganizer] = useState<TripOrganizerSummary | null>(null);
   const [participationStatus, setParticipationStatus] = useState<TripParticipationStatus | null>(null);
   const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,10 +55,12 @@ export function TripDetailPage() {
       loadFishingTripForViewer(tripId),
       loadMyTripParticipations().catch(() => []),
       loadMyTripFeedback().catch(() => null),
+      loadTripOrganizerSummary(tripId).catch(() => null),
     ])
-      .then(([loaded, participations, feedback]) => {
+      .then(([loaded, participations, feedback, loadedOrganizer]) => {
         if (!active) return;
         setTrip(loaded);
+        setOrganizer(loadedOrganizer);
         setParticipationStatus(
           participations.find((participation) => participation.id === tripId)?.participationStatus ?? null,
         );
@@ -110,7 +117,6 @@ export function TripDetailPage() {
   if (!trip) return null;
 
   const startsAt = new Date(trip.startsAt);
-  const endsAt = new Date(trip.endsAt);
   const isOrganizer = trip.organizerUserId === user?.id;
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
   const showShare = isOrganizer && shouldShowTripShare(trip);
@@ -129,8 +135,9 @@ export function TripDetailPage() {
             <span className={`trip-status status-${trip.status}`}>{STATUS_LABELS[trip.status]}</span>
             <span className="trip-privacy">{trip.tripType === "protected" ? "Spot protetto" : "Uscita libera"}</span>
           </div>
+          <span className="trip-code">{trip.publicCode}</span>
           <h1>{trip.title}</h1>
-          <p>{dayFormatter.format(startsAt)} · {timeFormatter.format(startsAt)}–{timeFormatter.format(endsAt)}</p>
+          <p>{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
         </div>
         {canManage && <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>}
       </div>
@@ -144,6 +151,18 @@ export function TripDetailPage() {
         </Notice>
       )}
 
+      {organizer && (
+        <section className="trip-detail-card organizer-identity-card">
+          {organizer.photoUrl ? (
+            <img src={organizer.photoUrl} alt={`Foto di ${organizer.displayName}`} />
+          ) : (
+            <span className="organizer-avatar-fallback" aria-hidden="true">
+              {organizer.displayName.charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div><small>Organizza</small><strong>{isOrganizer ? "Tu" : organizer.displayName}</strong></div>
+        </section>
+      )}
       {showShare && !trip.hiddenByAdminAt && (
         <section className="trip-detail-card organizer-share">
           <div>
@@ -152,10 +171,13 @@ export function TripDetailPage() {
           </div>
           <TripShareActions data={{
             tripId: trip.id,
+            publicCode: trip.publicCode,
             title: trip.title,
             techniqueName: trip.techniqueName,
             publicZone: trip.publicZone,
             startsAt: trip.startsAt,
+            endsAt: trip.endsAt,
+            endPrecision: trip.endPrecision,
             availablePlaces: null,
             tripType: trip.tripType,
           }} />
@@ -184,16 +206,13 @@ export function TripDetailPage() {
           </dl>
         </section>
 
-        <section className="trip-detail-card">
-          <h2>Descrizione</h2>
-          <p className="preserve-lines">{trip.description}</p>
-          {trip.gearNotes && (
-            <>
-              <h3>Attrezzatura o note</h3>
-              <p className="preserve-lines">{trip.gearNotes}</p>
-            </>
-          )}
-        </section>
+        {(trip.description || trip.gearNotes) && (
+          <section className="trip-detail-card">
+            <h2>Informazioni utili</h2>
+            {trip.description && <p className="preserve-lines">{trip.description}</p>}
+            {trip.gearNotes && <p className="preserve-lines">{trip.gearNotes}</p>}
+          </section>
+        )}
       </div>
 
       {isOrganizer ? (
@@ -207,6 +226,10 @@ export function TripDetailPage() {
         <Notice kind={progressNotice.kind}>{progressNotice.message}</Notice>
       ) : null}
 
+      <TripGroupPanel
+        tripId={trip.id}
+        enabled={isOrganizer || ["accepted", "confirmed", "completed"].includes(participationStatus ?? "")}
+      />
       {trip.tripType === "protected" ? (
         <Notice kind="info">La posizione precisa non è pubblica e resta separata dalla zona generica.</Notice>
       ) : trip.publicMeetingPoint ? (

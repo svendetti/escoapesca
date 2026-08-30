@@ -4,6 +4,7 @@ import type {
   AppNotification,
   FishingTrip,
   FishingTripDiscovery,
+  TripEndPrecision,
   TripParticipationStatus,
   TripStatus,
 } from "../types/domain";
@@ -11,10 +12,12 @@ import type { TripParticipationRequestSummary } from "./trips";
 
 export type HomeTrip = {
   id: string;
+  publicCode: string;
   role: "organizer" | "participant";
   title: string;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   publicZone: string;
   status: TripStatus;
@@ -47,10 +50,12 @@ type BuildHomeDashboardInput = {
 function organizedTrip(trip: FishingTrip): HomeTrip {
   return {
     id: trip.id,
+    publicCode: trip.publicCode,
     role: "organizer",
     title: trip.title,
     startsAt: trip.startsAt,
     endsAt: trip.endsAt,
+    endPrecision: trip.endPrecision,
     provinceCode: trip.provinceCode,
     publicZone: trip.publicZone,
     status: trip.status,
@@ -61,10 +66,12 @@ function organizedTrip(trip: FishingTrip): HomeTrip {
 function participatingTrip(trip: FishingTripParticipation): HomeTrip {
   return {
     id: trip.id,
+    publicCode: trip.publicCode,
     role: "participant",
     title: trip.title,
     startsAt: trip.startsAt,
     endsAt: trip.endsAt,
+    endPrecision: trip.endPrecision,
     provinceCode: trip.provinceCode,
     publicZone: trip.publicZone,
     status: trip.status,

@@ -12,6 +12,7 @@ import {
 import { loadMyTripParticipations } from "../lib/myTrips";
 import { loadNotifications } from "../lib/notifications";
 import { readableError } from "../lib/errors";
+import { formatTripSchedule } from "../lib/tripExperience";
 import {
   loadDiscoverableTrips,
   loadMyFishingTrips,
@@ -25,17 +26,6 @@ import {
   type FishingTripDiscovery,
 } from "../types/domain";
 import type { FishingTripParticipation } from "../lib/myTrips";
-
-const dayFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
 
 type AuthenticatedHomeData = {
   dashboard: HomeDashboard;
@@ -211,10 +201,9 @@ function AuthenticatedHome({ userId }: { userId: string }) {
           <article className="home-next-trip">
             <div>
               <span className="trip-status">{nextTripLabel(nextTrip)}</span>
+              <span className="trip-code">{nextTrip.publicCode}</span>
               <h3>{nextTrip.title}</h3>
-              <p className="home-trip-date">
-                {dayFormatter.format(new Date(nextTrip.startsAt))} · {timeFormatter.format(new Date(nextTrip.startsAt))}–{timeFormatter.format(new Date(nextTrip.endsAt))}
-              </p>
+              <p className="home-trip-date">{formatTripSchedule(nextTrip.startsAt, nextTrip.endsAt, nextTrip.endPrecision)}</p>
               <p>{nextTrip.publicZone} · {nextTrip.provinceCode}</p>
             </div>
             <Link className="button button-primary" to={nextTripDestination(nextTrip)}>
@@ -238,8 +227,9 @@ function AuthenticatedHome({ userId }: { userId: string }) {
               {data.discoveries.map((trip) => (
                 <Link className="home-discovery-card" key={trip.id} to="/trova-uscita">
                   <span>{trip.techniqueName}</span>
+                  <span className="trip-code">{trip.publicCode}</span>
                   <h3>{trip.title}</h3>
-                  <p>{dayFormatter.format(new Date(trip.startsAt))} · {timeFormatter.format(new Date(trip.startsAt))}</p>
+                  <p>{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
                   <small>{trip.publicZone} · {trip.provinceCode} · {trip.availablePlaces} {trip.availablePlaces === 1 ? "posto" : "posti"}</small>
                 </Link>
               ))}

@@ -20,7 +20,7 @@ export function CreateTripPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileReady, setProfileReady] = useState(false);
-  const [createdTripId, setCreatedTripId] = useState<string | null>(null);
+  const [createdTrip, setCreatedTrip] = useState<{ id: string; publicCode: string } | null>(null);
   const [notice, setNotice] = useState<{ kind: "error" | "success" | "info"; text: string } | null>(null);
 
   useEffect(() => {
@@ -69,8 +69,8 @@ export function CreateTripPage() {
     setSaving(true);
     setNotice(null);
     try {
-      const tripId = await createFishingTrip(user.id, values);
-      setCreatedTripId(tripId);
+      const created = await createFishingTrip(user.id, values);
+      setCreatedTrip(created);
       setNotice({ kind: "success", text: "Uscita pubblicata. Condividila per trovare i primi compagni di pesca." });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (caught) {
@@ -94,7 +94,7 @@ export function CreateTripPage() {
     );
   }
 
-  if (createdTripId) {
+  if (createdTrip) {
     const createdTimes = tripDateTimes(values);
     const techniqueName = techniques.find((item) => item.id === values.techniqueId)?.label
       ?? "Pesca";
@@ -109,22 +109,25 @@ export function CreateTripPage() {
             <h2>Condividi l’uscita</h2>
             <p>Invia il link pubblico: funziona anche per chi non ha ancora un account.</p>
             <TripShareActions data={{
-              tripId: createdTripId,
+              tripId: createdTrip.id,
+              publicCode: createdTrip.publicCode,
               title: values.title,
               techniqueName,
               publicZone: values.publicZone,
               startsAt: createdTimes.startsAt.toISOString(),
+              endsAt: createdTimes.endsAt.toISOString(),
+              endPrecision: createdTimes.endPrecision,
               availablePlaces: Math.max(values.maxParticipants - 1, 0),
               tripType: values.tripType,
             }} />
           </section>
         )}
         <div className="button-stack">
-          <Link className="button button-secondary" to={`/uscite/${createdTripId}`}>Vedi l’uscita</Link>
+          <Link className="button button-secondary" to={`/uscite/${createdTrip.id}`}>Vedi l’uscita</Link>
           <Link className="button button-secondary" to="/mie-uscite">Le mie uscite</Link>
           <button className="button button-secondary" type="button" onClick={() => {
-            setValues(EMPTY_TRIP);
-            setCreatedTripId(null);
+            setValues({ ...EMPTY_TRIP });
+            setCreatedTrip(null);
             setNotice(null);
           }}>Crea un’altra uscita</button>
         </div>

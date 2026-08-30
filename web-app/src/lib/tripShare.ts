@@ -1,42 +1,33 @@
-import type { TripType } from "../types/domain";
+import type { TripEndPrecision, TripType } from "../types/domain";
+import { formatTripSchedule } from "./tripExperience";
 
 const PUBLIC_APP_ORIGIN = "https://app.escoapesca.it";
 
 export type TripShareData = {
   tripId: string;
+  publicCode: string;
   title: string;
   techniqueName: string;
   publicZone: string;
   startsAt: string;
+  endsAt: string;
+  endPrecision: TripEndPrecision;
   availablePlaces: number | null;
   tripType: TripType;
 };
-
-const dateFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  timeZone: "Europe/Rome",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Europe/Rome",
-});
 
 export function publicTripUrl(tripId: string) {
   return `${PUBLIC_APP_ORIGIN}/u/${encodeURIComponent(tripId)}`;
 }
 
 export function tripWhatsAppMessage(data: TripShareData) {
-  const startsAt = new Date(data.startsAt);
   const places = data.availablePlaces === null
     ? ""
     : ` · ${data.availablePlaces} ${data.availablePlaces === 1 ? "posto disponibile" : "posti disponibili"}`;
   const privacy = data.tripType === "protected" ? "Spot protetto." : "Uscita libera.";
+  const schedule = formatTripSchedule(data.startsAt, data.endsAt, data.endPrecision);
 
-  return `${data.title} — ${data.techniqueName}, ${dateFormatter.format(startsAt)} alle ${timeFormatter.format(startsAt)} a ${data.publicZone}${places}. ${privacy} Dettagli su EscoAPesca: ${publicTripUrl(data.tripId)}`;
+  return `${data.title} · ${data.publicCode}\n${data.techniqueName} · ${schedule}\n${data.publicZone}${places}\n${privacy}\nDettagli su EscoAPesca: ${publicTripUrl(data.tripId)}`;
 }
 
 export function whatsappShareUrl(data: TripShareData) {
@@ -56,8 +47,8 @@ export async function shareTripNatively(
   try {
     const url = publicTripUrl(data.tripId);
     await share({
-      title: data.title,
-      text: tripWhatsAppMessage(data).replace(` Dettagli su EscoAPesca: ${url}`, ""),
+      title: `${data.title} · ${data.publicCode}`,
+      text: tripWhatsAppMessage(data).replace(`\nDettagli su EscoAPesca: ${url}`, ""),
       url,
     });
     return "shared";
@@ -67,6 +58,7 @@ export async function shareTripNatively(
       : "failed";
   }
 }
+
 function fallbackCopy(text: string) {
   if (!globalThis.document?.body) return false;
   const textarea = document.createElement("textarea");

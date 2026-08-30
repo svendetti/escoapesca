@@ -4,6 +4,7 @@ import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { loadMyTripFeedback } from "../lib/feedback";
 import { readableError } from "../lib/errors";
+import { formatTripSchedule } from "../lib/tripExperience";
 import {
   canLeaveTripFeedback,
   dashboardTripBucket,
@@ -19,6 +20,7 @@ import {
 } from "../lib/trips";
 import type {
   FishingTrip,
+  TripEndPrecision,
   TripParticipationStatus,
   TripStatus,
   TripType,
@@ -42,26 +44,16 @@ const PARTICIPATION_LABELS: Record<TripParticipationStatus, string> = {
   no_show: "Mancata presenza",
 };
 
-const dateFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 type DashboardTrip = {
   key: string;
   id: string;
+  publicCode: string;
   role: DashboardTripRole;
   title: string;
   techniqueName: string;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   publicZone: string;
   maxParticipants: number;
@@ -82,11 +74,13 @@ function organizedTrip(
   return {
     key: `organizer-${trip.id}`,
     id: trip.id,
+    publicCode: trip.publicCode,
     role: "organizer",
     title: trip.title,
     techniqueName: trip.techniqueName,
     startsAt: trip.startsAt,
     endsAt: trip.endsAt,
+    endPrecision: trip.endPrecision,
     provinceCode: trip.provinceCode,
     publicZone: trip.publicZone,
     maxParticipants: trip.maxParticipants,
@@ -108,11 +102,13 @@ function participatingTrip(
   return {
     key: `participant-${trip.participantId}`,
     id: trip.id,
+    publicCode: trip.publicCode,
     role: "participant",
     title: trip.title,
     techniqueName: trip.techniqueName,
     startsAt: trip.startsAt,
     endsAt: trip.endsAt,
+    endPrecision: trip.endPrecision,
     provinceCode: trip.provinceCode,
     publicZone: trip.publicZone,
     maxParticipants: trip.maxParticipants,
@@ -213,19 +209,15 @@ function cardDestination(trip: DashboardTrip) {
 }
 
 function TripCardContent({ trip }: { trip: DashboardTrip }) {
-  const startsAt = new Date(trip.startsAt);
-  const endsAt = new Date(trip.endsAt);
-
   return (
     <>
       <div className="trip-card-heading">
         <span className={`trip-status status-${trip.adminHidden ? "hidden" : trip.status}`}>{statusLabel(trip)}</span>
         <span className="trip-privacy">{trip.tripType === "protected" ? "Spot protetto" : "Uscita libera"}</span>
       </div>
+      <span className="trip-code">{trip.publicCode}</span>
       <h3>{trip.title}</h3>
-      <p className="trip-date">
-        {dateFormatter.format(startsAt)} · {timeFormatter.format(startsAt)}–{timeFormatter.format(endsAt)}
-      </p>
+      <p className="trip-date">{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
       <div className="trip-card-meta">
         <span>{trip.techniqueName}</span>
         <span>{trip.publicZone} · {trip.provinceCode}</span>

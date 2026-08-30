@@ -9,6 +9,7 @@ import type {
   TripParticipationRequest,
   TripParticipationStatus,
   TripDiscoveryFilters,
+  TripEndPrecision,
   TripValues,
 } from "../types/domain";
 
@@ -24,19 +25,23 @@ export async function loadFishingTechniques(): Promise<CatalogItem[]> {
 
 type DiscoveryRow = {
   id: string;
+  public_code: string;
   organizer_user_id: string;
   organizer_name: string;
+  organizer_profile_photo_key: string | null;
   title: string;
   technique_id: number;
   technique_name: string;
   water_type: FishingTripDiscovery["waterType"];
   starts_at: string;
   ends_at: string;
+  end_precision: TripEndPrecision;
   province_code: string;
   province_name: string;
   public_zone: string;
   max_participants: number;
   available_places: number;
+  participant_count: number;
   recommended_level: FishingTripDiscovery["recommendedLevel"];
   description: string;
   trip_type: FishingTripDiscovery["tripType"];
@@ -77,19 +82,24 @@ export async function loadDiscoverableTrips(
   if (error) throw error;
   const trips = ((data ?? []) as DiscoveryRow[]).map((row) => ({
     id: row.id,
+    publicCode: row.public_code,
     organizerUserId: row.organizer_user_id,
     organizerName: row.organizer_name,
+    organizerPhotoKey: row.organizer_profile_photo_key,
+    organizerPhotoUrl: null,
     title: row.title,
     techniqueId: row.technique_id,
     techniqueName: row.technique_name,
     waterType: row.water_type,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    endPrecision: row.end_precision,
     provinceCode: row.province_code,
     provinceName: row.province_name,
     publicZone: row.public_zone,
     maxParticipants: row.max_participants,
     availablePlaces: row.available_places,
+    participantCount: row.participant_count,
     recommendedLevel: row.recommended_level,
     description: row.description,
     tripType: row.trip_type,
@@ -98,15 +108,25 @@ export async function loadDiscoverableTrips(
 
   if (trips.length === 0) return trips;
 
+  const tripsWithPhotos = await Promise.all(trips.map(async (trip) => {
+    if (!trip.organizerPhotoKey) return trip;
+    const { data: signedPhoto, error: photoError } = await supabase.storage
+      .from("profile-photos")
+      .createSignedUrl(trip.organizerPhotoKey, 300);
+    return photoError || !signedPhoto?.signedUrl
+      ? trip
+      : { ...trip, organizerPhotoUrl: signedPhoto.signedUrl };
+  }));
+
   const { data: participationData, error: participationError } = await supabase
     .from("trip_participants")
     .select("trip_id, status")
     .eq("user_id", userId)
-    .in("trip_id", trips.map((trip) => trip.id));
+    .in("trip_id", tripsWithPhotos.map((trip) => trip.id));
 
   if (participationError) throw participationError;
   return mergeParticipationStatuses(
-    trips,
+    tripsWithPhotos,
     (participationData ?? []) as Array<{
       trip_id: string;
       status: TripParticipationStatus;
@@ -321,12 +341,15 @@ export async function confirmFishingTrip(tripId: string) {
 
 const TRIP_SELECT = `
   id,
+  public_code,
   organizer_user_id,
   title,
+  title_is_custom,
   technique_id,
   water_type,
   starts_at,
   ends_at,
+  end_precision,
   province_code,
   public_zone,
   public_meeting_point,
@@ -347,12 +370,15 @@ const TRIP_SELECT = `
 
 type TripRow = {
   id: string;
+  public_code: string;
   organizer_user_id: string;
   title: string;
+  title_is_custom: boolean;
   technique_id: number;
   water_type: FishingTrip["waterType"];
   starts_at: string;
   ends_at: string;
+  end_precision: TripEndPrecision;
   province_code: string;
   public_zone: string;
   public_meeting_point: string | null;
@@ -378,13 +404,16 @@ function mapTrip(row: TripRow): FishingTrip {
 
   return {
     id: row.id,
+    publicCode: row.public_code,
     organizerUserId: row.organizer_user_id,
     title: row.title,
+    titleIsCustom: row.title_is_custom,
     techniqueId: row.technique_id,
     techniqueName: technique?.name ?? "Tecnica non disponibile",
     waterType: row.water_type,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    endPrecision: row.end_precision,
     provinceCode: row.province_code,
     publicZone: row.public_zone,
     publicMeetingPoint: row.public_meeting_point,
@@ -409,10 +438,12 @@ function writableTrip(values: TripValues) {
 
   return {
     title: values.title.trim(),
+    title_is_custom: values.titleIsCustom,
     technique_id: values.techniqueId,
     water_type: values.waterType,
     starts_at: times.startsAt.toISOString(),
     ends_at: times.endsAt.toISOString(),
+    end_precision: times.endPrecision,
     province_code: values.provinceCode,
     public_zone: values.publicZone.trim(),
     public_meeting_point: values.tripType === "free"
@@ -421,7 +452,7 @@ function writableTrip(values: TripValues) {
     max_participants: values.maxParticipants,
     recommended_level: values.recommendedLevel,
     description: values.description.trim(),
-    gear_notes: values.gearNotes.trim() || null,
+    gear_notes: null,
     trip_type: values.tripType,
   };
 }
@@ -432,10 +463,10 @@ export async function createFishingTrip(organizerUserId: string, values: TripVal
     municipality_code: null,
     ...writableTrip(values),
     status: "open",
-  }).select("id").single();
+  }).select("id, public_code").single();
 
   if (error) throw error;
-  return data.id as string;
+  return { id: data.id as string, publicCode: data.public_code as string };
 }
 
 export async function loadMyFishingTrips(userId: string): Promise<FishingTrip[]> {
@@ -624,6 +655,68 @@ export async function cancelFishingTrip(
   return mapTrip(data as unknown as TripRow);
 }
 
+export type TripOrganizerSummary = {
+  userId: string;
+  displayName: string;
+  photoKey: string | null;
+  photoUrl: string | null;
+};
+
+export async function loadTripOrganizerSummary(
+  tripId: string,
+): Promise<TripOrganizerSummary | null> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase.rpc("get_trip_organizer_summary", {
+    p_trip_id: tripId,
+  });
+  if (error) throw error;
+  const row = ((data ?? []) as Array<{
+    user_id: string;
+    display_name: string;
+    profile_photo_key: string | null;
+  }>)[0];
+  if (!row) return null;
+
+  let photoUrl: string | null = null;
+  if (row.profile_photo_key) {
+    const { data: signedPhoto, error: photoError } = await supabase.storage
+      .from("profile-photos")
+      .createSignedUrl(row.profile_photo_key, 300);
+    if (!photoError) photoUrl = signedPhoto?.signedUrl ?? null;
+  }
+
+  return {
+    userId: row.user_id,
+    displayName: row.display_name,
+    photoKey: row.profile_photo_key,
+    photoUrl,
+  };
+}
+
+export type TripGroupMember = {
+  userId: string;
+  displayName: string;
+  role: "organizer" | "participant";
+  participationStatus: TripParticipationStatus | null;
+};
+
+export async function loadTripGroupMembers(tripId: string): Promise<TripGroupMember[]> {
+  const { data, error } = await requireSupabase().rpc("list_trip_group_members", {
+    p_trip_id: tripId,
+  });
+  if (error) throw error;
+  return ((data ?? []) as Array<{
+    user_id: string;
+    display_name: string;
+    member_role: "organizer" | "participant";
+    participation_status: TripParticipationStatus | null;
+  }>).map((row) => ({
+    userId: row.user_id,
+    displayName: row.display_name,
+    role: row.member_role,
+    participationStatus: row.participation_status,
+  }));
+}
 function localPart(value: number) {
   return String(value).padStart(2, "0");
 }
@@ -631,21 +724,37 @@ function localPart(value: number) {
 export function tripToValues(trip: FishingTrip): TripValues {
   const startsAt = new Date(trip.startsAt);
   const endsAt = new Date(trip.endsAt);
+  const sameDay = startsAt.getFullYear() === endsAt.getFullYear()
+    && startsAt.getMonth() === endsAt.getMonth()
+    && startsAt.getDate() === endsAt.getDate();
+  const endMode = trip.endPrecision === "date"
+    ? (sameDay ? "flexible" : "another_day")
+    : (sameDay ? "same_day" : "another_day");
+  const legacyDetails = [trip.description.trim(), trip.gearNotes?.trim()]
+    .filter(Boolean)
+    .join("\n\n");
 
   return {
     title: trip.title,
+    titleIsCustom: trip.titleIsCustom,
     techniqueId: trip.techniqueId,
     waterType: trip.waterType,
     date: `${startsAt.getFullYear()}-${localPart(startsAt.getMonth() + 1)}-${localPart(startsAt.getDate())}`,
     startTime: `${localPart(startsAt.getHours())}:${localPart(startsAt.getMinutes())}`,
-    endTime: `${localPart(endsAt.getHours())}:${localPart(endsAt.getMinutes())}`,
+    endMode,
+    endDate: endMode === "another_day"
+      ? `${endsAt.getFullYear()}-${localPart(endsAt.getMonth() + 1)}-${localPart(endsAt.getDate())}`
+      : "",
+    endTime: trip.endPrecision === "datetime"
+      ? `${localPart(endsAt.getHours())}:${localPart(endsAt.getMinutes())}`
+      : "",
     provinceCode: trip.provinceCode,
     publicZone: trip.publicZone,
     publicMeetingPoint: trip.publicMeetingPoint ?? "",
     maxParticipants: trip.maxParticipants,
     recommendedLevel: trip.recommendedLevel,
-    description: trip.description,
-    gearNotes: trip.gearNotes ?? "",
+    description: legacyDetails,
+    gearNotes: "",
     tripType: trip.tripType,
   };
 }

@@ -1,12 +1,14 @@
-import type { RecommendedLevel, TripStatus, TripType, TripWaterType } from "../types/domain";
+import type { RecommendedLevel, TripEndPrecision, TripStatus, TripType, TripWaterType } from "../types/domain";
 
 export type PublicFishingTrip = {
   id: string;
+  publicCode: string;
   title: string;
   techniqueName: string;
   waterType: TripWaterType;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   provinceName: string;
   publicZone: string;
@@ -36,5 +38,5 @@ export function canRequestPublicTrip(trip: PublicFishingTrip, now = Date.now()) 
 
 export function publicTripShareDescription(trip: PublicFishingTrip) {
   const privacy = trip.tripType === "protected" ? "Spot protetto" : "Uscita libera";
-  return `Uscita di pesca · ${privacy} · ${trip.publicZone}, ${trip.provinceName}. Scopri i dettagli su EscoAPesca.`;
+  return `${trip.title} · ${trip.publicCode} · ${privacy} · ${trip.publicZone}, ${trip.provinceName}. Scopri i dettagli su EscoAPesca.`;
 }

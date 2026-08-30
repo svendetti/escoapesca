@@ -5,6 +5,7 @@ import {
   type PublicFishingTrip,
   type PublicTripPhase,
 } from "../../../src/lib/publicTrip";
+import { formatTripSchedule } from "../../../src/lib/tripExperience";
 import { PublicTripAction } from "./PublicTripAction";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +16,13 @@ type PageProps = {
 
 type PublicTripRow = {
   id: string;
+  public_code: string;
   title: string;
   technique_name: string;
   water_type: PublicFishingTrip["waterType"];
   starts_at: string;
   ends_at: string;
+  end_precision: PublicFishingTrip["endPrecision"];
   province_code: string;
   province_name: string;
   public_zone: string;
@@ -50,20 +53,6 @@ const LEVEL_LABELS: Record<PublicFishingTrip["recommendedLevel"], string> = {
   expert: "Esperto",
 };
 
-const dateFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: "Europe/Rome",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Europe/Rome",
-});
-
 function runtimeConfig() {
   return {
     supabaseUrl: process.env.VITE_SUPABASE_URL?.trim() ?? "",
@@ -74,11 +63,13 @@ function runtimeConfig() {
 function mapPublicTrip(row: PublicTripRow): PublicFishingTrip {
   return {
     id: row.id,
+    publicCode: row.public_code,
     title: row.title,
     techniqueName: row.technique_name,
     waterType: row.water_type,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    endPrecision: row.end_precision,
     provinceCode: row.province_code,
     provinceName: row.province_name,
     publicZone: row.public_zone,
@@ -173,8 +164,6 @@ export default async function PublicTripPage({ params }: PageProps) {
     );
   }
 
-  const startsAt = new Date(trip.startsAt);
-  const endsAt = new Date(trip.endsAt);
   const phase = publicTripPhase(trip);
   const canRequest = canRequestPublicTrip(trip);
 
@@ -194,10 +183,9 @@ export default async function PublicTripPage({ params }: PageProps) {
             </span>
           </div>
           <p className="eyebrow">Uscita condivisa su EscoAPesca</p>
+          <span className="trip-code">{trip.publicCode}</span>
           <h1>{trip.title}</h1>
-          <p className="public-trip-date">
-            {dateFormatter.format(startsAt)} · {timeFormatter.format(startsAt)}–{timeFormatter.format(endsAt)}
-          </p>
+          <p className="public-trip-date">{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
           <p className="public-trip-zone">{trip.publicZone} · {trip.provinceName}</p>
         </div>
 
@@ -216,10 +204,12 @@ export default async function PublicTripPage({ params }: PageProps) {
             </dl>
           </section>
 
-          <section className="trip-detail-card">
-            <h2>Descrizione</h2>
-            <p className="preserve-lines">{trip.description}</p>
-          </section>
+          {trip.description && (
+            <section className="trip-detail-card">
+              <h2>Informazioni utili</h2>
+              <p className="preserve-lines">{trip.description}</p>
+            </section>
+          )}
         </div>
 
         {trip.tripType === "protected" ? (

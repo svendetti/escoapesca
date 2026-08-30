@@ -81,9 +81,27 @@ describe("validateTrip", () => {
     expect(hasErrors(errors)).toBe(false);
   });
 
-  it("interpreta un orario finale precedente come uscita notturna", () => {
-    const times = tripDateTimes({ date: "2030-06-15", startTime: "21:00", endTime: "02:00" });
-    expect(times?.endsAt.getDate()).not.toBe(times?.startsAt.getDate());
+  it("supporta una fine flessibile senza chiedere un orario", () => {
+    const times = tripDateTimes({
+      date: "2030-06-15",
+      startTime: "07:00",
+      endMode: "flexible",
+      endDate: "",
+      endTime: "",
+    });
+    expect(times?.endPrecision).toBe("date");
+    expect(times?.endsAt.getDate()).toBe(times?.startsAt.getDate());
+  });
+
+  it("supporta uscite su più giorni con ora finale opzionale", () => {
+    const times = tripDateTimes({
+      date: "2030-06-15",
+      startTime: "21:00",
+      endMode: "another_day",
+      endDate: "2030-06-17",
+      endTime: "02:00",
+    });
+    expect(times?.endPrecision).toBe("datetime");
     expect(times && times.endsAt > times.startsAt).toBe(true);
   });
 

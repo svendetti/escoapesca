@@ -1,6 +1,7 @@
 import { requireSupabase } from "./supabase";
 import type {
   RecommendedLevel,
+  TripEndPrecision,
   TripParticipationStatus,
   TripStatus,
   TripType,
@@ -13,6 +14,7 @@ export type FishingTripParticipation = {
   requestedAt: string;
   participantUpdatedAt: string;
   id: string;
+  publicCode: string;
   organizerUserId: string;
   organizerName: string;
   title: string;
@@ -21,6 +23,7 @@ export type FishingTripParticipation = {
   waterType: TripWaterType;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   publicZone: string;
   maxParticipants: number;
@@ -35,6 +38,7 @@ type MyTripParticipationRow = {
   requested_at: string;
   participant_updated_at: string;
   trip_id: string;
+  public_code: string;
   organizer_user_id: string;
   organizer_name: string;
   title: string;
@@ -43,6 +47,7 @@ type MyTripParticipationRow = {
   water_type: TripWaterType;
   starts_at: string;
   ends_at: string;
+  end_precision: TripEndPrecision;
   province_code: string;
   public_zone: string;
   max_participants: number;
@@ -65,6 +70,7 @@ export async function loadMyTripParticipations(): Promise<FishingTripParticipati
     requestedAt: row.requested_at,
     participantUpdatedAt: row.participant_updated_at,
     id: row.trip_id,
+    publicCode: row.public_code,
     organizerUserId: row.organizer_user_id,
     organizerName: row.organizer_name,
     title: row.title,
@@ -73,6 +79,7 @@ export async function loadMyTripParticipations(): Promise<FishingTripParticipati
     waterType: row.water_type,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    endPrecision: row.end_precision,
     provinceCode: row.province_code,
     publicZone: row.public_zone,
     maxParticipants: row.max_participants,

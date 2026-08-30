@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
+import { formatTripSchedule } from "../lib/tripExperience";
 import {
   cancelTripParticipation,
   loadDiscoverableTrips,
@@ -37,17 +38,6 @@ const PARTICIPATION_LABELS: Record<TripParticipationStatus, string> = {
   no_show: "Assenza registrata",
 };
 
-const dayFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("it-IT", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 function localDateValue(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -70,8 +60,6 @@ function DiscoveryCard({
 }) {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
-  const startsAt = new Date(trip.startsAt);
-  const endsAt = new Date(trip.endsAt);
   const ownTrip = trip.organizerUserId === currentUserId;
 
   function openRequestForm() {
@@ -87,18 +75,25 @@ function DiscoveryCard({
           {trip.tripType === "protected" ? "Spot protetto" : "Uscita libera"}
         </span>
       </div>
+      <span className="trip-code">{trip.publicCode}</span>
       <h2>{trip.title}</h2>
-      <p className="discovery-date">
-        {dayFormatter.format(startsAt)} · {timeFormatter.format(startsAt)}–{timeFormatter.format(endsAt)}
-      </p>
+      <p className="discovery-date">{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
       <p className="discovery-zone">{trip.publicZone} · {trip.provinceName}</p>
-      <p className="discovery-description">{trip.description}</p>
+      {trip.description && <p className="discovery-description">{trip.description}</p>}
       <div className="discovery-facts" aria-label="Dettagli dell’uscita">
         <span>{trip.waterType === "sea" ? "Mare" : "Acqua dolce"}</span>
         <span>{LEVEL_LABELS[trip.recommendedLevel]}</span>
+        <span>{trip.participantCount}/{trip.maxParticipants} nel gruppo</span>
         <span>{trip.availablePlaces} {trip.availablePlaces === 1 ? "posto" : "posti"} disponibili</span>
       </div>
       <div className="discovery-organizer">
+        {trip.organizerPhotoUrl ? (
+          <img src={trip.organizerPhotoUrl} alt={`Foto di ${trip.organizerName}`} />
+        ) : (
+          <span className="organizer-avatar-fallback" aria-hidden="true">
+            {trip.organizerName.charAt(0).toUpperCase()}
+          </span>
+        )}
         <span>Organizza <strong>{ownTrip ? "tu" : trip.organizerName}</strong></span>
         {ownTrip && <span className="own-trip-badge">La tua uscita</span>}
       </div>

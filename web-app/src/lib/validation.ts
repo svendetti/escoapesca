@@ -43,15 +43,34 @@ export function validateProfile(values: ProfileValues) {
   return errors;
 }
 
-export function tripDateTimes(values: Pick<TripValues, "date" | "startTime" | "endTime">) {
-  if (!values.date || !values.startTime || !values.endTime) return null;
+export function tripDateTimes(
+  values: Pick<TripValues, "date" | "startTime" | "endMode" | "endDate" | "endTime">,
+) {
+  if (!values.date || !values.startTime) return null;
 
-  const startsAt = new Date(`${values.date}T${values.startTime}:00`);
-  const endsAt = new Date(`${values.date}T${values.endTime}:00`);
-  if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) return null;
-  if (endsAt <= startsAt) endsAt.setDate(endsAt.getDate() + 1);
+  const startsAt = new Date(values.date + "T" + values.startTime + ":00");
+  if (Number.isNaN(startsAt.getTime())) return null;
 
-  return { startsAt, endsAt };
+  let endsAt: Date;
+  let endPrecision: "date" | "datetime";
+
+  if (values.endMode === "flexible") {
+    endsAt = new Date(values.date + "T23:59:59.999");
+    endPrecision = "date";
+  } else if (values.endMode === "same_day") {
+    if (!values.endTime) return null;
+    endsAt = new Date(values.date + "T" + values.endTime + ":00");
+    endPrecision = "datetime";
+  } else {
+    if (!values.endDate) return null;
+    endsAt = values.endTime
+      ? new Date(values.endDate + "T" + values.endTime + ":00")
+      : new Date(values.endDate + "T23:59:59.999");
+    endPrecision = values.endTime ? "datetime" : "date";
+  }
+
+  if (Number.isNaN(endsAt.getTime()) || endsAt <= startsAt) return null;
+  return { startsAt, endsAt, endPrecision };
 }
 
 export function validateTrip(values: TripValues, now = new Date()) {
@@ -60,15 +79,23 @@ export function validateTrip(values: TripValues, now = new Date()) {
   const zoneLength = values.publicZone.trim().length;
   const descriptionLength = values.description.trim().length;
 
-  if (titleLength < 4 || titleLength > 120) errors.title = "Usa da 4 a 120 caratteri.";
+  if (titleLength < 4 || titleLength > 120) errors.title = "Il titolo automatico non è valido.";
   if (!values.techniqueId) errors.techniqueId = "Seleziona la tecnica.";
   if (!values.waterType) errors.waterType = "Seleziona il tipo di acqua.";
   if (!values.date) errors.date = "Seleziona la data.";
   if (!values.startTime) errors.startTime = "Indica l’ora di inizio.";
-  if (!values.endTime) errors.endTime = "Indica l’ora indicativa di fine.";
+  if (values.endMode === "same_day" && !values.endTime) errors.endTime = "Indica l’ora di fine.";
+  if (values.endMode === "another_day" && !values.endDate) errors.endDate = "Indica il giorno di fine.";
 
   const times = tripDateTimes(values);
   if (times && times.startsAt <= now) errors.date = "L’uscita deve iniziare nel futuro.";
+  if (!times && values.date && values.startTime) {
+    if (values.endMode === "another_day") {
+      errors.endDate = errors.endDate ?? "La fine deve essere successiva all’inizio.";
+    } else if (values.endMode === "same_day") {
+      errors.endTime = errors.endTime ?? "La fine deve essere successiva all’inizio.";
+    }
+  }
 
   if (!values.provinceCode) errors.provinceCode = "Seleziona la provincia.";
   if (zoneLength < 2 || zoneLength > 160) errors.publicZone = "Usa da 2 a 160 caratteri.";
@@ -78,8 +105,8 @@ export function validateTrip(values: TripValues, now = new Date()) {
   if (values.maxParticipants < 2 || values.maxParticipants > 20) {
     errors.maxParticipants = "Scegli un numero totale da 2 a 20, organizzatore incluso.";
   }
-  if (descriptionLength < 1 || descriptionLength > 2000) {
-    errors.description = "Inserisci una descrizione (massimo 2.000 caratteri).";
+  if (descriptionLength > 3000) {
+    errors.description = "Le informazioni utili non possono superare 3.000 caratteri.";
   }
   if (values.gearNotes.trim().length > 1000) errors.gearNotes = "Le note non possono superare 1.000 caratteri.";
 

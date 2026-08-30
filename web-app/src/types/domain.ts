@@ -3,6 +3,8 @@ export type WaterType = "sea" | "freshwater" | "both";
 export type SkillLevel = "beginner" | "intermediate" | "expert";
 export type TripWaterType = Exclude<WaterType, "both">;
 export type TripType = "free" | "protected";
+export type TripEndMode = "flexible" | "same_day" | "another_day";
+export type TripEndPrecision = "date" | "datetime";
 export type RecommendedLevel = "any" | SkillLevel;
 export type TripStatus = "draft" | "open" | "confirmed" | "completed" | "cancelled";
 export type TripParticipationStatus =
@@ -48,10 +50,13 @@ export type ProfileValues = {
 
 export type TripValues = {
   title: string;
+  titleIsCustom: boolean;
   techniqueId: number | "";
   waterType: TripWaterType | "";
   date: string;
   startTime: string;
+  endMode: TripEndMode;
+  endDate: string;
   endTime: string;
   provinceCode: string;
   publicZone: string;
@@ -65,13 +70,16 @@ export type TripValues = {
 
 export type FishingTrip = {
   id: string;
+  publicCode: string;
   organizerUserId: string;
   title: string;
+  titleIsCustom: boolean;
   techniqueId: number;
   techniqueName: string;
   waterType: TripWaterType;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   publicZone: string;
   publicMeetingPoint: string | null;
@@ -158,19 +166,24 @@ export type AppNotification = {
 
 export type FishingTripDiscovery = {
   id: string;
+  publicCode: string;
   organizerUserId: string;
   organizerName: string;
+  organizerPhotoKey: string | null;
+  organizerPhotoUrl: string | null;
   title: string;
   techniqueId: number;
   techniqueName: string;
   waterType: TripWaterType;
   startsAt: string;
   endsAt: string;
+  endPrecision: TripEndPrecision;
   provinceCode: string;
   provinceName: string;
   publicZone: string;
   maxParticipants: number;
   availablePlaces: number;
+  participantCount: number;
   recommendedLevel: RecommendedLevel;
   description: string;
   tripType: TripType;
@@ -212,11 +225,14 @@ export const EMPTY_PROFILE: ProfileValues = {
 
 export const EMPTY_TRIP: TripValues = {
   title: "",
+  titleIsCustom: false,
   techniqueId: "",
   waterType: "",
   date: "",
   startTime: "07:00",
-  endTime: "12:00",
+  endMode: "flexible",
+  endDate: "",
+  endTime: "",
   provinceCode: "RM",
   publicZone: "",
   publicMeetingPoint: "",
