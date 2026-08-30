@@ -3,6 +3,11 @@ import { FormError } from "./FormError";
 import { Notice } from "./Notice";
 import { LAZIO_PROVINCES } from "../types/domain";
 import type { CatalogItem, FieldErrors, TripValues } from "../types/domain";
+import {
+  LAZIO_COASTAL_PROVINCES,
+  coastalZonesForProvince,
+  isLazioCoastalProvince,
+} from "../lib/lazioCoastalZones";
 
 type TripFormProps = {
   values: TripValues;
@@ -27,14 +32,29 @@ export function TripForm({
 }: TripFormProps) {
   function updateText(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value } = event.target;
+    const nextValue = name === "techniqueId" || name === "maxParticipants"
+      ? value === "" ? "" : Number(value)
+      : value;
+    const waterTypeChanged = name === "waterType" && value !== values.waterType;
+    const provinceChangedForSea = name === "provinceCode" && values.waterType === "sea" && value !== values.provinceCode;
+
     onChange({
       ...values,
-      [name]: name === "techniqueId" || name === "maxParticipants"
-        ? value === "" ? "" : Number(value)
-        : value,
+      [name]: nextValue,
       ...(name === "tripType" && value === "protected" ? { publicMeetingPoint: "" } : {}),
+      ...(waterTypeChanged ? {
+        publicZone: "",
+        provinceCode: value === "sea" && !isLazioCoastalProvince(values.provinceCode) ? "RM" : values.provinceCode,
+      } : {}),
+      ...(provinceChangedForSea ? { publicZone: "" } : {}),
     });
   }
+
+  const provinceOptions = values.waterType === "sea" ? LAZIO_COASTAL_PROVINCES : LAZIO_PROVINCES;
+  const coastalZones = coastalZonesForProvince(values.provinceCode);
+  const hasLegacyCoastalZone = values.waterType === "sea"
+    && values.publicZone !== ""
+    && !coastalZones.some((zone) => zone.value === values.publicZone);
 
   return (
     <form className="profile-form" onSubmit={onSubmit} noValidate>
@@ -109,16 +129,25 @@ export function TripForm({
           <label>
             Provincia
             <select name="provinceCode" value={values.provinceCode} onChange={updateText}>
-              {LAZIO_PROVINCES.map((province) => <option key={province.code} value={province.code}>{province.name}</option>)}
+              {provinceOptions.map((province) => <option key={province.code} value={province.code}>{province.name}</option>)}
             </select>
             <FormError message={errors.provinceCode} />
           </label>
           <label>
-            Zona generica
-            <input name="publicZone" maxLength={160} value={values.publicZone} onChange={updateText} placeholder="Es. Litorale di Ostia" />
+            {values.waterType === "sea" ? "Zona litoranea" : "Zona generica"}
+            {values.waterType === "sea" ? (
+              <select name="publicZone" value={values.publicZone} onChange={updateText}>
+                <option value="">Seleziona una zona</option>
+                {hasLegacyCoastalZone ? <option value={values.publicZone}>{values.publicZone} · valore attuale</option> : null}
+                {coastalZones.map((zone) => <option key={zone.value} value={zone.value}>{zone.label}</option>)}
+              </select>
+            ) : (
+              <input name="publicZone" maxLength={160} value={values.publicZone} onChange={updateText} placeholder="Es. Lago di Bracciano, Tevere nord" />
+            )}
             <FormError message={errors.publicZone} />
           </label>
         </div>
+        {values.waterType === "sea" ? <span className="field-help">Scegli una zona pubblica indicativa: lo spot preciso resta privato.</span> : null}
         {values.tripType === "protected" ? (
           <Notice kind="info">Non inserire qui spot o coordinate precise. Il punto d’incontro privato verrà condiviso solo dopo la conferma.</Notice>
         ) : (
