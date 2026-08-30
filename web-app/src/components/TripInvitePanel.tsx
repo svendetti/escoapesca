@@ -13,7 +13,7 @@ const WATER_LABELS = { sea: "Mare", freshwater: "Acqua dolce", both: "Mare e acq
 const MIN_SEARCH_LENGTH = 2;
 const SEARCH_DELAY_MS = 250;
 
-export function TripInvitePanel({ tripId }: { tripId: string }) {
+export function TripInvitePanel({ tripId, panelId }: { tripId: string; panelId?: string }) {
   const listboxId = useId();
   const [search, setSearch] = useState("");
   const [candidates, setCandidates] = useState<TripInviteCandidate[]>([]);
@@ -116,11 +116,11 @@ export function TripInvitePanel({ tripId }: { tripId: string }) {
   const showOptions = open && !loading && candidates.length > 0;
 
   return (
-    <section className="trip-detail-card trip-invite-panel">
+    <section className="trip-detail-card trip-invite-panel" id={panelId}>
       <div className="trip-invite-heading">
         <div>
-          <h2>Invita un pescatore iscritto</h2>
-          <p>Scrivi il nome e seleziona l’utente dalla lista. Puoi cercare anche per comune o zona.</p>
+          <h2>Invita un utente EscoAPesca</h2>
+          <p>Scrivi il nome e seleziona un utente della piattaforma. Puoi cercare anche per comune o zona.</p>
         </div>
       </div>
 

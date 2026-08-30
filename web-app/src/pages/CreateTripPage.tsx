@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripForm } from "../components/TripForm";
+import { TripInvitePanel } from "../components/TripInvitePanel";
 import { TripShareActions } from "../components/TripShareActions";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
@@ -98,6 +99,7 @@ export function CreateTripPage() {
     const createdTimes = tripDateTimes(values);
     const techniqueName = techniques.find((item) => item.id === values.techniqueId)?.label
       ?? "Pesca";
+    const invitePanelId = `invite-trip-${createdTrip.id}`;
     return (
       <section className="page-narrow auth-card center-card">
         <div className="success-mark" aria-hidden="true">✓</div>
@@ -106,9 +108,9 @@ export function CreateTripPage() {
         <p>I dettagli precisi di un’uscita protetta non sono salvati nella parte pubblica.</p>
         {createdTimes && (
           <section className="post-create-share">
-            <h2>Condividi l’uscita</h2>
-            <p>Invia il link pubblico: funziona anche per chi non ha ancora un account.</p>
-            <TripShareActions data={{
+            <h2>Come vuoi invitare?</h2>
+            <p>Usa WhatsApp, copia il link oppure invita direttamente un utente EscoAPesca.</p>
+            <TripShareActions inviteTargetId={invitePanelId} data={{
               tripId: createdTrip.id,
               publicCode: createdTrip.publicCode,
               title: values.title,
@@ -122,6 +124,7 @@ export function CreateTripPage() {
             }} />
           </section>
         )}
+        <TripInvitePanel tripId={createdTrip.id} panelId={invitePanelId} />
         <div className="button-stack">
           <Link className="button button-secondary" to={`/uscite/${createdTrip.id}`}>Vedi l’uscita</Link>
           <Link className="button button-secondary" to="/mie-uscite">Le mie uscite</Link>

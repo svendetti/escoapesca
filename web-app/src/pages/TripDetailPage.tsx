@@ -122,6 +122,7 @@ export function TripDetailPage() {
   const showShare = isOrganizer && shouldShowTripShare(trip);
   const canLeaveFeedback = hasSubmittedFeedback === false && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
   const progressNotice = participationProgressNotice(participationStatus);
+  const invitePanelId = `invite-trip-${trip.id}`;
 
   return (
     <section className="page-wide trip-detail-page">
@@ -166,10 +167,10 @@ export function TripDetailPage() {
       {showShare && !trip.hiddenByAdminAt && (
         <section className="trip-detail-card organizer-share">
           <div>
-            <h2>Condividi l’uscita</h2>
-            <p>Invia la pagina pubblica senza esporre dettagli privati o dati dei partecipanti.</p>
+            <h2>Come vuoi invitare?</h2>
+            <p>WhatsApp e link funzionano anche fuori dalla piattaforma; quello diretto avvisa un utente EscoAPesca.</p>
           </div>
-          <TripShareActions data={{
+          <TripShareActions inviteTargetId={canManage ? invitePanelId : undefined} data={{
             tripId: trip.id,
             publicCode: trip.publicCode,
             title: trip.title,
@@ -184,7 +185,7 @@ export function TripDetailPage() {
         </section>
       )}
 
-      {canManage && <TripInvitePanel tripId={trip.id} />}
+      {canManage && <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />}
 
       {canLeaveFeedback && (
         <section className="trip-detail-card">
