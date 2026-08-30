@@ -9,18 +9,23 @@ import {
 export function TripShareActions({
   data,
   inviteTargetId,
+  inviteDisabled = false,
+  inviteDisabledReason,
 }: {
   data: TripShareData;
   inviteTargetId?: string;
+  inviteDisabled?: boolean;
+  inviteDisabledReason?: string;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const inviteReasonId = inviteTargetId ? `${inviteTargetId}-disabled-reason` : undefined;
 
   async function copyLink() {
     setCopyState(await copyPublicTripLink(data.tripId) ? "copied" : "failed");
   }
 
   function openInviteSearch() {
-    if (!inviteTargetId) return;
+    if (!inviteTargetId || inviteDisabled) return;
     const target = document.getElementById(inviteTargetId);
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
     window.setTimeout(() => target?.querySelector("input")?.focus(), 350);
@@ -46,9 +51,18 @@ export function TripShareActions({
         Copia link
       </button>
       {inviteTargetId && (
-        <button className="button button-secondary trip-share-invite" type="button" onClick={openInviteSearch}>
+        <button
+          aria-describedby={inviteDisabled && inviteDisabledReason ? inviteReasonId : undefined}
+          className="button button-secondary trip-share-invite"
+          disabled={inviteDisabled}
+          type="button"
+          onClick={openInviteSearch}
+        >
           Invita un utente EscoAPesca
         </button>
+      )}
+      {inviteDisabled && inviteDisabledReason && (
+        <p className="trip-share-invite-reason" id={inviteReasonId}>{inviteDisabledReason}</p>
       )}
       <a
         className="trip-share-public-link"

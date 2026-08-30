@@ -742,6 +742,7 @@ main > * { animation: page-arrive .5s ease-out both; }
 .trip-share-actions { display: grid; gap: .65rem; }
 .trip-share-actions .button { width: 100%; }
 .trip-share-public-link { font-size: .84rem; font-weight: 700; justify-self: start; }
+.trip-share-invite-reason { color: var(--muted); font-size: .82rem; grid-column: 1 / -1; margin: 0; }
 .trip-share-feedback { color: var(--success); font-size: .82rem; min-height: 1.2rem; }
 .trip-share-feedback.is-error { color: var(--error); }
 .organizer-share { display: grid; gap: 1rem; }

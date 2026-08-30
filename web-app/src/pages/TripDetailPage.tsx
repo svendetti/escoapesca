@@ -11,7 +11,7 @@ import { readableError } from "../lib/errors";
 import { loadMyTripFeedback } from "../lib/feedback";
 import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
-import { shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
+import { canInviteToTrip, shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
 import { formatTripSchedule } from "../lib/tripExperience";
 import {
   cancelFishingTrip,
@@ -119,10 +119,16 @@ export function TripDetailPage() {
   const startsAt = new Date(trip.startsAt);
   const isOrganizer = trip.organizerUserId === user?.id;
   const canManage = isOrganizer && trip.status === "open" && startsAt.getTime() > Date.now();
+  const canInvite = canInviteToTrip(trip, isOrganizer);
   const showShare = isOrganizer && shouldShowTripShare(trip);
   const canLeaveFeedback = hasSubmittedFeedback === false && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
   const progressNotice = participationProgressNotice(participationStatus);
   const invitePanelId = `invite-trip-${trip.id}`;
+  const inviteDisabledReason = canInvite
+    ? undefined
+    : trip.status === "open" && startsAt.getTime() <= Date.now()
+      ? "Gli inviti diretti si chiudono all'orario di inizio, perché dopo non è più possibile chiedere di partecipare."
+      : "Gli inviti diretti sono disponibili solo per uscite aperte prima dell'inizio.";
 
   return (
     <section className="page-wide trip-detail-page">
@@ -170,7 +176,11 @@ export function TripDetailPage() {
             <h2>Come vuoi invitare?</h2>
             <p>WhatsApp e link funzionano anche fuori dalla piattaforma; quello diretto avvisa un utente EscoAPesca.</p>
           </div>
-          <TripShareActions inviteTargetId={canManage ? invitePanelId : undefined} data={{
+          <TripShareActions
+            inviteTargetId={invitePanelId}
+            inviteDisabled={!canInvite}
+            inviteDisabledReason={inviteDisabledReason}
+            data={{
             tripId: trip.id,
             publicCode: trip.publicCode,
             title: trip.title,
@@ -185,7 +195,7 @@ export function TripDetailPage() {
         </section>
       )}
 
-      {canManage && <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />}
+      {canInvite && <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />}
 
       {canLeaveFeedback && (
         <section className="trip-detail-card">
