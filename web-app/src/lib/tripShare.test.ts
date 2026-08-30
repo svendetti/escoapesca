@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   copyPublicTripLink,
   publicTripUrl,
+  shareTripNatively,
   tripWhatsAppMessage,
   whatsappShareUrl,
   type TripShareData,
@@ -38,5 +39,21 @@ describe("trip sharing", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     await expect(copyPublicTripLink(shareData.tripId, { writeText })).resolves.toBe(true);
     expect(writeText).toHaveBeenCalledWith(publicTripUrl(shareData.tripId));
+  });
+
+  it("apre la condivisione nativa con soli dati pubblici", async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    await expect(shareTripNatively(shareData, share)).resolves.toBe("shared");
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({
+      title: shareData.title,
+      url: publicTripUrl(shareData.tripId),
+    }));
+    expect(share.mock.calls[0][0].text).not.toContain("Dettagli su EscoAPesca");
+  });
+
+  it("distingue annullamento e dispositivo non supportato", async () => {
+    const cancelled = vi.fn().mockRejectedValue(new DOMException("Annullata", "AbortError"));
+    await expect(shareTripNatively(shareData, cancelled)).resolves.toBe("cancelled");
+    await expect(shareTripNatively(shareData, undefined)).resolves.toBe("unsupported");
   });
 });

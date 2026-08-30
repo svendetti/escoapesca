@@ -26,7 +26,7 @@ export async function loadTripInviteCandidates(tripId: string, search = "") {
   const { data, error } = await requireSupabase().rpc("list_trip_invite_candidates", {
     p_trip_id: tripId,
     p_search: search.trim() || null,
-    p_limit: 24,
+    p_limit: 8,
   });
   if (error) throw error;
   return ((data ?? []) as CandidateRow[]).map((row) => ({

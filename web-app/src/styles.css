@@ -740,12 +740,15 @@ main > * { animation: page-arrive .5s ease-out both; }
 .post-create-share > p,
 .organizer-share > div > p { color: var(--muted); margin: 0 0 1rem; }
 .trip-share-actions { display: grid; gap: .65rem; }
+.trip-share-native { width: 100%; }
 .trip-share-public-link { font-size: .84rem; font-weight: 700; justify-self: start; }
 .trip-share-feedback { color: var(--success); font-size: .82rem; min-height: 1.2rem; }
+.trip-share-feedback.is-error { color: var(--error); }
 .organizer-share { display: grid; gap: 1rem; }
 
 @media (min-width: 700px) {
   .trip-share-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trip-share-native { grid-column: 1 / -1; }
   .trip-share-public-link,
   .trip-share-feedback { grid-column: 1 / -1; }
   .organizer-share { align-items: start; grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr); }

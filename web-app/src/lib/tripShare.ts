@@ -43,6 +43,30 @@ export function whatsappShareUrl(data: TripShareData) {
   return `https://wa.me/?text=${encodeURIComponent(tripWhatsAppMessage(data))}`;
 }
 
+export type NativeShareResult = "shared" | "cancelled" | "unsupported" | "failed";
+
+type NativeShare = (data: ShareData) => Promise<void>;
+
+export async function shareTripNatively(
+  data: TripShareData,
+  share: NativeShare | undefined = globalThis.navigator?.share?.bind(globalThis.navigator),
+): Promise<NativeShareResult> {
+  if (!share) return "unsupported";
+
+  try {
+    const url = publicTripUrl(data.tripId);
+    await share({
+      title: data.title,
+      text: tripWhatsAppMessage(data).replace(` Dettagli su EscoAPesca: ${url}`, ""),
+      url,
+    });
+    return "shared";
+  } catch (caught) {
+    return caught instanceof DOMException && caught.name === "AbortError"
+      ? "cancelled"
+      : "failed";
+  }
+}
 function fallbackCopy(text: string) {
   if (!globalThis.document?.body) return false;
   const textarea = document.createElement("textarea");
