@@ -18,7 +18,7 @@ function supported() {
     && "PushManager" in window;
 }
 
-async function registration() {
+export async function ensurePushServiceWorker() {
   return navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
 }
 
@@ -46,7 +46,7 @@ export async function inspectPushNotifications(sync = false): Promise<PushState>
   if (!supported()) return "unsupported";
   if (isIos() && !isStandalone()) return "needs-install";
   if (Notification.permission === "denied") return "denied";
-  const current = await (await registration()).pushManager.getSubscription();
+  const current = await (await ensurePushServiceWorker()).pushManager.getSubscription();
   if (current && sync) await saveSubscription(current);
   return current ? "active" : "inactive";
 }
@@ -57,7 +57,7 @@ export async function enablePushNotifications(): Promise<PushState> {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return permission === "denied" ? "denied" : "inactive";
 
-  const worker = await registration();
+  const worker = await ensurePushServiceWorker();
   let subscription = await worker.pushManager.getSubscription();
   if (!subscription) {
     const { data, error } = await requireSupabase().functions.invoke("process-push-outbox", {
@@ -77,7 +77,7 @@ export async function enablePushNotifications(): Promise<PushState> {
 
 export async function disablePushNotifications(): Promise<PushState> {
   if (!supported()) return "unsupported";
-  const current = await (await registration()).pushManager.getSubscription();
+  const current = await (await ensurePushServiceWorker()).pushManager.getSubscription();
   if (current) {
     const { error } = await requireSupabase().rpc("remove_my_push_subscription", {
       p_endpoint: current.endpoint,

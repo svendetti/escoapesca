@@ -61,6 +61,26 @@ p { line-height: 1.6; }
 .home-hero p { color: var(--muted); margin: 0; max-width: 650px; }
 .home-primary-actions,
 .home-empty-actions { display: grid; gap: .65rem; }
+.install-app-card {
+  background: linear-gradient(135deg, rgba(216,255,95,.13), rgba(104,245,218,.08) 48%, rgba(7,27,41,.82));
+  border: 1px solid rgba(216,255,95,.34);
+  border-radius: 24px;
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+.install-app-card.push-step { border-color: rgba(104,245,218,.34); }
+.install-app-copy .eyebrow { margin-bottom: .35rem; }
+.install-app-copy h2 { font-size: clamp(1.45rem, 6vw, 2rem); margin: 0; }
+.install-app-copy p { color: var(--muted); margin: .45rem 0 0; max-width: 44rem; }
+.install-app-actions { display: grid; gap: .6rem; }
+.button-quiet { background: transparent; border-color: rgba(104,245,218,.18); color: var(--muted); }
+.button-quiet:hover:not(:disabled) { background: rgba(104,245,218,.06); color: var(--ink); }
+.ios-install-steps { counter-reset: install-step; display: grid; gap: .75rem; list-style: none; margin: 0; padding: 0; }
+.ios-install-steps li { background: rgba(3,16,27,.46); border: 1px solid var(--line); border-radius: 15px; counter-increment: install-step; display: grid; gap: .2rem; padding: .85rem .9rem .85rem 3rem; position: relative; }
+.ios-install-steps li::before { align-items: center; background: var(--signal); border-radius: 999px; color: #0b1b14; content: counter(install-step); display: flex; font-size: .78rem; font-weight: 850; height: 1.65rem; justify-content: center; left: .8rem; position: absolute; top: .85rem; width: 1.65rem; }
+.ios-install-steps strong { color: var(--ink); }
+.ios-install-steps span { color: var(--muted); font-size: .84rem; line-height: 1.4; }
 .home-section,
 .home-empty-state {
   background: rgba(7,27,41,.76);
@@ -112,6 +132,10 @@ p { line-height: 1.6; }
   .home-hero { align-items: end; grid-template-columns: minmax(0,1fr) auto; }
   .home-primary-actions,
   .home-empty-actions { display: flex; }
+  .install-app-card { align-items: center; grid-template-columns: minmax(0,1fr) auto; padding: 1.35rem; }
+  .install-app-card > .notice,
+  .install-app-card > .ios-install-steps { grid-column: 1 / -1; }
+  .install-app-actions { display: flex; }
   .home-section,
   .home-empty-state { padding: 1.35rem; }
   .home-next-trip { align-items: center; grid-template-columns: minmax(0,1fr) auto; padding: 1.25rem; }

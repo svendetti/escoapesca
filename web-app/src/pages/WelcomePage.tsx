@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { InstallAppPrompt } from "../components/InstallAppPrompt";
 import { Notice } from "../components/Notice";
 import { useAuth } from "../contexts/AuthContext";
 import { loadMyTripFeedback } from "../lib/feedback";
@@ -143,6 +144,8 @@ function AuthenticatedHome({ userId }: { userId: string }) {
           <Link className="button button-secondary" to="/crea-uscita">Proponi un’uscita</Link>
         </div>
       </header>
+
+      <InstallAppPrompt />
 
       {error && <Notice kind="error">{error}</Notice>}
 

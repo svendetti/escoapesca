@@ -114,6 +114,7 @@ export function ProfilePage() {
 
     setSaving(true);
     try {
+      const completingForFirstTime = !completedAt;
       await saveProfile(values);
       if (photoFile) {
         const photoKey = await uploadProfilePhoto(user.id, photoFile);
@@ -124,6 +125,10 @@ export function ProfilePage() {
       const destination = consumeReturnPath() ?? requestedReturnPath;
       if (destination) {
         navigate(destination, { replace: true });
+        return;
+      }
+      if (completingForFirstTime) {
+        navigate("/", { replace: true });
         return;
       }
       setNotice({ kind: "success", text: "Profilo completato. Ora puoi trovare un’uscita oppure proporne una." });
