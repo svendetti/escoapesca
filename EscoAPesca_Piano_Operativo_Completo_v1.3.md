@@ -1,7 +1,7 @@
 # EscoAPesca — Piano operativo completo v1.3
 
-**Ultimo aggiornamento:** 30 agosto 2026  
-**Stato:** Beta P0 operativa end-to-end e pubblicata in Sites v45; milestone storica 1/5 uscite reali validate; dataset operativo corrente azzerato per nuovi test  
+**Ultimo aggiornamento:** 31 agosto 2026
+**Stato:** Beta P0 operativa end-to-end; GitHub allineato al flusso PWA mobile `fd31852`; Sites v46 salvata ma non ancora pubblicata, produzione ancora v45; milestone storica 1/5 uscite reali validate; dataset operativo corrente azzerato per nuovi test
 **Ambito iniziale:** Regione Lazio  
 **Visione:** piattaforma scalabile progressivamente in tutte le regioni italiane  
 **Payoff:** Trova qualcuno con cui andare a pesca.
@@ -517,7 +517,7 @@ Testo guida:
 2. analizzare il collo di bottiglia principale del funnel;
 3. confrontare canali, province, tecniche e tempi di risposta;
 4. decidere se iterare il P0 o iniziare il primo P1 applicabile;
-5. non iniziare automaticamente P1.1–P1.6 prima del gate.
+5. non iniziare automaticamente P1.1–P1.5 né estendere P1.6 oltre il percorso PWA mobile già approvato, prima del gate.
 
 ## 26. Conclusione obiettiva
 
@@ -532,6 +532,7 @@ Il prossimo risultato utile non è una nuova funzione grafica, ma completare le 
 - **28 agosto 2026 — v1.2:** Beta web P0 completata e pubblicata; pagina pubblica e condivisione, richieste e conferma, dettagli privati, feedback, home operativa, Admin, security gate, Resend e delivery email end-to-end. P1 sospeso fino a 5 uscite reali validate; protezione password compromesse rinviata perché richiede Supabase Pro.
 - **29 agosto 2026 — v1.3:** core loop e dettagli privati verificati in produzione; flusso accettazione/conferma chiarito; deep-link WhatsApp/email e conferma email corretti; reset operativo Admin, lista utenti compatta ed eliminazione sicura degli utenti disattivati; rifiniture form/dettaglio uscita; login autenticato reindirizzato alla home; tutti gli account correnti considerati reali; prima uscita reale validata e milestone a 1/5; produzione allineata a `7da0b2b`.
 - **30 agosto 2026 — aggiornamento handoff v1.3:** label opzionali allineate; inviti diretti tra utenti iscritti e Web Push; archivio personale e moderazione uscite; correzione policy di lettura; ricerca utenti e condivisione rese più chiare; località costiere del Lazio; creazione uscita semplificata con titolo/codice automatici e fine flessibile o su più giorni; azione di invito mantenuta visibile ma disabilitata dopo l'inizio; Sites v45 e GitHub allineati alla baseline applicativa `da1a22a`; metriche correnti aggiornate dopo reset operativo.
+- **31 agosto 2026 — aggiornamento installazione mobile:** corretta la scheda notifiche; aggiunti manifest, icone e metadati iPhone; introdotto il percorso guidato post-profilo con prompt nativo Android, guida iPhone “Condividi → Aggiungi alla schermata Home” e richiesta del permesso push soltanto dopo l'apertura dalla nuova icona; versione app `0.1.5`, 84 test verdi, commit applicativo `fd31852`; Sites v46 salvata ma il deploy pubblico resta in attesa di approvazione esplicita.
 
 ## 28. Avvertenza
 
@@ -547,8 +548,10 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 - repository remoto: `https://github.com/svendetti/escoapesca.git`;
 - branch: `main`;
 - baseline applicativa pubblicata: `da1a22a4fd92733bfc92e91bb18c1b6d1cc1d494` (`Keep trip invitation action visible`);
-- GitHub `main` contiene tutto il codice applicativo fino a `da1a22a`; il commit che contiene questo documento è documentale e non richiede un nuovo deploy dell'app;
+- baseline applicativa pronta e presente su GitHub `main`: `fd31852c78b356a88a3c36aa35b8608b0d9a4d56` (`Guide mobile app installation`);
+- GitHub `main` contiene tutto il codice applicativo fino a `fd31852`; il commit successivo che aggiorna questo documento è documentale;
 - produzione app: OpenAI Sites versione **45**, sorgente applicativa `da1a22a4fd92733bfc92e91bb18c1b6d1cc1d494`;
+- Sites versione **46** salvata dalla sorgente `fd31852`, ma non ancora distribuita sul sito pubblico: non considerarla produzione fino a deploy riuscito;
 - URL produzione: `https://app.escoapesca.it`;
 - progetto Sites: `appgprj_6a7dd573bb90819187db51158ed8d261`;
 - progetto Supabase: `aujrjfiwoduetdftwqzl`, regione `eu-west-1`, piano Free;
@@ -572,8 +575,10 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 | `2bfde4b` | Esperienza di creazione resa più fluida: titolo automatico e codice pubblico univoco, titolo personalizzato opzionale, descrizione/attrezzatura non obbligatorie, zona ricercabile, fine flessibile o su più giorni e copy coerente in tutte le viste. |
 | `9374e89` | Azioni di invito chiarite: WhatsApp, copia link e invito a un utente EscoAPesca come scelte distinte. |
 | `da1a22a` | Il pulsante “Invita un utente EscoAPesca” non sparisce più all'inizio dell'uscita: resta visibile, disabilitato e accompagnato dalla spiegazione della regola. |
+| `22cdc9c` | Spaziatura della scheda notifiche corretta; copy per dispositivo chiarito; aggiunti manifest, icone e metadati necessari all'installazione iPhone. |
+| `fd31852` | Flusso PWA mobile guidato: prompt nativo Android, istruzioni iPhone, ritorno alla Home dopo il primo profilo, richiesta push dopo apertura standalone, registrazione anticipata del service worker e test dedicati. |
 
-### Progressi funzionali consolidati al 30 agosto
+### Progressi funzionali consolidati al 31 agosto
 
 1. **Creazione uscita più veloce**
    - il sistema compone un titolo standard da tecnica e zona;
@@ -594,6 +599,13 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
    - `process-email-outbox` v5, `process-push-outbox` v3 e `admin-delete-user` v1 risultano `ACTIVE`;
    - Cron email e push sono attivi ogni minuto; Cron feedback è attivo ogni 15 minuti;
    - il Web Push è implementato, ma il suono non può essere garantito dall'app: dipende da permesso notifiche, browser/PWA, modalità silenziosa e impostazioni del sistema operativo;
+   - il service worker push viene registrato all'avvio, senza attendere l'apertura della pagina Notifiche;
+   - dopo il primo completamento del profilo, in assenza di un deep-link da preservare, l'utente torna alla Home e vede l'invito “Installa EscoAPesca”;
+   - su Android il pulsante usa `beforeinstallprompt` quando disponibile e mantiene un fallback con istruzioni del browser;
+   - su iPhone/iPad viene mostrata una guida in tre passaggi: Condividi, Aggiungi alla schermata Home, apertura dalla nuova icona;
+   - soltanto quando l'app è aperta in modalità standalone viene proposta l'attivazione delle notifiche; la richiesta di sistema parte sempre da un tocco esplicito;
+   - “Non ora” sospende separatamente i promemoria di installazione e notifiche per sette giorni sul dispositivo;
+   - manifest, icone, metadati Apple e MIME JSON sono presenti; l'app è alla versione `0.1.5`;
    - resta necessaria una prova end-to-end su telefono reale con app non in primo piano e schermo bloccato.
 
 4. **Storico e moderazione**
@@ -631,7 +643,7 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 | P0.10 — Home operativa | Completato | `1acda13`, `7da0b2b` |
 | P0.11 — Security gate | Completato con eccezione Pro e re-audit warning | `f47b81c`; leaked-password protection non attiva |
 
-P1.1–P1.6, STEP 11B e STEP 11C non sono stati iniziati e non devono partire automaticamente.
+P1.1–P1.5, STEP 11B e STEP 11C non sono stati iniziati e non devono partire automaticamente. P1.6 è stato avviato parzialmente per decisione esplicita del 31 agosto: installabilità, manifest, icone, service worker e percorso guidato sono implementati; fallback offline minimo e strategia di aggiornamento/cache restano da valutare prima di dichiararlo completato.
 
 ### Stato backend e metriche correnti
 
@@ -656,6 +668,7 @@ Verifica diretta su Supabase del 30 agosto 2026 alle 19:26 UTC:
 2. **Label della preview pubblica:** “Apri pagina pubblica” è corretto tecnicamente ma poco esplicativo. Candidate: “Anteprima del link condiviso” oppure “Vedi cosa vedranno gli invitati”. Non ancora modificata.
 3. **Foto profilo:** è stata discussa l'ipotesi di rendere obbligatoria una foto riconoscibile. Nessun riconoscimento automatico del volto è stato implementato. Prima di introdurlo valutare necessità reale, falsi positivi, accessibilità, privacy/GDPR e moderazione; per la Beta è preferibile eventualmente richiedere una foto senza dichiarare verifica d'identità.
 4. **Località costiere:** il selettore copre il dataset Lazio predisposto per il mare. Verificare con utenti reali completezza e nomi di frazioni/località prima di estenderlo; non usare “zona costiera” per laghi e fiumi.
+5. **Distribuzione futura negli store:** per ora resta attivo il percorso PWA guidato. La strategia candidata è mantenere il web per acquisizione e pagine pubbliche e valutare in seguito un'app negli store per ritorno e notifiche native. Nessun account store, wrapper o client nativo è stato ancora implementato.
 
 ### Eccezioni tecniche note
 
@@ -667,15 +680,18 @@ Verifica diretta su Supabase del 30 agosto 2026 alle 19:26 UTC:
 
 ### Validazioni ancora necessarie
 
-1. testare Web Push su almeno un telefono reale: consenso, notifica con app chiusa/in background, apertura deep-link, comportamento con schermo bloccato e aspettative sul suono;
-2. testare l'invito diretto completo con due account reali e verificare notifica in-app, push e possibilità di chiedere partecipazione prima dell'inizio;
-3. ripetere pagina pubblica → registrazione → conferma email → profilo → ritorno all'uscita con un nuovo account reale;
-4. osservare un nuovo `feedback_reminder`: massimo uno, nessun invio a chi ha già risposto, deep-link corretto;
-5. completare gli stati negativi e i permessi non ancora registrati sistematicamente;
-6. decidere esplicitamente il comportamento di “Trova” per le uscite già iniziate;
-7. raccogliere nuovi dati del funnel senza azzerarli prima di esportare le evidenze utili;
-8. ottenere altre 4 uscite reali validate per arrivare alla milestone storica 5/5;
-9. solo dopo il gate valutare il primo P1 realmente giustificato.
+1. pubblicare Sites v46 soltanto dopo approvazione esplicita del deploy pubblico e verificare che `app.escoapesca.it` serva la nuova release;
+2. su iPhone reale: completare Condividi → Aggiungi alla schermata Home, aprire l'icona, attivare il permesso e verificare la nuova subscription Apple;
+3. testare Web Push su telefono reale: notifica con app chiusa/in background, apertura deep-link, comportamento con schermo bloccato e aspettative sul suono;
+4. su Android reale: verificare comparsa e conferma del prompt nativo di installazione e successiva richiesta push dalla modalità standalone;
+5. testare l'invito diretto completo con due account reali e verificare notifica in-app, push e possibilità di chiedere partecipazione prima dell'inizio;
+6. ripetere pagina pubblica → registrazione → conferma email → profilo → ritorno all'uscita con un nuovo account reale;
+7. osservare un nuovo `feedback_reminder`: massimo uno, nessun invio a chi ha già risposto, deep-link corretto;
+8. completare gli stati negativi e i permessi non ancora registrati sistematicamente;
+9. decidere esplicitamente il comportamento di “Trova” per le uscite già iniziate;
+10. raccogliere nuovi dati del funnel senza azzerarli prima di esportare le evidenze utili;
+11. ottenere altre 4 uscite reali validate per arrivare alla milestone storica 5/5;
+12. solo dopo il gate valutare il primo P1 realmente giustificato.
 
 ### Gate verso P1
 
@@ -703,22 +719,23 @@ Il presente file `EscoAPesca_Piano_Operativo_Completo_v1.3.md` è invece version
 
 ### Baseline verificata
 
-Sulla baseline applicativa `da1a22a`, il 30 agosto 2026:
+Sulla baseline applicativa pronta `fd31852`, il 31 agosto 2026:
 
-- frontend: 16 file di test, **80/80 test verdi**;
+- frontend: 17 file di test, **84/84 test verdi**;
 - worker email + push: **9/9 test verdi**;
 - build Vinext/Vite di produzione: riuscita;
 - `git diff --check`: nessun errore sul codice applicativo;
-- Sites v45: deploy riuscito;
-- `https://app.escoapesca.it/` e la pagina uscita controllata hanno risposto HTTP 200;
-- GitHub `origin/main` è stato allineato alla baseline applicativa prima del commit documentale.
+- server locale di produzione: Home, `manifest.json` e `push-sw.js` hanno risposto HTTP 200; manifest servito come `application/json`;
+- Sites v46: versione salvata dalla build di `fd31852`, deploy pubblico non ancora autorizzato;
+- Sites v45 resta la produzione attiva e `https://app.escoapesca.it/` continua a puntare a `da1a22a`;
+- GitHub `origin/main` è stato allineato a `fd31852` prima del commit documentale.
 
 ### Regola di ripresa
 
 Prima di qualsiasi modifica:
 
 1. leggere per intero questa sezione e verificare branch, status, diff, HEAD, `origin/main`, ultimi commit e versione Sites;
-2. distinguere il commit documentale dalla baseline applicativa pubblicata `da1a22a`;
+2. distinguere la baseline applicativa pronta `fd31852` dalla baseline ancora pubblicata `da1a22a`, finché Sites v46 non risulta distribuita con successo;
 3. preservare tutti i file locali non tracciati;
 4. verificare le metriche Supabase, ricordando che il dataset operativo era vuoto al controllo del 30 agosto;
 5. riprodurre e diagnosticare un problema prima di correggerlo;
@@ -728,7 +745,7 @@ Prima di qualsiasi modifica:
 
 ### Istruzione pronta per una nuova conversazione
 
-Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. La baseline applicativa in produzione è `da1a22a`, Sites v45. Il database operativo risultava vuoto dopo reset, ma la milestone storica resta 1/5. I prossimi passi prioritari sono: test Web Push su telefono reale, test completo degli inviti diretti, decisione sulla visibilità delle uscite già iniziate, nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare P1 o macro-funzionalità non approvate.
+Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. GitHub contiene la baseline applicativa pronta `fd31852`; Sites v46 è salvata ma non ancora distribuita, quindi la produzione resta Sites v45 / `da1a22a` fino a deploy riuscito. Il database operativo risultava vuoto dopo reset, ma la milestone storica resta 1/5. I prossimi passi prioritari sono: autorizzazione e deploy pubblico v46, test installazione e Web Push su iPhone/Android reali, test completo degli inviti diretti, decisione sulla visibilità delle uscite già iniziate, nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare altri P1 o macro-funzionalità non approvate.
 
 ---
 
