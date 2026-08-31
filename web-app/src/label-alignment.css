@@ -7,8 +7,10 @@ label:not(.choice-chip):not(.legal-check) > select,
 label:not(.choice-chip):not(.legal-check) > textarea,
 label:not(.choice-chip):not(.legal-check) > small,
 label:not(.choice-chip):not(.legal-check) > .field-help,
+label:not(.choice-chip):not(.legal-check) > .field-error,
 label:not(.choice-chip):not(.legal-check) > .form-error,
-label:not(.choice-chip):not(.legal-check) > .field-label-line {
+label:not(.choice-chip):not(.legal-check) > .field-label-line,
+label:not(.choice-chip):not(.legal-check) > .zone-combobox {
   grid-column: 1 / -1;
 }
 
@@ -21,7 +23,11 @@ label:not(.choice-chip):not(.legal-check) > .optional,
   text-align: right;
 }
 
-.form-grid > label { align-content: start; }
+.form-grid > label,
+.trip-schedule-grid > label {
+  align-content: start;
+  min-width: 0;
+}
 
 .trip-invite-panel, .push-notification-panel { display: grid; gap: 1rem; }
 .trip-invite-heading h2, .push-notification-panel h2 { margin-bottom: .35rem; }

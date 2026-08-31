@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "../src/styles.css";
+import "../src/label-alignment.css";
 
 export const metadata = {
   title: "EscoAPesca Beta",
