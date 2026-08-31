@@ -19,8 +19,13 @@ if (trackedChanges) {
 }
 
 const commitSha = git("rev-parse", "HEAD");
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-const build = spawnSync(npmCommand, ["run", "build"], {
+const npmCli = process.env.npm_execpath;
+if (!npmCli) {
+  console.error("Impossibile individuare il client npm usato per avviare la build di release.");
+  process.exit(1);
+}
+
+const build = spawnSync(process.execPath, [npmCli, "run", "build"], {
   cwd: projectRoot,
   env: { ...process.env, GIT_COMMIT_SHA: commitSha },
   stdio: "inherit",
