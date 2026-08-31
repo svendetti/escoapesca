@@ -1,7 +1,7 @@
 # EscoAPesca — Piano operativo completo v1.3
 
 **Ultimo aggiornamento:** 31 agosto 2026
-**Stato:** Beta P0 operativa end-to-end; flusso PWA mobile e allineamenti globali pubblicati con `a8dd003` in Sites v47 e GitHub allineato; milestone storica 1/5 uscite reali validate; dataset operativo corrente azzerato per nuovi test
+**Stato:** Beta P0 operativa end-to-end; flusso PWA mobile, allineamenti globali e provenienza della release pubblicati con `3772c04` in Sites v48 e GitHub allineato; milestone storica 1/5 uscite reali validate; dataset operativo corrente azzerato per nuovi test
 **Ambito iniziale:** Regione Lazio  
 **Visione:** piattaforma scalabile progressivamente in tutte le regioni italiane  
 **Payoff:** Trova qualcuno con cui andare a pesca.
@@ -165,7 +165,7 @@ Prevede maggiori dettagli, gestione delle richieste, partecipanti accettati/conf
 - azione di invito diretto mantenuta visibile dopo l'inizio, ma disabilitata con spiegazione perché le richieste si chiudono all'orario di partenza;
 - prima uscita reale validata da feedback di entrambe le parti: milestone storica **1/5**; il reset operativo successivo ha rimosso i record dal database senza annullare l'evidenza di validazione raccolta;
 - 84 test frontend e 9 test complessivi dei worker email/push verdi; build di produzione riuscita il 31 agosto 2026;
-- codice applicativo, GitHub `main` e produzione Sites v47 allineati alla baseline applicativa `a8dd003` prima del presente aggiornamento documentale.
+- codice applicativo, GitHub `main` e produzione Sites v48 allineati alla baseline applicativa `3772c04` prima del presente aggiornamento documentale.
 
 ### Da completare nella validazione controllata
 
@@ -196,8 +196,8 @@ Prevede maggiori dettagli, gestione delle richieste, partecipanti accettati/conf
 |---|---|---|
 | Landing pubblica | Online | `https://www.escoapesca.it/` |
 | App Beta | Online | `https://app.escoapesca.it/` |
-| Hosting app | Attivo | OpenAI Sites / Cloudflare, progetto pubblico `escoapesca-beta`, versione 47 |
-| Repository | Attivo e allineato | GitHub `main`; baseline applicativa pubblicata `a8dd0036d3b4926c08e1086ed2159c17371ddcde` |
+| Hosting app | Attivo | OpenAI Sites / Cloudflare, progetto pubblico `escoapesca-beta`, versione 48 |
+| Repository | Attivo e allineato | GitHub `main`; baseline applicativa pubblicata `3772c04c90b4c76f470ebf8dd53a5d27e111c136` |
 | Backend | Attivo | Supabase, progetto `EscoAPesca Beta`, regione `eu-west-1` |
 | Database e Auth | Attivi | PostgreSQL 17, Auth, RLS, RPC e contratti SQL |
 | Storage profili | Attivo | Bucket privato con accessi limitati dalle policy |
@@ -534,6 +534,7 @@ Il prossimo risultato utile non è una nuova funzione grafica, ma completare le 
 - **30 agosto 2026 — aggiornamento handoff v1.3:** label opzionali allineate; inviti diretti tra utenti iscritti e Web Push; archivio personale e moderazione uscite; correzione policy di lettura; ricerca utenti e condivisione rese più chiare; località costiere del Lazio; creazione uscita semplificata con titolo/codice automatici e fine flessibile o su più giorni; azione di invito mantenuta visibile ma disabilitata dopo l'inizio; Sites v45 e GitHub allineati alla baseline applicativa `da1a22a`; metriche correnti aggiornate dopo reset operativo.
 - **31 agosto 2026 — aggiornamento installazione mobile:** corretta la scheda notifiche; aggiunti manifest, icone e metadati iPhone; introdotto il percorso guidato post-profilo con prompt nativo Android, guida iPhone “Condividi → Aggiungi alla schermata Home” e richiesta del permesso push soltanto dopo l'apertura dalla nuova icona; versione app `0.1.5`, 84 test verdi, commit applicativo `fd31852`; Sites v46 pubblicata con successo e dominio pubblico verificato.
 - **31 agosto 2026 — correzione allineamenti produzione:** individuato che `label-alignment.css` era importato soltanto dal vecchio entry point e non dal layout Vinext; import globale corretto, spaziatura notifiche resa effettiva e allineamento uniforme esteso a label, select, combobox, errori e griglie affiancate di Registrazione, Profilo, Quando, Dove, Partecipanti e dettagli privati; versione app `0.1.6`, commit `a8dd003`, Sites v47 pubblicata e CSS pubblico verificato.
+- **31 agosto 2026 — provenienza release riallineata:** introdotto `build:release`, che rifiuta modifiche applicative tracciate non committate e incorpora esplicitamente il commit pubblicato; corretta la compatibilità Windows; baseline `3772c04` pubblicata in Sites v48 e bundle pubblico verificato con etichetta `Beta Lazio v0.1.6 · 3772c04`, senza il vecchio hash `f41e694`.
 
 ## 28. Avvertenza
 
@@ -548,9 +549,9 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 - repository locale: `C:\Users\Devillsit\Desktop\EscoAPesca`;
 - repository remoto: `https://github.com/svendetti/escoapesca.git`;
 - branch: `main`;
-- baseline applicativa pubblicata: `a8dd0036d3b4926c08e1086ed2159c17371ddcde` (`Fix form field alignment in production`);
-- GitHub `main` contiene tutto il codice applicativo fino a `a8dd003`; i commit successivi che aggiornano questo documento sono documentali;
-- produzione app: OpenAI Sites versione **47**, sorgente applicativa `a8dd0036d3b4926c08e1086ed2159c17371ddcde`;
+- baseline applicativa pubblicata: `3772c04c90b4c76f470ebf8dd53a5d27e111c136` (`Fix release build on Windows`);
+- GitHub `main` contiene tutto il codice applicativo fino a `3772c04`; i commit successivi che aggiornano questo documento sono documentali;
+- produzione app: OpenAI Sites versione **48**, sorgente applicativa `3772c04c90b4c76f470ebf8dd53a5d27e111c136`;
 - URL produzione: `https://app.escoapesca.it`;
 - progetto Sites: `appgprj_6a7dd573bb90819187db51158ed8d261`;
 - progetto Supabase: `aujrjfiwoduetdftwqzl`, regione `eu-west-1`, piano Free;
@@ -577,6 +578,8 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 | `22cdc9c` | Spaziatura della scheda notifiche corretta; copy per dispositivo chiarito; aggiunti manifest, icone e metadati necessari all'installazione iPhone. |
 | `fd31852` | Flusso PWA mobile guidato: prompt nativo Android, istruzioni iPhone, ritorno alla Home dopo il primo profilo, richiesta push dopo apertura standalone, registrazione anticipata del service worker e test dedicati. |
 | `a8dd003` | Corretto il caricamento del foglio di allineamento nella build Vinext; spaziatura notifiche e allineamento di label, select, combobox, errori e griglie affiancate ora sono effettivi in produzione. |
+| `d7623dd` | Introdotto il comando `build:release`: blocca release con modifiche applicative tracciate non committate e passa alla build l'hash esatto da mostrare. |
+| `3772c04` | Reso `build:release` compatibile con Windows tramite il client npm del processo corrente; baseline ricostruita e pubblicata con provenienza coerente. |
 
 ### Progressi funzionali consolidati al 31 agosto
 
@@ -718,24 +721,26 @@ Il presente file `EscoAPesca_Piano_Operativo_Completo_v1.3.md` è invece version
 
 ### Baseline verificata
 
-Sulla baseline applicativa pubblicata `a8dd003`, il 31 agosto 2026:
+Sulla baseline applicativa pubblicata `3772c04`, il 31 agosto 2026:
 
 - frontend: 17 file di test, **84/84 test verdi**;
 - worker email + push: **9/9 test verdi**;
 - build Vinext/Vite di produzione: riuscita;
 - `git diff --check`: nessun errore sul codice applicativo;
 - server locale di produzione: Home, `manifest.json` e `push-sw.js` hanno risposto HTTP 200; manifest servito come `application/json`;
-- Sites v47: deploy pubblico riuscito dalla build di `a8dd003`;
+- `npm run build:release`: riuscito da working tree applicativo pulito, con hash `3772c04` incorporato;
+- Sites v48: deploy pubblico riuscito dalla build di `3772c04`;
 - `https://app.escoapesca.it/notifiche`, `/crea-uscita` e `/profilo` hanno risposto HTTP 200 dopo il deploy;
 - il CSS pubblico contiene le regole per pannello notifiche, `align-content: start` e combobox di zona;
-- GitHub `origin/main` è stato allineato alla baseline applicativa `a8dd003` prima del nuovo commit documentale.
+- il bundle pubblico contiene `Beta Lazio v0.1.6 · 3772c04` e non contiene più `f41e694`;
+- GitHub `origin/main` è stato allineato alla baseline applicativa `3772c04` prima del nuovo commit documentale.
 
 ### Regola di ripresa
 
 Prima di qualsiasi modifica:
 
 1. leggere per intero questa sezione e verificare branch, status, diff, HEAD, `origin/main`, ultimi commit e versione Sites;
-2. distinguere la baseline applicativa pubblicata `a8dd003` dai successivi commit esclusivamente documentali;
+2. distinguere la baseline applicativa pubblicata `3772c04` dai successivi commit esclusivamente documentali;
 3. preservare tutti i file locali non tracciati;
 4. verificare le metriche Supabase, ricordando che il dataset operativo era vuoto al controllo del 30 agosto;
 5. riprodurre e diagnosticare un problema prima di correggerlo;
@@ -745,7 +750,7 @@ Prima di qualsiasi modifica:
 
 ### Istruzione pronta per una nuova conversazione
 
-Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. La baseline applicativa `a8dd003` è pubblicata in Sites v47 e presente su GitHub; i commit Git successivi sono documentali. Il database operativo risultava vuoto dopo reset, ma la milestone storica resta 1/5. I prossimi passi prioritari sono: test installazione e Web Push su iPhone/Android reali, test completo degli inviti diretti, decisione sulla visibilità delle uscite già iniziate, nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare altri P1 o macro-funzionalità non approvate.
+Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. La baseline applicativa `3772c04` è pubblicata in Sites v48 e presente su GitHub; i commit Git successivi sono documentali. Per le release usare `npm run build:release` soltanto da modifiche applicative già committate. Il database operativo risultava vuoto dopo reset, ma la milestone storica resta 1/5. I prossimi passi prioritari sono: test installazione e Web Push su iPhone/Android reali, test completo degli inviti diretti, decisione sulla visibilità delle uscite già iniziate, nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare altri P1 o macro-funzionalità non approvate.
 
 ---
 
