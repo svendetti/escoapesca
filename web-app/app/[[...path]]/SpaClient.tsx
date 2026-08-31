@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
+import { initializeClientStartup } from "../../src/lib/clientStartup";
+
+initializeClientStartup();
 
 export type PublicRuntimeConfig = {
   supabaseUrl: string;

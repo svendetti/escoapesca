@@ -60,7 +60,7 @@ export async function requestInstallPrompt(): Promise<"accepted" | "dismissed" |
 
   await prompt.prompt();
   const choice = await prompt.userChoice;
-  if (choice.outcome === "accepted") deferredInstallPrompt = null;
+  deferredInstallPrompt = null;
   return choice.outcome;
 }
 

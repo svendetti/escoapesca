@@ -43,6 +43,7 @@ export function InstallAppPrompt() {
   const platform = useMemo(currentPlatform, []);
   const [standalone, setStandalone] = useState(currentStandalone);
   const [installReady, setInstallReady] = useState(hasInstallPrompt);
+  const [manualInstall, setManualInstall] = useState(false);
   const [showIosGuide, setShowIosGuide] = useState(false);
   const [installedNow, setInstalledNow] = useState(false);
   const [pushState, setPushState] = useState<PushState | null>(null);
@@ -52,7 +53,11 @@ export function InstallAppPrompt() {
   const [pushSuppressed, setPushSuppressed] = useState(() => reminderIsSuppressed(PUSH_REMINDER_KEY));
 
   useEffect(() => {
-    const installAvailable = () => setInstallReady(true);
+    const installAvailable = () => {
+      setInstallReady(true);
+      setManualInstall(false);
+      setError(null);
+    };
     const installed = () => {
       setInstallReady(false);
       setInstalledNow(true);
@@ -70,6 +75,14 @@ export function InstallAppPrompt() {
       displayMode.removeEventListener?.("change", updateDisplayMode);
     };
   }, []);
+
+  useEffect(() => {
+    if (platform !== "android" || installReady) return;
+    const timeout = window.setTimeout(() => {
+      if (!hasInstallPrompt()) setManualInstall(true);
+    }, 1500);
+    return () => window.clearTimeout(timeout);
+  }, [installReady, platform]);
 
   useEffect(() => {
     if (platform === "other" || !standalone) return;
@@ -95,10 +108,13 @@ export function InstallAppPrompt() {
     try {
       const outcome = await requestInstallPrompt();
       if (outcome === "unavailable") {
-        setError("Il browser non ha ancora reso disponibile l’installazione. Apri il menu del browser e scegli “Installa app” o “Aggiungi alla schermata Home”.");
+        setInstallReady(false);
+        setManualInstall(true);
       } else if (outcome === "accepted") {
         setInstalledNow(true);
         try { localStorage.removeItem(INSTALL_REMINDER_KEY); } catch { /* Installation has already succeeded. */ }
+      } else {
+        postpone(INSTALL_REMINDER_KEY, setInstallSuppressed);
       }
     } catch (caught) {
       setError(readableError(caught));
@@ -165,6 +181,11 @@ export function InstallAppPrompt() {
         <Notice kind="success">Installazione avviata. Apri EscoAPesca dalla nuova icona per attivare le notifiche.</Notice>
       )}
       {error && <Notice kind="error">{error}</Notice>}
+      {platform === "android" && manualInstall && (
+        <Notice kind="info">
+          Per installare EscoAPesca apri il menu del browser e scegli “Installa app” o “Aggiungi alla schermata Home”.
+        </Notice>
+      )}
 
       {platform === "ios" && showIosGuide && (
         <ol className="ios-install-steps">
@@ -177,9 +198,11 @@ export function InstallAppPrompt() {
       {!installedNow && (
         <div className="install-app-actions">
           {platform === "android" ? (
-            <button className="button button-primary" disabled={busy} type="button" onClick={() => void installAndroid()}>
-              {busy ? "Apertura…" : installReady ? "Installa sul telefono" : "Installa EscoAPesca"}
-            </button>
+            !manualInstall && (
+              <button className="button button-primary" disabled={busy || !installReady} type="button" onClick={() => void installAndroid()}>
+                {busy ? "Apertura…" : installReady ? "Installa sul telefono" : "Verifica installazione…"}
+              </button>
+            )
           ) : (
             <button className="button button-primary" type="button" onClick={() => setShowIosGuide((current) => !current)}>
               {showIosGuide ? "Nascondi la guida" : "Mostrami come"}
