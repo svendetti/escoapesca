@@ -14,7 +14,7 @@ const COPY: Record<PushState, string> = {
   "needs-install": "Su iPhone e iPad aggiungi prima EscoAPesca alla schermata Home da Condividi → Aggiungi alla schermata Home, poi aprila dall’icona.",
   denied: "Le notifiche sono bloccate nelle impostazioni del browser o del telefono. Riattivale lì e torna su questa pagina.",
   inactive: "Attivale per ricevere un avviso con il suono predefinito del telefono anche quando EscoAPesca è chiusa.",
-  active: "Notifiche attive su questo dispositivo. Suono e vibrazione dipendono dalle impostazioni del telefono, da Silenzioso e da Focus/Non disturbare.",
+  active: "Notifiche attive solo su questo browser e dispositivo. Sugli altri dispositivi vanno attivate separatamente; su iPhone EscoAPesca deve essere aggiunta alla schermata Home e aperta dalla sua icona. Suono e vibrazione dipendono da Silenzioso e Focus/Non disturbare.",
 };
 
 export function PushNotificationPanel() {
@@ -54,7 +54,7 @@ export function PushNotificationPanel() {
     setError(null);
     try {
       await sendTestPushNotification();
-      setNotice("Notifica di prova in coda: dovrebbe arrivare entro circa un minuto.");
+      setNotice("Notifica di prova in coda per questo dispositivo: dovrebbe arrivare entro circa un minuto.");
     } catch (caught) {
       setError(readableError(caught));
     } finally {

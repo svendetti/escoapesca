@@ -36,7 +36,7 @@ label:not(.choice-chip):not(.legal-check) > .optional,
 .trip-invite-selected { align-items: center; background: rgba(7, 27, 41, .55); border: 1px solid var(--line); border-radius: 16px; display: flex; gap: 1rem; justify-content: space-between; padding: .9rem; }
 .trip-invite-selected p { color: var(--muted); margin: .25rem 0 0; }
 .trip-invite-selected .button { flex: 0 0 auto; min-width: 7rem; }
-.push-notification-panel { background: linear-gradient(135deg, rgba(104, 245, 218, .11), rgba(7, 27, 41, .82)); border: 1px solid rgba(104, 245, 218, .28); border-radius: 20px; margin-bottom: 1.25rem; padding: 1.15rem; }
+.push-notification-panel { background: linear-gradient(135deg, rgba(104, 245, 218, .11), rgba(7, 27, 41, .82)); border: 1px solid rgba(104, 245, 218, .28); border-radius: 20px; margin-bottom: 2rem; padding: 1.15rem; }
 
 @media (max-width: 520px) {
   .trip-invite-selected { align-items: stretch; flex-direction: column; }
