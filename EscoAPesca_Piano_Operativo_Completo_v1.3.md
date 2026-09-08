@@ -1,7 +1,7 @@
 # EscoAPesca — Piano operativo completo v1.3
 
 **Ultimo aggiornamento:** 8 settembre 2026
-**Stato:** Beta P0 operativa end-to-end; installazione PWA esposta anche nella schermata pubblica di benvenuto e pubblicata con sorgente `0f5e68f`, app `0.1.8` e Sites v50; GitHub `main` e documento operativo allineati; milestone storica 1/5 uscite reali validate; dataset operativo corrente con 1 nuova uscita aperta e nessuna partecipazione o notifica
+**Stato:** Beta P0 operativa end-to-end; installazione PWA esposta nelle schermate pubbliche di benvenuto e accesso e pubblicata con sorgente `1a9a6a9`, app `0.1.9` e Sites v51; GitHub `main` e documento operativo allineati; milestone storica 1/5 uscite reali validate; dataset operativo corrente con 1 nuova uscita aperta e nessuna partecipazione o notifica
 **Ambito iniziale:** Regione Lazio  
 **Visione:** piattaforma scalabile progressivamente in tutte le regioni italiane  
 **Payoff:** Trova qualcuno con cui andare a pesca.
@@ -165,7 +165,7 @@ Prevede maggiori dettagli, gestione delle richieste, partecipanti accettati/conf
 - azione di invito diretto mantenuta visibile dopo l'inizio, ma disabilitata con spiegazione perché le richieste si chiudono all'orario di partenza;
 - prima uscita reale validata da feedback di entrambe le parti: milestone storica **1/5**; il reset operativo successivo ha rimosso i record dal database senza annullare l'evidenza di validazione raccolta;
 - 88 test frontend e 9 test complessivi dei worker email/push verdi; build di release riuscita l'8 settembre 2026;
-- codice applicativo locale, GitHub `main` e produzione Sites v50 allineati alla baseline applicativa `0f5e68f` prima del presente aggiornamento documentale.
+- codice applicativo locale, GitHub `main` e produzione Sites v51 allineati alla baseline applicativa `1a9a6a9` prima del presente aggiornamento documentale.
 
 ### Da completare nella validazione controllata
 
@@ -196,8 +196,8 @@ Prevede maggiori dettagli, gestione delle richieste, partecipanti accettati/conf
 |---|---|---|
 | Landing pubblica | Online | `https://www.escoapesca.it/` |
 | App Beta | Online | `https://app.escoapesca.it/` |
-| Hosting app | Attivo | OpenAI Sites / Cloudflare, progetto pubblico `escoapesca-beta`, versione 50 |
-| Repository | Attivo e allineato | GitHub `main`; baseline applicativa pubblicata `0f5e68f6254b8927dfdfb1c851bc958a621579af` |
+| Hosting app | Attivo | OpenAI Sites / Cloudflare, progetto pubblico `escoapesca-beta`, versione 51 |
+| Repository | Attivo e allineato | GitHub `main`; baseline applicativa pubblicata `1a9a6a9ca6b3a184b092a6247805d8e40c7eca7c` |
 | Backend | Attivo | Supabase, progetto `EscoAPesca Beta`, regione `eu-west-1` |
 | Database e Auth | Attivi | PostgreSQL 17, Auth, RLS, RPC e contratti SQL |
 | Storage profili | Attivo | Bucket privato con accessi limitati dalle policy |
@@ -537,6 +537,7 @@ Il prossimo risultato utile non è una nuova funzione grafica, ma completare le 
 - **31 agosto 2026 — provenienza release riallineata:** introdotto `build:release`, che rifiuta modifiche applicative tracciate non committate e incorpora esplicitamente il commit pubblicato; corretta la compatibilità Windows; baseline `3772c04` pubblicata in Sites v48 e bundle pubblico verificato con etichetta `Beta Lazio v0.1.6 · 3772c04`, senza il vecchio hash `f41e694`.
 - **31 agosto 2026 — avvio PWA Android corretto in produzione:** individuato che inizializzazione dell'installazione e registrazione anticipata del service worker erano presenti soltanto nel vecchio `src/main.tsx`, non nell'entry point Vinext effettivamente pubblicato; introdotto un bootstrap client condiviso e idempotente, agganciato anche a `SpaClient`; il prompt Android viene mostrato soltanto quando il browser lo rende disponibile e il fallback manuale è informativo, senza falso errore rosso né pulsante inefficace; versione app `0.1.7`, 85 test verdi, commit `118a5ac`, Sites v49 e dominio pubblico verificati.
 - **8 settembre 2026 — installazione PWA prima del login:** aggiunte nella schermata pubblica di benvenuto le azioni contestuali di installazione: “Installa app” su Android con `beforeinstallprompt` e fallback al menu del browser, “Installa su iPhone” con guida Safari → Condividi → Aggiungi alla schermata Home; la scheda non viene resa quando l'app è già aperta in modalità standalone e non attiva notifiche prima dell'accesso; manifest, icone 192/512, icona Apple 180 e service worker verificati; versione app `0.1.8`, 88 test verdi, commit `0f5e68f`, GitHub e Sites v50 pubblicati e dominio pubblico verificato.
+- **8 settembre 2026 — CTA PWA estesa alla pagina di accesso:** verificato su iPhone non autenticato che la CTA non compariva su `/accedi` perché il componente era presente soltanto sulla root pubblica; aggiunta la stessa azione contestuale prima del form di login, mantenendo l'occultamento in standalone. Su Chrome iOS, incluso l'incognito, il pulsante mostra la guida ad aprire EscoAPesca in Safari, perché l'installazione dalla schermata Home non può essere avviata da Chrome; versione app `0.1.9`, 88 test verdi, commit `1a9a6a9`, GitHub e Sites v51 pubblicati e dominio pubblico verificato.
 
 ## 28. Avvertenza
 
@@ -548,13 +549,13 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 
 ### Stato Git e produzione verificato
 
-- repository locale: `C:\Users\Devillsit\Desktop\EscoAPesca`;
+- repository locale: `C:\Users\Devillsit\Desktop\SIMONE\EscoAPesca`;
 - repository remoto: `https://github.com/svendetti/escoapesca.git`;
 - branch: `main`;
-- baseline applicativa pubblicata: `0f5e68f6254b8927dfdfb1c851bc958a621579af` (`Add PWA install actions to welcome`);
-- GitHub `main` contiene tutto il codice applicativo fino a `0f5e68f`; i commit successivi che aggiornano questo documento sono documentali;
-- Sites versione **50** è pubblicata con sorgente `0f5e68f6254b8927dfdfb1c851bc958a621579af` e archivio di build verificato;
-- produzione app: OpenAI Sites versione **50**, sorgente applicativa `0f5e68f6254b8927dfdfb1c851bc958a621579af`, versione app `0.1.8`;
+- baseline applicativa pubblicata: `1a9a6a9ca6b3a184b092a6247805d8e40c7eca7c` (`Show PWA install action on login`);
+- GitHub `main` contiene tutto il codice applicativo fino a `1a9a6a9`; i commit successivi che aggiornano questo documento sono documentali;
+- Sites versione **51** è pubblicata con sorgente `1a9a6a9ca6b3a184b092a6247805d8e40c7eca7c` e archivio di build verificato;
+- produzione app: OpenAI Sites versione **51**, sorgente applicativa `1a9a6a9ca6b3a184b092a6247805d8e40c7eca7c`, versione app `0.1.9`;
 - URL produzione: `https://app.escoapesca.it`;
 - progetto Sites: `appgprj_6a7dd573bb90819187db51158ed8d261`;
 - progetto Supabase: `aujrjfiwoduetdftwqzl`, regione `eu-west-1`, piano Free;
@@ -585,8 +586,9 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 | `3772c04` | Reso `build:release` compatibile con Windows tramite il client npm del processo corrente; baseline ricostruita e pubblicata con provenienza coerente. |
 | `118a5ac` | Corretto l'avvio PWA nell'entry point Vinext reale: bootstrap condiviso per cattura `beforeinstallprompt` e service worker, fallback Android neutro e consumo corretto del prompt monouso; versione app `0.1.7`. |
 | `0f5e68f` | Portate le azioni PWA nella schermata pubblica prima del login: CTA Android e iPhone contestuali, guida Safari, fallback Android, occultamento in standalone e test di rendering dedicati; versione app `0.1.8`. |
+| `1a9a6a9` | Estesa la CTA PWA alla pagina `/accedi`, così anche l'utente iPhone non autenticato vede “Installa su iPhone”; Chrome iOS viene indirizzato alla procedura Safari; versione app `0.1.9`. |
 
-### Progressi funzionali consolidati al 31 agosto
+### Progressi funzionali consolidati all'8 settembre
 
 1. **Creazione uscita più veloce**
    - il sistema compone un titolo standard da tecnica e zona;
@@ -610,11 +612,11 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
    - il service worker push viene registrato all'avvio, senza attendere l'apertura della pagina Notifiche;
    - dopo il primo completamento del profilo, in assenza di un deep-link da preservare, l'utente torna alla Home e vede l'invito “Installa EscoAPesca”;
    - su Android il bootstrap viene eseguito dall'entry point Vinext effettivo e cattura `beforeinstallprompt` prima del rendering; il pulsante compare soltanto quando il prompt nativo è disponibile, altrimenti resta una guida informativa al menu del browser;
-   - su iPhone/iPad viene mostrata una guida in tre passaggi: Condividi, Aggiungi alla schermata Home, apertura dalla nuova icona;
+   - su iPhone/iPad viene mostrata una guida che include l'apertura in Safari, quindi Condividi, Aggiungi alla schermata Home e apertura dalla nuova icona;
    - soltanto quando l'app è aperta in modalità standalone viene proposta l'attivazione delle notifiche; la richiesta di sistema parte sempre da un tocco esplicito;
    - “Non ora” sospende separatamente i promemoria di installazione e notifiche per sette giorni sul dispositivo;
-   - manifest, icone, metadati Apple e MIME JSON sono presenti; la produzione è alla versione `0.1.8`;
-   - l'installazione è proposta anche prima del login: CTA “Installa app” su Android, “Installa su iPhone” su iOS e nessuna scheda quando la PWA è già aperta in standalone;
+   - manifest, icone, metadati Apple e MIME JSON sono presenti; la produzione è alla versione `0.1.9`;
+   - l'installazione è proposta anche prima del login sia sulla root pubblica sia su `/accedi`: CTA “Installa app” su Android, “Installa su iPhone” su iOS e nessuna scheda quando la PWA è già aperta in standalone;
    - resta necessaria una prova end-to-end su telefono reale con app non in primo piano e schermo bloccato.
 
 4. **Storico e moderazione**
@@ -636,6 +638,7 @@ Questa sezione è la sintesi vincolante da utilizzare quando il lavoro viene rip
 - La stessa regola spiegava la scomparsa dell'invito diretto; da `da1a22a` l'azione resta visibile ma disabilitata con un messaggio esplicativo.
 - Il reset Admin è stato usato dopo queste prove. Al controllo del 30 agosto alle 19:26 UTC il database operativo conteneva 0 uscite e 0 record collegati, mentre i 5 utenti e profili erano preservati.
 - La prima scheda Android mostrava un falso errore “Il browser non ha ancora reso disponibile l'installazione” perché la cattura di `beforeinstallprompt` e la registrazione anticipata del service worker erano inizializzate soltanto nel vecchio entry point `src/main.tsx`; la produzione Vinext usa `app/[[...path]]/SpaClient.tsx`. Da `118a5ac` entrambi usano lo stesso bootstrap client idempotente.
+- La CTA PWA risultava assente nello screenshot iPhone dell'8 settembre perché l'utente non autenticato si trovava su `/accedi`, mentre `0f5e68f` la rendeva soltanto sulla root `/`. Da `1a9a6a9` la CTA è presente anche nella pagina di accesso. Lo screenshot mostrava inoltre Chrome in modalità incognito: il pulsante può spiegare il percorso, ma su iPhone l'aggiunta alla schermata Home deve essere completata in Safari.
 
 ### Stato dei P0
 
@@ -691,7 +694,7 @@ Verifica diretta su Supabase dell'8 settembre 2026 alle 15:16 UTC:
 
 ### Validazioni ancora necessarie
 
-1. su iPhone reale: verificare la CTA prima del login, completare Safari → Condividi → Aggiungi alla schermata Home, aprire l'icona, confermare che la CTA sparisca, quindi autenticarsi, attivare il permesso e verificare la nuova subscription Apple;
+1. su iPhone reale: verificare la CTA sia sulla root sia su `/accedi`, seguire Chrome → Safari quando necessario, completare Safari → Condividi → Aggiungi alla schermata Home, aprire l'icona, confermare che la CTA sparisca, quindi autenticarsi, attivare il permesso e verificare la nuova subscription Apple;
 2. testare Web Push su telefono reale: notifica con app chiusa/in background, apertura deep-link, comportamento con schermo bloccato e aspettative sul suono;
 3. su Android reale: verificare la CTA prima del login, comparsa e conferma del prompt nativo quando il browser considera l'app installabile, fallback informativo quando non lo espone, scomparsa della CTA in standalone e successiva richiesta push dopo l'accesso;
 4. testare l'invito diretto completo con due account reali e verificare notifica in-app, push e possibilità di chiedere partecipazione prima dell'inizio;
@@ -729,27 +732,27 @@ Il presente file `EscoAPesca_Piano_Operativo_Completo_v1.3.md` è invece version
 
 ### Baseline verificata
 
-Sulla baseline applicativa pubblicata `0f5e68f`, verificata l'8 settembre 2026:
+Sulla baseline applicativa pubblicata `1a9a6a9`, verificata l'8 settembre 2026:
 
 - frontend: 19 file di test, **88/88 test verdi**;
 - worker email + push: **9/9 test verdi**;
 - build Vinext/Vite di produzione: riuscita;
 - `git diff --check`: nessun errore sul codice applicativo;
-- server locale di produzione: Home, `manifest.json` e `push-sw.js` hanno risposto HTTP 200; manifest servito come `application/json`;
-- `npm run build:release`: riuscito da working tree applicativo pulito, con hash `0f5e68f` e versione `0.1.8` incorporati;
-- Sites v50: deploy pubblico riuscito dalla build di `0f5e68f`;
+- server locale di produzione: Home, `/accedi`, `manifest.json` e `push-sw.js` hanno risposto HTTP 200; manifest servito come `application/json`;
+- `npm run build:release`: riuscito da working tree applicativo pulito, con hash `1a9a6a9` e versione `0.1.9` incorporati;
+- Sites v51: deploy pubblico riuscito dalla build di `1a9a6a9`;
 - Supabase risulta `ACTIVE_HEALTHY` e tutte le letture della Home sono state verificate con ruolo autenticato; il messaggio generico osservato sul telefono non corrisponde a un errore backend riproducibile né a errori nei log Sites;
 - `https://app.escoapesca.it/notifiche`, `/crea-uscita` e `/profilo` hanno risposto HTTP 200 dopo il deploy;
 - il CSS pubblico contiene le regole per pannello notifiche, `align-content: start` e combobox di zona;
-- i bundle pubblici contengono versione `0.1.8`, commit `0f5e68f`, CTA Android/iPhone e guida Safari; non contengono più versione `0.1.7` né commit `118a5ac`;
-- repository locale, GitHub `origin/main` e sorgente pubblicata di Sites v50 risultano allineati alla baseline applicativa `0f5e68f` prima del nuovo commit documentale.
+- i bundle pubblici contengono versione `0.1.9`, commit `1a9a6a9`, CTA Android/iPhone e guida Safari; non contengono più versione `0.1.8` né commit `0f5e68f`;
+- repository locale, GitHub `origin/main` e sorgente pubblicata di Sites v51 risultano allineati alla baseline applicativa `1a9a6a9` prima del nuovo commit documentale.
 
 ### Regola di ripresa
 
 Prima di qualsiasi modifica:
 
 1. leggere per intero questa sezione e verificare branch, status, diff, HEAD, `origin/main`, ultimi commit e versione Sites;
-2. distinguere la baseline applicativa pubblicata `0f5e68f` / Sites v50 dai successivi commit esclusivamente documentali;
+2. distinguere la baseline applicativa pubblicata `1a9a6a9` / Sites v51 dai successivi commit esclusivamente documentali;
 3. preservare tutti i file locali non tracciati;
 4. verificare le metriche Supabase, ricordando che il dataset operativo era vuoto al controllo del 30 agosto;
 5. riprodurre e diagnosticare un problema prima di correggerlo;
@@ -759,7 +762,7 @@ Prima di qualsiasi modifica:
 
 ### Istruzione pronta per una nuova conversazione
 
-Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. La baseline applicativa `0f5e68f`, app `0.1.8`, è pubblicata in Sites v50 e presente su GitHub; i commit Git successivi sono documentali. Per le release usare `npm run build:release` soltanto da modifiche applicative già committate. Il database operativo era stato azzerato dopo il precedente reset, ma sono presenti nuovi dati di prova e la milestone storica resta 1/5. I prossimi passi prioritari sono: test installazione e Web Push su iPhone/Android reali; test completo degli inviti diretti; decisione sulla visibilità delle uscite già iniziate; nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare altri P1 o macro-funzionalità non approvate.
+Apri e leggi integralmente `EscoAPesca_Piano_Operativo_Completo_v1.3.md`, con priorità alla sezione 29. Verifica lo stato reale di Git, Sites e Supabase prima di agire. La baseline applicativa `1a9a6a9`, app `0.1.9`, è pubblicata in Sites v51 e presente su GitHub; i commit Git successivi sono documentali. Per le release usare `npm run build:release` soltanto da modifiche applicative già committate. Il database operativo era stato azzerato dopo il precedente reset, ma sono presenti nuovi dati di prova e la milestone storica resta 1/5. I prossimi passi prioritari sono: test installazione e Web Push su iPhone/Android reali; test completo degli inviti diretti; decisione sulla visibilità delle uscite già iniziate; nuova acquisizione controllata e raccolta di altre 4 uscite reali validate. Non iniziare altri P1 o macro-funzionalità non approvate.
 
 ---
 
