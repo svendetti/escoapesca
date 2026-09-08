@@ -13,6 +13,7 @@ import {
 } from "../lib/returnPath";
 import { requireSupabase } from "../lib/supabase";
 import { Notice } from "../components/Notice";
+import { InstallAppPrompt } from "../components/InstallAppPrompt";
 
 export function LoginPage() {
   const { user, configured } = useAuth();
@@ -89,6 +90,8 @@ export function LoginPage() {
       <div className="eyebrow">Bentornato</div>
       <h1>Accedi</h1>
       <p>Riprendi da dove avevi lasciato.</p>
+
+      <InstallAppPrompt placement="welcome" />
 
       {error && <Notice kind="error">{error}</Notice>}
       <form onSubmit={(event) => void handleSubmit(event)}>
