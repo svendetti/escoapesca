@@ -20,6 +20,10 @@ import {
 const INSTALL_REMINDER_KEY = "escoapesca:install-reminder-until";
 const PUSH_REMINDER_KEY = "escoapesca:push-reminder-until";
 
+type InstallAppPromptProps = {
+  placement?: "home" | "welcome";
+};
+
 function reminderIsSuppressed(key: string) {
   try {
     return isReminderSuppressed(localStorage.getItem(key));
@@ -39,7 +43,8 @@ function currentStandalone() {
   );
 }
 
-export function InstallAppPrompt() {
+export function InstallAppPrompt({ placement = "home" }: InstallAppPromptProps) {
+  const isWelcome = placement === "welcome";
   const platform = useMemo(currentPlatform, []);
   const [standalone, setStandalone] = useState(currentStandalone);
   const [installReady, setInstallReady] = useState(hasInstallPrompt);
@@ -77,15 +82,15 @@ export function InstallAppPrompt() {
   }, []);
 
   useEffect(() => {
-    if (platform !== "android" || installReady) return;
+    if (isWelcome || platform !== "android" || installReady) return;
     const timeout = window.setTimeout(() => {
       if (!hasInstallPrompt()) setManualInstall(true);
     }, 1500);
     return () => window.clearTimeout(timeout);
-  }, [installReady, platform]);
+  }, [installReady, isWelcome, platform]);
 
   useEffect(() => {
-    if (platform === "other" || !standalone) return;
+    if (isWelcome || platform === "other" || !standalone) return;
     let active = true;
     void inspectPushNotifications(true)
       .then((state) => { if (active) setPushState(state); })
@@ -95,7 +100,7 @@ export function InstallAppPrompt() {
         setError(readableError(caught));
       });
     return () => { active = false; };
-  }, [platform, standalone]);
+  }, [isWelcome, platform, standalone]);
 
   function postpone(key: string, update: (suppressed: boolean) => void) {
     try { localStorage.setItem(key, reminderSuppressionUntil()); } catch { /* The reminder can still close for this session. */ }
@@ -142,6 +147,7 @@ export function InstallAppPrompt() {
   if (platform === "other") return null;
 
   if (standalone) {
+    if (isWelcome) return null;
     if (pushSuppressed || pushState === null || pushState === "active" || pushState === "unsupported") return null;
     return (
       <section className="install-app-card push-step" aria-labelledby="push-step-title">
@@ -167,14 +173,16 @@ export function InstallAppPrompt() {
     );
   }
 
-  if (installSuppressed) return null;
+  if (!isWelcome && installSuppressed) return null;
 
   return (
-    <section className="install-app-card" aria-labelledby="install-app-title">
+    <section className={`install-app-card${isWelcome ? " welcome-install-card" : ""}`} aria-labelledby="install-app-title">
       <div className="install-app-copy">
         <div className="eyebrow">EscoAPesca sul telefono</div>
-        <h2 id="install-app-title">Installa EscoAPesca</h2>
-        <p>Installa EscoAPesca sul telefono e ricevi gli avvisi anche quando è chiusa.</p>
+        <h2 id="install-app-title">{isWelcome ? "Installa l’app" : "Installa EscoAPesca"}</h2>
+        <p>{isWelcome
+          ? "Aggiungi EscoAPesca alla schermata Home: si apre come un’app e può ricevere gli avvisi anche quando è chiusa."
+          : "Installa EscoAPesca sul telefono e ricevi gli avvisi anche quando è chiusa."}</p>
       </div>
 
       {installedNow && (
@@ -183,12 +191,13 @@ export function InstallAppPrompt() {
       {error && <Notice kind="error">{error}</Notice>}
       {platform === "android" && manualInstall && (
         <Notice kind="info">
-          Per installare EscoAPesca apri il menu del browser e scegli “Installa app” o “Aggiungi alla schermata Home”.
+          Apri il menu del browser e scegli “Installa app” o “Aggiungi alla schermata Home”.
         </Notice>
       )}
 
       {platform === "ios" && showIosGuide && (
         <ol className="ios-install-steps">
+          <li><strong>Apri EscoAPesca in Safari</strong><span>Se stai usando un altro browser, apri questa pagina in Safari.</span></li>
           <li><strong>Tocca Condividi</strong><span>L’icona con il quadrato e la freccia verso l’alto.</span></li>
           <li><strong>Scegli “Aggiungi alla schermata Home”</strong><span>Conferma il nome EscoAPesca.</span></li>
           <li><strong>Apri la nuova icona</strong><span>Da lì potrai attivare gli avvisi sul telefono.</span></li>
@@ -198,19 +207,21 @@ export function InstallAppPrompt() {
       {!installedNow && (
         <div className="install-app-actions">
           {platform === "android" ? (
-            !manualInstall && (
-              <button className="button button-primary" disabled={busy || !installReady} type="button" onClick={() => void installAndroid()}>
-                {busy ? "Apertura…" : installReady ? "Installa sul telefono" : "Verifica installazione…"}
+            (isWelcome || !manualInstall) && (
+              <button className="button button-primary" disabled={busy || (!isWelcome && !installReady)} type="button" onClick={() => void installAndroid()}>
+                {busy ? "Apertura…" : isWelcome ? "Installa app" : installReady ? "Installa sul telefono" : "Verifica installazione…"}
               </button>
             )
           ) : (
             <button className="button button-primary" type="button" onClick={() => setShowIosGuide((current) => !current)}>
-              {showIosGuide ? "Nascondi la guida" : "Mostrami come"}
+              {showIosGuide ? "Nascondi la guida" : isWelcome ? "Installa su iPhone" : "Mostrami come"}
             </button>
           )}
-          <button className="button button-quiet" disabled={busy} type="button" onClick={() => postpone(INSTALL_REMINDER_KEY, setInstallSuppressed)}>
-            Non ora
-          </button>
+          {!isWelcome && (
+            <button className="button button-quiet" disabled={busy} type="button" onClick={() => postpone(INSTALL_REMINDER_KEY, setInstallSuppressed)}>
+              Non ora
+            </button>
+          )}
         </div>
       )}
     </section>

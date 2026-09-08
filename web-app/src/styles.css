@@ -70,6 +70,8 @@ p { line-height: 1.6; }
   padding: 1.1rem;
 }
 .install-app-card.push-step { border-color: rgba(104,245,218,.34); }
+.welcome-install-card { margin-top: 1.5rem; }
+.welcome-install-card + .button-stack { margin-top: 1rem; }
 .install-app-copy .eyebrow { margin-bottom: .35rem; }
 .install-app-copy h2 { font-size: clamp(1.45rem, 6vw, 2rem); margin: 0; }
 .install-app-copy p { color: var(--muted); margin: .45rem 0 0; max-width: 44rem; }
@@ -133,6 +135,7 @@ p { line-height: 1.6; }
   .home-primary-actions,
   .home-empty-actions { display: flex; }
   .install-app-card { align-items: center; grid-template-columns: minmax(0,1fr) auto; padding: 1.35rem; }
+  .welcome-install-card { align-items: stretch; grid-template-columns: 1fr; }
   .install-app-card > .notice,
   .install-app-card > .ios-install-steps { grid-column: 1 / -1; }
   .install-app-actions { display: flex; }

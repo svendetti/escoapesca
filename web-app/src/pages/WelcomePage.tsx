@@ -42,6 +42,7 @@ function PublicWelcome() {
       <div className="eyebrow">Beta Lazio</div>
       <h1>La prossima uscita inizia da un incontro reale.</h1>
       <p>Crea il tuo profilo pescatore, trova un’uscita oppure proponine una, senza esporre pubblicamente gli spot protetti.</p>
+      <InstallAppPrompt placement="welcome" />
       <div className="button-stack">
         <Link className="button button-primary" to="/registrati">Crea il profilo</Link>
         <Link className="button button-secondary" to="/accedi">Ho già un account</Link>
