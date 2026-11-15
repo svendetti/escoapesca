@@ -1,5 +1,7 @@
 # P0.11 — Security gate Supabase
 
+Questo è il verbale storico del 27 agosto. Il 14 novembre 2026 l'inventario nel test `019` è stato aggiornato alle 26 firme SECURITY DEFINER raggiungibili dai client, con whitelist esatta, search_path vuoto e una sola RPC anonima ammessa. È stata rieseguita **solo la parte di metadati**, in transazione READ ONLY: non le fixture e i test RLS del seguito. L'elenco storico sotto non include tutte le aggiunte successive; stato e rischi aperti sono nel [rapporto corrente](../docs/PROJECT_REVIEW_2026-11-14.md).
+
 Verifica eseguita sul progetto Beta il 27 agosto 2026. Il test eseguibile e
 transazionale è database/tests/019_security_gate_contract.sql.
 

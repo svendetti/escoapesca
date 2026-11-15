@@ -1,5 +1,7 @@
 import { requireSupabase } from "./supabase";
 import { tripDateTimes } from "./validation";
+import { normalizeParticipationRequestMessage } from "./participationRequest";
+export { MAX_REQUEST_MESSAGE_LENGTH, normalizeParticipationRequestMessage } from "./participationRequest";
 import type {
   CatalogItem,
   FishingTrip,
@@ -108,14 +110,19 @@ export async function loadDiscoverableTrips(
 
   if (trips.length === 0) return trips;
 
+  // Cache limitata a questa ricerca: nessun URL privato condiviso fra sessioni.
+  const signedPhotos = new Map<string, Promise<string | null>>();
+  async function signPhoto(key: string) {
+    const { data, error } = await supabase.storage.from("profile-photos").createSignedUrl(key, 300);
+    return error ? null : data?.signedUrl ?? null;
+  }
   const tripsWithPhotos = await Promise.all(trips.map(async (trip) => {
     if (!trip.organizerPhotoKey) return trip;
-    const { data: signedPhoto, error: photoError } = await supabase.storage
-      .from("profile-photos")
-      .createSignedUrl(trip.organizerPhotoKey, 300);
-    return photoError || !signedPhoto?.signedUrl
-      ? trip
-      : { ...trip, organizerPhotoUrl: signedPhoto.signedUrl };
+    if (!signedPhotos.has(trip.organizerPhotoKey)) {
+      signedPhotos.set(trip.organizerPhotoKey, signPhoto(trip.organizerPhotoKey));
+    }
+    const photoUrl = await signedPhotos.get(trip.organizerPhotoKey);
+    return photoUrl ? { ...trip, organizerPhotoUrl: photoUrl } : trip;
   }));
 
   const { data: participationData, error: participationError } = await supabase
@@ -169,16 +176,6 @@ async function participationAction(
   const result = ((data ?? []) as ParticipationActionRow[])[0];
   if (!result) throw new Error("La richiesta non ha restituito uno stato valido.");
   return result.participation_status;
-}
-
-export const MAX_REQUEST_MESSAGE_LENGTH = 300;
-
-export function normalizeParticipationRequestMessage(message: string) {
-  const normalized = message.trim();
-  if (normalized.length > MAX_REQUEST_MESSAGE_LENGTH) {
-    throw new Error(`Il messaggio può contenere al massimo ${MAX_REQUEST_MESSAGE_LENGTH} caratteri.`);
-  }
-  return normalized || null;
 }
 
 export async function requestTripParticipation(tripId: string, message = "") {

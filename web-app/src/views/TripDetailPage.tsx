@@ -110,6 +110,7 @@ export function TripDetailPage() {
       <section className="page-narrow auth-card center-card">
         <h1>Uscita non disponibile</h1>
         <Notice kind="error">{error}</Notice>
+        <a className="button button-secondary" href={`/u/${encodeURIComponent(tripId)}`}>Apri la pagina pubblica</a>
         <Link className="button button-secondary" to="/mie-uscite">Torna alle mie uscite</Link>
       </section>
     );

@@ -2,23 +2,24 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminGuard } from "./components/AdminGuard";
 import { AppLayout } from "./components/AppLayout";
 import { AuthGuard } from "./components/AuthGuard";
+import { PublicTripRedirect } from "./components/PublicTripRedirect";
 import { AuthProvider } from "./contexts/AuthContext";
-import { AdminPage } from "./pages/AdminPage";
-import { CheckEmailPage } from "./pages/CheckEmailPage";
-import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
-import { CreateTripPage } from "./pages/CreateTripPage";
-import { DisabledAccountPage } from "./pages/DisabledAccountPage";
-import { EditTripPage } from "./pages/EditTripPage";
-import { LoginPage } from "./pages/LoginPage";
-import { MyTripsPage } from "./pages/MyTripsPage";
-import { NotificationsPage } from "./pages/NotificationsPage";
-import { ForgotPasswordPage, UpdatePasswordPage } from "./pages/PasswordPages";
-import { ProfilePage } from "./pages/ProfilePage";
-import { RegisterPage } from "./pages/RegisterPage";
-import { TripDetailPage } from "./pages/TripDetailPage";
-import { TripDiscoveryPage } from "./pages/TripDiscoveryPage";
-import { TripFeedbackPage } from "./pages/TripFeedbackPage";
-import { WelcomePage } from "./pages/WelcomePage";
+import { AdminPage } from "./views/AdminPage";
+import { CheckEmailPage } from "./views/CheckEmailPage";
+import { ConfirmEmailPage } from "./views/ConfirmEmailPage";
+import { CreateTripPage } from "./views/CreateTripPage";
+import { DisabledAccountPage } from "./views/DisabledAccountPage";
+import { EditTripPage } from "./views/EditTripPage";
+import { LoginPage } from "./views/LoginPage";
+import { MyTripsPage } from "./views/MyTripsPage";
+import { NotificationsPage } from "./views/NotificationsPage";
+import { ForgotPasswordPage, UpdatePasswordPage } from "./views/PasswordPages";
+import { ProfilePage } from "./views/ProfilePage";
+import { RegisterPage } from "./views/RegisterPage";
+import { TripDetailPage } from "./views/TripDetailPage";
+import { TripDiscoveryPage } from "./views/TripDiscoveryPage";
+import { TripFeedbackPage } from "./views/TripFeedbackPage";
+import { WelcomePage } from "./views/WelcomePage";
 
 export function App() {
   return (
@@ -43,6 +44,7 @@ export function App() {
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
             <Route path="uscite/:tripId/feedback" element={<AuthGuard><TripFeedbackPage /></AuthGuard>} />
             <Route path="admin" element={<AuthGuard><AdminGuard><AdminPage /></AdminGuard></AuthGuard>} />
+            <Route path="u/:tripId" element={<PublicTripRedirect />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

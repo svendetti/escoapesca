@@ -205,6 +205,7 @@ function canOpenDetails(trip: DashboardTrip) {
 function cardDestination(trip: DashboardTrip) {
   if (canLeaveFeedback(trip)) return `/uscite/${trip.id}/feedback`;
   if (canOpenDetails(trip)) return `/uscite/${trip.id}`;
+  if (trip.role === "participant" && ["requested", "accepted"].includes(trip.participationStatus ?? "")) return `/u/${trip.id}`;
   return null;
 }
 

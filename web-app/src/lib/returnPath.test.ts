@@ -1,14 +1,37 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   decodeStoredReturnPath,
   encodeStoredReturnPath,
   normalizeAppReturnUrl,
   normalizeInternalReturnPath,
   postAuthPath,
+  rememberReturnPath,
+  peekReturnPath,
+  consumeReturnPath,
   withReturnPath,
 } from "./returnPath";
 
 describe("return path", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("non interrompe onboarding quando lo storage rifiuta le operazioni", () => {
+    const blocked = () => { throw new DOMException("Storage blocked", "SecurityError"); };
+    vi.stubGlobal("localStorage", { getItem: blocked, setItem: blocked, removeItem: blocked });
+    expect(() => rememberReturnPath("/u/trip-1")).not.toThrow();
+    expect(peekReturnPath()).toBeNull();
+    expect(consumeReturnPath()).toBeNull();
+  });
+
+  it("gestisce quota esaurita e rimozione negata senza errori di render", () => {
+    vi.stubGlobal("localStorage", {
+      getItem: () => null,
+      setItem: () => { throw new DOMException("Full", "QuotaExceededError"); },
+      removeItem: () => { throw new DOMException("Blocked", "SecurityError"); },
+    });
+    expect(() => rememberReturnPath("/u/trip-1")).not.toThrow();
+    expect(peekReturnPath()).toBeNull();
+    expect(consumeReturnPath()).toBeNull();
+  });
   it("accetta soltanto path interni", () => {
     expect(normalizeInternalReturnPath("/u/123?source=share#details")).toBe(
       "/u/123?source=share#details",

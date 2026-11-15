@@ -60,6 +60,8 @@ test("distingue l'accettazione dalla conferma definitiva", () => {
   const confirmed = buildEmailContent({ ...delivery, event_type: "trip_confirmed" });
 
   assert.match(accepted.text, /deve ancora confermare definitivamente/i);
+  assert.equal(new URL(accepted.ctaUrl).searchParams.get("returnTo"), `/u/${delivery.trip_id}`);
+  assert.equal(new URL(confirmed.ctaUrl).searchParams.get("returnTo"), `/uscite/${delivery.trip_id}`);
   assert.match(confirmed.text, /è confermata/i);
   assert.match(confirmed.text, /dettagli dell’incontro/i);
 });

@@ -73,24 +73,37 @@ export function rememberReturnPath(path: string) {
   const encoded = encodeStoredReturnPath(path);
   const storage = browserStorage();
   if (!encoded || !storage) return null;
-  storage.setItem(RETURN_PATH_KEY, encoded);
+  try {
+    storage.setItem(RETURN_PATH_KEY, encoded);
+  } catch {
+    // L'URL returnTo continua a funzionare anche senza persistenza locale.
+    return null;
+  }
   return decodeStoredReturnPath(encoded);
 }
 
 export function peekReturnPath() {
   const storage = browserStorage();
   if (!storage) return null;
-  const path = decodeStoredReturnPath(storage.getItem(RETURN_PATH_KEY));
-  if (!path) storage.removeItem(RETURN_PATH_KEY);
-  return path;
+  try {
+    const path = decodeStoredReturnPath(storage.getItem(RETURN_PATH_KEY));
+    if (!path) storage.removeItem(RETURN_PATH_KEY);
+    return path;
+  } catch {
+    return null;
+  }
 }
 
 export function consumeReturnPath() {
   const storage = browserStorage();
   if (!storage) return null;
-  const path = decodeStoredReturnPath(storage.getItem(RETURN_PATH_KEY));
-  storage.removeItem(RETURN_PATH_KEY);
-  return path;
+  try {
+    const path = decodeStoredReturnPath(storage.getItem(RETURN_PATH_KEY));
+    storage.removeItem(RETURN_PATH_KEY);
+    return path;
+  } catch {
+    return null;
+  }
 }
 
 export function withReturnPath(route: string, returnPath: string | null) {

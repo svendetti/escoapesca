@@ -6,6 +6,13 @@ const AUTH_MESSAGES: Array<[RegExp, string]> = [
   [/password should be at least/i, "La password non rispetta i requisiti minimi."],
   [/rate limit/i, "Troppi tentativi. Attendi qualche minuto e riprova."],
   [/network|fetch/i, "Connessione non disponibile. Controlla la rete e riprova."],
+  [/^sessione non valida$/i, "La sessione non è più valida. Accedi di nuovo."],
+  [/^completa il profilo prima di partecipare$/i, "Completa il profilo prima di chiedere di partecipare."],
+  [/^non ci sono più posti disponibili$/i, "I posti disponibili sono terminati. Aggiorna l’uscita per vedere lo stato attuale."],
+  [/^uscita non disponibile per una nuova richiesta$/i, "Questa uscita non accetta più nuove richieste. Aggiorna l’elenco delle uscite."],
+  [/^la richiesta è già stata elaborata$/i, "La richiesta è già stata elaborata. Aggiorna l’uscita per vedere lo stato attuale."],
+  [/^accetta almeno un partecipante prima di confermare$/i, "Accetta almeno un partecipante prima di confermare l’uscita."],
+  [/^il messaggio può contenere al massimo 300 caratteri\.?$/i, "Il messaggio può contenere al massimo 300 caratteri."],
   [/uscita non trovata/i, "Uscita non trovata o non accessibile."],
   [/uscita non (è|e) più modificabile/i, "Questa uscita non è più modificabile."],
   [/uscita non (è|e) più annullabile/i, "Questa uscita non è più annullabile."],
@@ -18,7 +25,11 @@ const AUTH_MESSAGES: Array<[RegExp, string]> = [
 ];
 
 export function readableError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = typeof error === "string"
+    ? error
+    : error && typeof error === "object" && "message" in error && typeof error.message === "string"
+      ? error.message
+      : "";
   return AUTH_MESSAGES.find(([pattern]) => pattern.test(message))?.[1]
     ?? "Operazione non riuscita. Riprova tra poco.";
 }

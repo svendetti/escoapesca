@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
+import { Fragment } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { normalizeInternalReturnPath, rememberReturnPath } from "../lib/returnPath";
 
@@ -19,5 +20,6 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   if (accountStatus === "disabled") {
     return <Navigate to="/account-disabilitato" replace />;
   }
-  return children;
+  // A different account or entity route must not retain a previous form's state.
+  return <Fragment key={`${user.id}:${location.pathname}`}>{children}</Fragment>;
 }

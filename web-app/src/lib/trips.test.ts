@@ -4,6 +4,7 @@ vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
 import {
   deleteFishingTripDraft,
   discoveryRpcArgs,
+  loadDiscoverableTrips,
   loadMyHiddenTripIds,
   loadTripParticipationRequestSummary,
   loadTripParticipationRequests,
@@ -46,6 +47,37 @@ describe("discoveryRpcArgs", () => {
     expect(from.getMonth()).toBe(8);
     expect(from.getDate()).toBe(14);
     expect(before.getDate()).toBe(15);
+  });
+});
+
+describe("loadDiscoverableTrips", () => {
+  it("firma una volta ogni foto anche quando un organizzatore propone più uscite", async () => {
+    const createSignedUrl = vi.fn(async (key: string) => key === "denied/avatar"
+      ? { data: null, error: { message: "Not allowed" } }
+      : { data: { signedUrl: "https://example.test/signed-avatar" }, error: null });
+    const query = {
+      select: vi.fn(), eq: vi.fn(),
+      in: vi.fn().mockResolvedValue({ data: [{ trip_id: "trip-1", status: "requested" }], error: null }),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+    vi.mocked(requireSupabase).mockReturnValue({
+      rpc: vi.fn().mockResolvedValue({ data: [
+        { id: "trip-1", organizer_profile_photo_key: "organizer/avatar" },
+        { id: "trip-2", organizer_profile_photo_key: "organizer/avatar" },
+        { id: "trip-3", organizer_profile_photo_key: "denied/avatar" },
+      ], error: null }),
+      storage: { from: vi.fn().mockReturnValue({ createSignedUrl }) },
+      from: vi.fn().mockReturnValue(query),
+    } as never);
+
+    const trips = await loadDiscoverableTrips({ provinceCode: "", zone: "", techniqueId: "", waterType: "", date: "" }, "user-1");
+    expect(createSignedUrl).toHaveBeenCalledTimes(2);
+    expect(createSignedUrl).toHaveBeenCalledWith("organizer/avatar", 300);
+    expect(trips.map((trip) => trip.organizerPhotoUrl)).toEqual([
+      "https://example.test/signed-avatar", "https://example.test/signed-avatar", null,
+    ]);
+    expect(trips[0].participationStatus).toBe("requested");
   });
 });
 

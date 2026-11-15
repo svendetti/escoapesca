@@ -14,30 +14,27 @@ Non inserire mai la `service_role` nella SPA. `app_users.id` coincide con `auth.
 
 ## Ordine di applicazione
 
+Bootstrap **solo di un ambiente Supabase nuovo e isolato**, dalla root del repository. Occorrono anche gli schemi/ruoli Supabase Auth/Storage e le estensioni usate dalle migrazioni (Vault, pg_cron, pg_net): PostgreSQL vuoto da solo non basta. `DATABASE_URL` deve riferirsi al database di collaudo, mai alla Beta attiva. Al 15 novembre 2026 sono presenti 48 migrazioni e 22 contratti SQL.
+
 ```powershell
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/001_beta_core.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/002_beta_security_and_metrics.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/003_beta_relational_invariants.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/004_beta_indexes_and_rls_performance.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/005_supabase_auth_and_profile.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/006_supabase_advisor_hardening.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/007_profile_rpc_private_boundary.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/008_trip_creation_rls.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/009_trip_management_rls.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/010_trip_discovery.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/011_trip_participation_requests.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/migrations/012_trip_participation_management.sql
+if (!$env:DATABASE_URL) { throw 'Configura DATABASE_URL per il database isolato' }
+Get-ChildItem -LiteralPath database/migrations -Filter '*.sql' |
+  Sort-Object Name | ForEach-Object {
+    psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f $_.FullName
+    if ($LASTEXITCODE -ne 0) { throw "Migrazione fallita: $($_.Name)" }
+  }
 psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/seeds/001_beta_lazio_catalogs.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/001_schema_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/002_supabase_auth_profile_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/003_trip_creation_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/004_trip_management_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/005_trip_discovery_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/006_trip_participation_requests_contract.sql
-psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f database/tests/007_trip_participation_management_contract.sql
+if ($LASTEXITCODE -ne 0) { throw 'Seed fallito' }
+Get-ChildItem -LiteralPath database/tests -Filter '*.sql' |
+  Sort-Object Name | ForEach-Object {
+    psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -f $_.FullName
+    if ($LASTEXITCODE -ne 0) { throw "Contratto fallito: $($_.Name)" }
+  }
 ```
 
-Le migrazioni sono forward-only e transazionali. Il seed è rieseguibile perché usa `ON CONFLICT`.
+L'ordine lessicografico attuale è `001`–`033`, poi le migrazioni con timestamp da `20260829104956` fino a `20261115084645`. Non fermarsi a `012`: mancherebbero colonne, RPC e policy usate dall'app attuale. La storia remota usa timestamp anche per le prime migrazioni: non usare questo bootstrap per riallineare una produzione già migrata. La correzione degli apici in `009` ripara il sorgente di bootstrap, non richiede di riapplicarlo al database esistente. Il replay completo resta da collaudare in ambiente isolato.
+
+Il seed è rieseguibile perché usa `ON CONFLICT`. I contratti comprendono fixture e rollback: anche se transazionali, non sono una suite da eseguire sui dati reali. I job di delivery richiedono i secret descritti sotto; il bootstrap non configura i provider né dimostra il recapito.
 
 ## Auth e sessione
 
@@ -121,4 +118,4 @@ Applicare la migration ed eseguire
 `database/tests/020_admin_operational_reset_contract.sql` prima della
 pubblicazione del relativo bottone Admin. Il test non esegue il reset.
 
-I controlli statici non sostituiscono i test SQL. In questo workspace non sono installati né `psql` né Docker: entrambi i file in `database/tests/` devono essere eseguiti sul progetto Supabase dedicato prima di aprire la Beta.
+I controlli statici non sostituiscono i test SQL. Nella revisione del 14 novembre 2026 manca `psql`; Docker CLI è presente ma il daemon non è attivo. I 22 contratti devono essere collaudati dopo un replay completo su un ambiente isolato. Il verbale storico P0.11 e la presenza delle migrazioni remote non sostituiscono questa verifica.

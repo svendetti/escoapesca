@@ -5,14 +5,14 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1
     FROM pg_constraint
-    WHERE conname = ''fishing_trips_cancellation_details_consistency''
-      AND conrelid = ''public.fishing_trips''::regclass
+    WHERE conname = 'fishing_trips_cancellation_details_consistency'
+      AND conrelid = 'public.fishing_trips'::regclass
   ) THEN
     ALTER TABLE public.fishing_trips
     ADD CONSTRAINT fishing_trips_cancellation_details_consistency
     CHECK (
       (
-        status = ''cancelled''
+        status = 'cancelled'
         AND cancelled_at IS NOT NULL
         AND (
           cancellation_reason IS NULL
@@ -21,7 +21,7 @@ BEGIN
       )
       OR
       (
-        status <> ''cancelled''
+        status <> 'cancelled'
         AND cancelled_at IS NULL
         AND cancellation_reason IS NULL
       )
@@ -40,7 +40,7 @@ USING (
     SELECT 1
     FROM public.app_users AS app_user
     WHERE app_user.id = (SELECT auth.uid())
-      AND app_user.status = ''active''
+      AND app_user.status = 'active'
   )
 );
 
@@ -50,25 +50,25 @@ FOR UPDATE
 TO authenticated
 USING (
   organizer_user_id = (SELECT auth.uid())
-  AND status = ''open''
+  AND status = 'open'
   AND starts_at > now()
   AND EXISTS (
     SELECT 1
     FROM public.app_users AS app_user
     WHERE app_user.id = (SELECT auth.uid())
-      AND app_user.status = ''active''
+      AND app_user.status = 'active'
   )
 )
 WITH CHECK (
   organizer_user_id = (SELECT auth.uid())
-  AND status IN (''open'', ''cancelled'')
+  AND status IN ('open', 'cancelled')
   AND starts_at > now()
   AND municipality_code IS NULL
   AND EXISTS (
     SELECT 1
     FROM public.app_users AS app_user
     WHERE app_user.id = (SELECT auth.uid())
-      AND app_user.status = ''active''
+      AND app_user.status = 'active'
   )
   AND EXISTS (
     SELECT 1
@@ -80,7 +80,7 @@ WITH CHECK (
     SELECT 1
     FROM public.provinces AS province
     WHERE province.code = fishing_trips.province_code
-      AND province.region_code = ''LAZ''
+      AND province.region_code = 'LAZ'
       AND province.active
   )
 );

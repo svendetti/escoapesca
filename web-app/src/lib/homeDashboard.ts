@@ -86,15 +86,15 @@ function futureTrip(trip: HomeTrip, now: number) {
     || ["accepted", "confirmed"].includes(trip.participationStatus ?? "");
 }
 
-function tripDestination(trip: HomeTrip) {
+export function homeTripDestination(trip: HomeTrip) {
   if (trip.role === "organizer") return `/uscite/${trip.id}`;
   if (
-    (trip.status === "confirmed" && trip.participationStatus === "confirmed")
-    || (trip.status === "open" && trip.participationStatus === "accepted")
+    ["confirmed", "completed"].includes(trip.status)
+    && ["confirmed", "completed"].includes(trip.participationStatus ?? "")
   ) {
     return `/uscite/${trip.id}`;
   }
-  return "/trova-uscita";
+  return `/u/${trip.id}`;
 }
 
 function notificationAction(notification: AppNotification): HomeAction | null {
@@ -113,7 +113,7 @@ function notificationAction(notification: AppNotification): HomeAction | null {
     case "trip_private_details_updated":
       return { key: `notification-${notification.id}`, priority: 5, tripId: notification.tripId, title: "Dettagli dell’incontro disponibili", description: "Apri l’uscita per controllare il punto d’incontro.", to: tripPath };
     case "participation_accepted":
-      return { key: `notification-${notification.id}`, priority: 6, tripId: notification.tripId, title: "La tua richiesta è stata accettata", description: "Attendi la conferma definitiva dell’organizzatore.", to: tripPath };
+      return { key: `notification-${notification.id}`, priority: 6, tripId: notification.tripId, title: "La tua richiesta è stata accettata", description: "Attendi la conferma definitiva dell’organizzatore.", to: notification.tripId ? `/u/${notification.tripId}` : "/notifiche" };
     default:
       return null;
   }
@@ -198,7 +198,7 @@ export function buildHomeDashboard({
         tripId: trip.id,
         title: "L’uscita è confermata",
         description: `“${trip.title}” è vicina: controlla orario e incontro.`,
-        to: tripDestination(trip),
+        to: homeTripDestination(trip),
       });
     } else if (
       trip.role === "participant"
@@ -211,7 +211,7 @@ export function buildHomeDashboard({
         tripId: trip.id,
         title: "Sono disponibili i dettagli dell’incontro",
         description: `Controlla il punto condiviso per “${trip.title}”.`,
-        to: tripDestination(trip),
+        to: homeTripDestination(trip),
       });
     } else if (
       trip.role === "participant"
@@ -224,7 +224,7 @@ export function buildHomeDashboard({
         tripId: trip.id,
         title: "La tua richiesta è stata accettata",
         description: `Attendi la conferma definitiva per “${trip.title}”.`,
-        to: tripDestination(trip),
+        to: homeTripDestination(trip),
       });
     }
   }
@@ -251,7 +251,7 @@ export function buildHomeDashboard({
       tripId: nextTrip.id,
       title: "La tua prossima uscita",
       description: `Controlla “${nextTrip.title}” e preparati per tempo.`,
-      to: tripDestination(nextTrip),
+      to: homeTripDestination(nextTrip),
     });
   }
 

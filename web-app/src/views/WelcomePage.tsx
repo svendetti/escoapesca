@@ -7,6 +7,7 @@ import { loadMyTripFeedback } from "../lib/feedback";
 import {
   buildHomeDashboard,
   homeDiscoveryPreview,
+  homeTripDestination,
   type HomeDashboard,
   type HomeTrip,
 } from "../lib/homeDashboard";
@@ -58,13 +59,6 @@ function nextTripLabel(trip: HomeTrip) {
   }
   if (trip.participationStatus === "confirmed") return "Partecipazione confermata";
   return "Richiesta accettata";
-}
-
-function nextTripDestination(trip: HomeTrip) {
-  if (trip.role === "organizer") return `/uscite/${trip.id}`;
-  return trip.status === "confirmed" && trip.participationStatus === "confirmed"
-    ? `/uscite/${trip.id}`
-    : "/trova-uscita";
 }
 
 function AuthenticatedHome({ userId }: { userId: string }) {
@@ -210,7 +204,7 @@ function AuthenticatedHome({ userId }: { userId: string }) {
               <p className="home-trip-date">{formatTripSchedule(nextTrip.startsAt, nextTrip.endsAt, nextTrip.endPrecision)}</p>
               <p>{nextTrip.publicZone} · {nextTrip.provinceCode}</p>
             </div>
-            <Link className="button button-primary" to={nextTripDestination(nextTrip)}>
+            <Link className="button button-primary" to={homeTripDestination(nextTrip)}>
               {nextTrip.role === "organizer" ? "Gestisci l’uscita" : nextTrip.status === "confirmed" ? "Apri i dettagli" : "Vedi lo stato"}
             </Link>
           </article>

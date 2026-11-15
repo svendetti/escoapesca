@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.112.3";
 import webpush from "npm:web-push@3.6.7";
 import { buildPushContent } from "./push-content.js";
+import { sendValidatedPush, UntrustedPushEndpointError } from "./push-delivery.js";
 
 type Delivery = {
   delivery_id: string;
@@ -82,14 +83,7 @@ Deno.serve(async (request) => {
   for (const delivery of deliveries) {
     try {
       const content = buildPushContent(delivery);
-      await webpush.sendNotification(
-        {
-          endpoint: delivery.endpoint,
-          keys: { p256dh: delivery.p256dh, auth: delivery.auth_secret },
-        },
-        JSON.stringify(content),
-        { TTL: 600, urgency: "high" },
-      );
+      await sendValidatedPush(delivery, content, webpush.sendNotification.bind(webpush));
       const { error: completionError } = await supabase.rpc("complete_push_delivery", {
         p_delivery_id: delivery.delivery_id,
         p_success: true,
@@ -102,7 +96,7 @@ Deno.serve(async (request) => {
       const statusCode = typeof caught === "object" && caught && "statusCode" in caught
         ? Number((caught as { statusCode?: unknown }).statusCode)
         : 0;
-      const permanent = statusCode === 404 || statusCode === 410;
+      const permanent = caught instanceof UntrustedPushEndpointError || statusCode === 404 || statusCode === 410;
       const message = caught instanceof Error ? caught.message : "Unknown push delivery error";
       console.error("Push delivery failed", {
         deliveryId: delivery.delivery_id,

@@ -141,6 +141,7 @@ export type TripDiscoveryFilters = {
 };
 
 export type AppNotificationType =
+  | "trip_invitation_sent"
   | "participation_requested"
   | "participation_cancelled"
   | "participation_accepted"

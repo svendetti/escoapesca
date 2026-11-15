@@ -4,6 +4,34 @@ DO $$
 DECLARE
   secured_function record;
   client_function_count integer;
+  expected_client_functions regprocedure[] := ARRAY[
+    'public.admin_cancel_fishing_trip(uuid,text)',
+    'public.admin_reset_operational_data(text)',
+    'public.admin_set_fishing_trip_visibility(uuid,boolean,text)',
+    'public.admin_set_user_status(uuid,text,text)',
+    'public.cancel_trip_participation(uuid)',
+    'public.confirm_fishing_trip(uuid)',
+    'public.decide_trip_participation(uuid,text)',
+    'public.delete_my_fishing_trip_draft(uuid)',
+    'public.get_admin_dashboard(integer)',
+    'public.get_public_fishing_trip(uuid)',
+    'public.get_trip_organizer_summary(uuid)',
+    'public.list_my_hidden_trip_ids()',
+    'public.list_my_trip_feedback()',
+    'public.list_my_trip_participations()',
+    'public.list_trip_group_members(uuid)',
+    'public.list_trip_invite_candidates(uuid,text,integer)',
+    'public.list_trip_participation_requests(uuid)',
+    'private.is_active_trip_organizer(uuid)',
+    'public.remove_my_push_subscription(text)',
+    'public.request_trip_participation(uuid,text)',
+    'public.search_fishing_trips(text,text,smallint,text,timestamptz,timestamptz,integer)',
+    'public.send_test_push_notification()',
+    'public.send_trip_invitation(uuid,uuid)',
+    'public.set_my_trip_history_hidden(uuid,boolean)',
+    'public.submit_trip_feedback(uuid,boolean,boolean,boolean,smallint,text)',
+    'public.upsert_my_push_subscription(text,text,text,bigint)'
+  ]::regprocedure[];
   function_definition text;
   function_result text;
 BEGIN
@@ -19,7 +47,18 @@ BEGIN
       OR has_function_privilege('authenticated', procedure.oid, 'EXECUTE')
     );
 
-  IF client_function_count <> 15 THEN
+  IF client_function_count <> cardinality(expected_client_functions) OR EXISTS (
+    SELECT 1
+    FROM pg_proc AS procedure
+    JOIN pg_namespace AS namespace ON namespace.oid = procedure.pronamespace
+    WHERE procedure.prosecdef
+      AND namespace.nspname IN ('public', 'private')
+      AND (
+        has_function_privilege('anon', procedure.oid, 'EXECUTE')
+        OR has_function_privilege('authenticated', procedure.oid, 'EXECUTE')
+      )
+      AND NOT (procedure.oid::regprocedure = ANY(expected_client_functions))
+  ) THEN
     RAISE EXCEPTION
       'Inventario SECURITY DEFINER client-facing inatteso: % funzioni',
       client_function_count;
@@ -47,11 +86,20 @@ BEGIN
         secured_function.proname;
     END IF;
 
-    IF secured_function.prosrc ~* '\mexecute\M|format\s*\(' THEN
+    -- format() compone anche semplici chiavi di deduplica nelle nuove RPC.
+    -- È EXECUTE a introdurre SQL dinamico, non la formattazione di una stringa.
+    IF secured_function.prosrc ~* '\mexecute\M' THEN
       RAISE EXCEPTION
         'SQL dinamico non autorizzato su %.%',
         secured_function.nspname,
         secured_function.proname;
+    END IF;
+
+    IF has_function_privilege('anon', secured_function.oid, 'EXECUTE')
+      AND secured_function.oid <> 'public.get_public_fishing_trip(uuid)'::regprocedure
+    THEN
+      RAISE EXCEPTION 'RPC anonima non prevista: %.%',
+        secured_function.nspname, secured_function.proname;
     END IF;
   END LOOP;
 

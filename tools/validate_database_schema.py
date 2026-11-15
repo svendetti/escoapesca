@@ -38,6 +38,13 @@ def table_block(sql: str, table_name: str) -> str:
 
 
 def main() -> int:
+    # Guardrail sul difetto di escaping che interrompeva il bootstrap in 009.
+    # Il file usa SQL statico e un blocco dollar-quoted, non stringhe SQL annidate.
+    management = (ROOT / "database/migrations/009_trip_management_rls.sql").read_text(encoding="utf-8")
+    require(
+        re.search(r"''[A-Za-z_][A-Za-z_0-9.]*''", management) is None,
+        "009: letterali SQL con apici raddoppiati fuori da una stringa dinamica",
+    )
     paths = (
         MIGRATION_CORE,
         MIGRATION_SECURITY,

@@ -18,7 +18,7 @@ test("l’invito apre la scheda senza dati privati nel payload", () => {
     trip_title: "Spinning al porto",
     actor_name: "Ada",
   });
-  assert.equal(content.url, "/uscite/trip-1");
+  assert.equal(content.url, "/u/trip-1");
   assert.match(content.body, /Ada/);
   assert.doesNotMatch(JSON.stringify(content), /coordinate|latitude|longitude|private_notes/i);
 });
@@ -30,4 +30,11 @@ test("il test push apre le notifiche", () => {
     trip_id: null,
   });
   assert.equal(content.url, "/notifiche");
+});
+
+test("i link prima della conferma usano i dati pubblici, la conferma apre i dettagli", () => {
+  for (const notification_type of ["participation_accepted", "trip_updated", "trip_confirmed"]) {
+    const content = buildPushContent({ delivery_id: "delivery-3", notification_type, trip_id: "trip-1" });
+    assert.equal(content.url, notification_type === "trip_confirmed" ? "/uscite/trip-1" : "/u/trip-1");
+  }
 });

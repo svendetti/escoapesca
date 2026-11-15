@@ -85,7 +85,7 @@ export function notificationCopy(notification: AppNotification) {
       return {
         title: "Richiesta accettata — in attesa di conferma",
         message: `La tua richiesta per${trip} è stata accettata. L’organizzatore deve ancora confermare definitivamente l’uscita.`,
-        target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita",
+        target: notification.tripId ? `/u/${notification.tripId}` : "/trova-uscita",
       };
     case "participation_rejected":
       return { title: "Richiesta non accettata", message: `La tua richiesta per${trip} non è stata accettata.`, target: "/trova-uscita" };
@@ -93,12 +93,12 @@ export function notificationCopy(notification: AppNotification) {
       return {
         title: "Invito a un’uscita",
         message: `${actor} ti ha invitato a${trip}. L’invito non riserva il posto: apri la scheda per chiedere di partecipare.`,
-        target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita",
+        target: notification.tripId ? `/u/${notification.tripId}` : "/trova-uscita",
       };
     case "trip_confirmed":
       return { title: "Uscita confermata", message: `L’uscita${trip} è confermata. Ora puoi vedere i dettagli privati.`, target: notification.tripId ? `/uscite/${notification.tripId}` : null };
     case "trip_updated":
-      return { title: "Uscita modificata", message: `L’organizzatore ha aggiornato${trip}. Controlla data e informazioni pubbliche.`, target: notification.tripId ? `/uscite/${notification.tripId}` : "/trova-uscita" };
+      return { title: "Uscita modificata", message: `L’organizzatore ha aggiornato${trip}. Controlla data e informazioni pubbliche.`, target: notification.tripId ? `/u/${notification.tripId}` : "/trova-uscita" };
     case "trip_cancelled":
       return { title: "Uscita annullata", message: `L’organizzatore ha annullato${trip}.`, target: null };
     case "trip_hidden_by_admin":

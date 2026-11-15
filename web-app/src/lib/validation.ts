@@ -102,7 +102,7 @@ export function validateTrip(values: TripValues, now = new Date()) {
   if (values.tripType === "free" && values.publicMeetingPoint.trim().length > 240) {
     errors.publicMeetingPoint = "Le indicazioni pubbliche non possono superare 240 caratteri.";
   }
-  if (values.maxParticipants < 2 || values.maxParticipants > 20) {
+  if (!Number.isInteger(values.maxParticipants) || values.maxParticipants < 2 || values.maxParticipants > 20) {
     errors.maxParticipants = "Scegli un numero totale da 2 a 20, organizzatore incluso.";
   }
   if (descriptionLength > 3000) {

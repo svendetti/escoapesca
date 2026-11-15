@@ -21,3 +21,6 @@ coverage/
 .next/
 .wrangler/
 *.log
+
+# Supabase CLI machine-local state (not application source)
+supabase/.temp/

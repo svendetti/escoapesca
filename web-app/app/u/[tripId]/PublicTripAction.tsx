@@ -3,22 +3,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { rememberReturnPath, withReturnPath } from "../../../src/lib/returnPath";
-
-type ActionMode =
-  | "loading"
-  | "guest"
-  | "profile"
-  | "ready"
-  | "manage"
-  | "requested"
-  | "accepted"
-  | "rejected"
-  | "confirmed"
-  | "completed"
-  | "no_show"
-  | "error";
+import { MAX_REQUEST_MESSAGE_LENGTH } from "../../../src/lib/participationRequest";
+import { loadPublicTripActionState, requestPublicTripParticipation, type PublicTripActionMode as ActionMode } from "../../../src/lib/publicTripAction";
+import { readableError } from "../../../src/lib/errors";
 
 const STATUS_COPY: Partial<Record<ActionMode, string>> = {
+  disabled: "Il tuo account è disabilitato. Non puoi inviare richieste di partecipazione.",
   requested: "Richiesta inviata. L’organizzatore deve ancora valutarla.",
   accepted: "Richiesta accettata. Attendi la conferma del gruppo.",
   rejected: "La richiesta non è stata accettata.",
@@ -31,14 +21,17 @@ export function PublicTripAction({
   tripId,
   supabaseUrl,
   supabasePublishableKey,
+  canRequest = true,
 }: {
   tripId: string;
   supabaseUrl: string;
   supabasePublishableKey: string;
+  canRequest?: boolean;
 }) {
   const [mode, setMode] = useState<ActionMode>("loading");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
   const returnTarget = `/u/${tripId}`;
   const client = useMemo(
     () => supabaseUrl && supabasePublishableKey
@@ -54,46 +47,9 @@ export function PublicTripAction({
     }
 
     let active = true;
-    void client.auth.getSession().then(async ({ data }) => {
-      if (!active) return;
-      const userId = data.session?.user.id;
-      if (!userId) {
-        setMode("guest");
-        return;
-      }
-
-      const [profileResult, ownTripResult, participationResult] = await Promise.all([
-        client
-          .from("fisher_profiles")
-          .select("completed_at")
-          .eq("user_id", userId)
-          .maybeSingle(),
-        client
-          .from("fishing_trips")
-          .select("id")
-          .eq("id", tripId)
-          .eq("organizer_user_id", userId)
-          .maybeSingle(),
-        client
-          .from("trip_participants")
-          .select("status")
-          .eq("trip_id", tripId)
-          .eq("user_id", userId)
-          .maybeSingle(),
-      ]);
-
-      if (!active) return;
-      if (ownTripResult.data) {
-        setMode("manage");
-      } else if (participationResult.data?.status === "cancelled") {
-        setMode(profileResult.data?.completed_at ? "ready" : "profile");
-      } else if (participationResult.data?.status) {
-        setMode(participationResult.data.status as ActionMode);
-      } else if (!profileResult.data?.completed_at) {
-        setMode("profile");
-      } else {
-        setMode("ready");
-      }
+    setMode("loading");
+    void loadPublicTripActionState(client, tripId).then((nextMode) => {
+      if (active) setMode(nextMode);
     }).catch(() => {
       if (active) setMode("error");
     });
@@ -121,29 +77,40 @@ export function PublicTripAction({
       window.location.assign(`/uscite/${tripId}`);
       return;
     }
-    if (mode !== "ready" || !client) return;
+    if (mode !== "ready" || !client || !canRequest) return;
 
     setBusy(true);
     setError(null);
     try {
-      const { error: requestError } = await client.rpc("request_trip_participation", {
-        p_trip_id: tripId,
-      });
-      if (requestError) throw requestError;
+      await requestPublicTripParticipation(client, tripId, message);
       setMode("requested");
-    } catch {
-      setError("Non è stato possibile inviare la richiesta. Controlla lo stato dell’uscita e riprova.");
+    } catch (caught) {
+      setError(readableError(caught));
     } finally {
       setBusy(false);
     }
   }
 
   if (STATUS_COPY[mode]) {
-    return <p className="public-trip-action-state" aria-live="polite">{STATUS_COPY[mode]}</p>;
+    return (
+      <div className="public-trip-action">
+        <p className="public-trip-action-state" aria-live="polite">{STATUS_COPY[mode]}</p>
+        {["confirmed", "completed"].includes(mode) && (
+          <a className="button button-primary" href={`/uscite/${tripId}`}>Apri i dettagli dell’uscita</a>
+        )}
+      </div>
+    );
   }
 
   if (mode === "error") {
     return <p className="public-trip-action-state" role="alert">Accesso temporaneamente non disponibile.</p>;
+  }
+
+  if (!canRequest && mode === "guest") {
+    return <a className="button button-secondary" href={withReturnPath("/accedi", returnTarget)}>Accedi per vedere la tua partecipazione</a>;
+  }
+  if (!canRequest && (mode === "ready" || mode === "profile")) {
+    return <p className="public-trip-action-state">Questa uscita non accetta nuove richieste.</p>;
   }
 
   const label = mode === "loading"
@@ -156,6 +123,19 @@ export function PublicTripAction({
 
   return (
     <div className="public-trip-action">
+      {mode === "ready" && (
+        <label>
+          Messaggio per l’organizzatore <span className="optional">opzionale</span>
+          <textarea
+            rows={3}
+            maxLength={MAX_REQUEST_MESSAGE_LENGTH}
+            value={message}
+            disabled={busy}
+            onChange={(event) => setMessage(event.target.value)}
+          />
+          <span className="field-help">{message.length}/{MAX_REQUEST_MESSAGE_LENGTH}</span>
+        </label>
+      )}
       <button
         className="button button-primary"
         disabled={busy || mode === "loading"}

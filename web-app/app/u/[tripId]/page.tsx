@@ -240,6 +240,12 @@ export default async function PublicTripPage({ params }: PageProps) {
           <section className="public-trip-readonly">
             <h2>{PHASE_LABELS[phase]}</h2>
             <p>Questa pagina resta consultabile, ma non accetta nuove richieste.</p>
+            <PublicTripAction
+              tripId={trip.id}
+              supabaseUrl={config.supabaseUrl}
+              supabasePublishableKey={config.supabasePublishableKey}
+              canRequest={false}
+            />
           </section>
         )}
       </article>

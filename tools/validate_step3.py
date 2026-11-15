@@ -31,9 +31,9 @@ def main() -> int:
         WEB_APP / "package-lock.json",
         WEB_APP / ".env.example",
         WEB_APP / "src" / "App.tsx",
-        WEB_APP / "src" / "pages" / "RegisterPage.tsx",
-        WEB_APP / "src" / "pages" / "LoginPage.tsx",
-        WEB_APP / "src" / "pages" / "ProfilePage.tsx",
+        WEB_APP / "src" / "views" / "RegisterPage.tsx",
+        WEB_APP / "src" / "views" / "LoginPage.tsx",
+        WEB_APP / "src" / "views" / "ProfilePage.tsx",
     )
     for path in required_files:
         require(path.is_file(), f"File STEP 3 mancante: {path.relative_to(ROOT)}")
@@ -43,8 +43,8 @@ def main() -> int:
     hardening = MIGRATION_HARDENING.read_text(encoding="utf-8").lower()
     rpc_migration = MIGRATION_RPC.read_text(encoding="utf-8").lower()
     sql_test = SQL_TEST.read_text(encoding="utf-8").lower()
-    register = (WEB_APP / "src" / "pages" / "RegisterPage.tsx").read_text(encoding="utf-8")
-    profile = (WEB_APP / "src" / "pages" / "ProfilePage.tsx").read_text(encoding="utf-8")
+    register = (WEB_APP / "src" / "views" / "RegisterPage.tsx").read_text(encoding="utf-8")
+    profile = (WEB_APP / "src" / "views" / "ProfilePage.tsx").read_text(encoding="utf-8")
 
     require(migration.startswith("begin;"), "La migrazione STEP 3 non apre una transazione")
     require(migration.rstrip().endswith("commit;"), "La migrazione STEP 3 non chiude la transazione")

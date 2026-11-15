@@ -81,6 +81,12 @@ describe("validateTrip", () => {
     expect(hasErrors(errors)).toBe(false);
   });
 
+  it("rifiuta capienza non intera o non numerica prima di contattare il DB", () => {
+    for (const maxParticipants of [NaN, Infinity, 2.5, 1, 21]) {
+      expect(validateTrip({ ...validTrip, maxParticipants }).maxParticipants).toBeDefined();
+    }
+  });
+
   it("supporta una fine flessibile senza chiedere un orario", () => {
     const times = tripDateTimes({
       date: "2030-06-15",

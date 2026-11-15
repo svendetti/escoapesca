@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./supabase", () => ({ requireSupabase: vi.fn() }));
-import { buildHomeDashboard, homeDiscoveryPreview } from "./homeDashboard";
+import { buildHomeDashboard, homeDiscoveryPreview, homeTripDestination } from "./homeDashboard";
 import type { FishingTripParticipation } from "./myTrips";
 import type {
   AppNotification,
@@ -139,7 +139,8 @@ describe("buildHomeDashboard", () => {
     expect(result.nextTrip?.id).toBe("participating-1");
     expect(result.actions[0].title).toBe("La tua richiesta è stata accettata");
     expect(result.actions[0].priority).toBe(6);
-    expect(result.actions[0].to).toBe("/uscite/participating-1");
+    expect(result.actions[0].to).toBe("/u/participating-1");
+    expect(homeTripDestination(result.nextTrip!)).toBe("/u/participating-1");
   });
 
   it("riusa una notifica feedback non letta come azione operativa", () => {

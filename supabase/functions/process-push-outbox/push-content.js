@@ -61,8 +61,9 @@ export function buildPushContent(delivery) {
   const copy = builder(trip, actor);
   const feedback = delivery.notification_type === "feedback_requested"
     || delivery.notification_type === "feedback_reminder";
+  const publicPage = ["trip_invitation_sent", "participation_accepted", "trip_updated"].includes(delivery.notification_type);
   const url = delivery.trip_id
-    ? `/uscite/${encodeURIComponent(delivery.trip_id)}${feedback ? "/feedback" : ""}`
+    ? `/${publicPage ? "u" : "uscite"}/${encodeURIComponent(delivery.trip_id)}${feedback ? "/feedback" : ""}`
     : "/notifiche";
 
   return {

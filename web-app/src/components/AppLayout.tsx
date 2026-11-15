@@ -4,12 +4,15 @@ import logoUrl from "../assets/logo-escoapesca.svg?url";
 import { useAuth } from "../contexts/AuthContext";
 import { loadUnreadNotificationCount } from "../lib/notifications";
 import { APP_RELEASE_LABEL } from "../lib/release";
-import { requireSupabase } from "../lib/supabase";
+import { signOutLocally } from "../lib/signOut";
+import { readableError } from "../lib/errors";
+import { Notice } from "./Notice";
 
 export function AppLayout() {
   const { user, configured, accountStatus, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
@@ -40,8 +43,15 @@ export function AppLayout() {
   async function signOut() {
     if (signingOut) return;
     setSigningOut(true);
-    await requireSupabase().auth.signOut({ scope: "local" });
-    navigate("/", { replace: true });
+    setSignOutError(null);
+    try {
+      await signOutLocally();
+      navigate("/", { replace: true });
+    } catch (caught) {
+      setSignOutError(readableError(caught));
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   return (
@@ -94,7 +104,7 @@ export function AppLayout() {
         </div>
       )}
 
-      <main><Outlet /></main>
+      <main>{signOutError && <Notice kind="error">{signOutError}</Notice>}<Outlet /></main>
       <footer>
         <span>{APP_RELEASE_LABEL}</span>
         <span><a href="https://www.escoapesca.it/privacy-beta.html">Privacy</a> · <a href="https://www.escoapesca.it/termini.html">Termini</a></span>
