@@ -41,6 +41,10 @@ Il riferimento locale storico `refs/remotes/sites/main` termina su `64058f0` e c
 
 Prima del push è stato interrogato GitHub: Pages è configurato in modalità legacy su `main`, root `/`, dominio `www.escoapesca.it`. Il push attiva automaticamente quella pubblicazione. Il suo effetto è incluso nel push richiesto; non vengono modificate impostazioni di produzione. Non risultavano webhook GitHub. Sites e Supabase non vengono pubblicati o migrati da questo lavoro. L'esito CI e l'identità del commit remoto devono essere verificati dopo il push e comunicati nella consegna; lo stato live resta consultabile su GitHub Actions.
 
+## Verifica CI dopo il primo push
+
+Il primo run Linux ha rilevato due dipendenze opzionali peer `@emnapi` assenti dal lockfile generato su Windows. La correzione aggiunge soltanto quelle due voci, senza aggiornare le versioni delle dipendenze esistenti. Una installazione pulita con Node 22/npm 10 in contenitore Linux verifica il lockfile; il risultato completo della pipeline sul commit finale va controllato su GitHub.
+
 ## Avvio e passi ancora indispensabili
 
 Per installazione e app: [web-app/README](../web-app/README.md). Per database, account sintetici, conferma API, prove concorrenti e server locale senza configurazioni di produzione: [tooling isolato](../tools/functional-test/README.md). Le sole variabili browser sono `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`; secret provider e service role non devono essere inseriti nel frontend o committati.
