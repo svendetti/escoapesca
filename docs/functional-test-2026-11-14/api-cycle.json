@@ -1,0 +1,191 @@
+[
+  {
+    "test": "signup organizer",
+    "passed": true,
+    "evidence": {
+      "status": 200
+    }
+  },
+  {
+    "test": "email confirmation API organizer",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "onboarding organizer",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "signup participant",
+    "passed": true,
+    "evidence": {
+      "status": 200
+    }
+  },
+  {
+    "test": "email confirmation API participant",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "onboarding participant",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "signup capacity-probe",
+    "passed": true,
+    "evidence": {
+      "status": 200
+    }
+  },
+  {
+    "test": "email confirmation API capacity-probe",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "onboarding capacity-probe",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "create trip",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "save private details",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "private denied before request",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "discovery",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "request",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "accepted cannot read private",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "capacity exhausted",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "active group readable",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "confirmed can read private",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "account isolation",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "create trip",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "non-organizer decision denied",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "concurrent last place",
+    "passed": true,
+    "evidence": {
+      "statuses": [
+        200,
+        400
+      ]
+    }
+  },
+  {
+    "test": "one reserved place after concurrency",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "old account push is never claimed for new device owner",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "create trip",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "rejected",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "create trip",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "cancelled",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "organizer cancellation",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "feedback",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "feedback",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "logout participant",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "login after account switch",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "disabled private access revoked",
+    "passed": true,
+    "evidence": null
+  },
+  {
+    "test": "disabled group access revoked",
+    "passed": true,
+    "evidence": {
+      "status": 403,
+      "code": "42501"
+    }
+  }
+]

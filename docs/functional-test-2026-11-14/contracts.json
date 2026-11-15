@@ -1,0 +1,112 @@
+[
+  {
+    "file": "001_schema_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "002_supabase_auth_profile_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "003_trip_creation_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "004_trip_management_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "005_trip_discovery_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "006_trip_participation_requests_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "007_trip_participation_management_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "008_trip_private_details_access_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "009_notifications_and_discovery_filters_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "010_my_trips_dashboard_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "011_trip_feedback_workflow_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "012_admin_dashboard_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "013_admin_operational_metrics_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "014_public_trip_page_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "015_requester_mini_profiles_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "016_participation_request_message_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "017_email_delivery_outbox_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "018_feedback_prompt_scheduler_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "019_security_gate_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "020_admin_operational_reset_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "021_admin_delete_disabled_user_contract.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "022_fluid_trip_experience_contract.sql",
+    "passed": true,
+    "error": null
+  }
+]

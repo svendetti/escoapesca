@@ -1,5 +1,7 @@
 # Ambiente Supabase — EscoAPesca Beta
 
+**Registro storico dell'allestimento iniziale, non inventario corrente.** Il 14 novembre 2026 il progetto risulta attivo con 46 migrazioni registrate e tre Edge Function. Stato verificato, rischi e controlli non eseguiti sono nel [rapporto aggiornato](../PROJECT_REVIEW_2026-11-14.md); per il bootstrap completo usare [database/OPERATIONS.md](../../database/OPERATIONS.md).
+
 ## Progetto
 
 - Nome: `EscoAPesca Beta`

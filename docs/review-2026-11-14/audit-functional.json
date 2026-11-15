@@ -1,0 +1,96 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@vercel/og": {
+      "name": "@vercel/og",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "satori"
+      ],
+      "effects": [
+        "vinext"
+      ],
+      "range": "0.0.12-beta.0 - 1.0.2",
+      "nodes": [
+        "node_modules/@vercel/og"
+      ],
+      "fixAvailable": {
+        "name": "vinext",
+        "version": "1.4.5",
+        "isSemVerMajor": true
+      }
+    },
+    "satori": {
+      "name": "satori",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1243436,
+          "name": "satori",
+          "dependency": "satori",
+          "title": "Satori-generated SVG has improper escaping",
+          "url": "https://github.com/advisories/GHSA-wx4j-mvgx-mqwp",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-116"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=0.0.27 <0.33.5"
+        }
+      ],
+      "effects": [
+        "@vercel/og"
+      ],
+      "range": "0.0.27 - 0.33.4",
+      "nodes": [
+        "node_modules/satori"
+      ],
+      "fixAvailable": {
+        "name": "vinext",
+        "version": "1.4.5",
+        "isSemVerMajor": true
+      }
+    },
+    "vinext": {
+      "name": "vinext",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@vercel/og"
+      ],
+      "effects": [],
+      "range": "0.0.1 - 1.0.0-beta.13",
+      "nodes": [
+        "node_modules/vinext"
+      ],
+      "fixAvailable": {
+        "name": "vinext",
+        "version": "1.4.5",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 3,
+      "high": 0,
+      "critical": 0,
+      "total": 3
+    },
+    "dependencies": {
+      "prod": 30,
+      "dev": 297,
+      "optional": 103,
+      "peer": 12,
+      "peerOptional": 0,
+      "total": 336
+    }
+  }
+}

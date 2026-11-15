@@ -2,6 +2,10 @@
 
 ## Stato del deploy
 
+Verifica GitHub del 15 novembre 2026: Pages usa ancora `main`, root `/`, modalità legacy; il push autorizzato attiva automaticamente quella pubblicazione. Non sono stati cambiati DNS, impostazioni Pages, infrastruttura Supabase o servizi Sites. Nessun webhook GitHub era configurato al controllo. La nuova CI `Verify application` controlla test/build, senza step di deploy. Le migrazioni `20261115083444` e `20261115084645` sono state verificate solo nell'ambiente locale e non applicate a produzione.
+
+Questo documento conserva anche note storiche. Per stato verificato, modifiche locali ancora da rilasciare e limiti di collaudo leggere [il rapporto del 14 novembre 2026](docs/PROJECT_REVIEW_2026-11-14.md). Non è stato eseguito alcun nuovo deploy durante quella revisione.
+
 - [x] Pubblicazione su GitHub Pages dalla branch `main`, cartella root.
 - [x] Dominio personalizzato `www.escoapesca.it` configurato tramite `CNAME`.
 - [x] Landing collegata a registrazione, accesso, ricerca e creazione uscita su `app.escoapesca.it`.
@@ -14,11 +18,11 @@
 
 ## Confini della baseline
 
-Il deploy pubblico comprende landing, privacy e termini su GitHub Pages. Gli STEP 3–7 (autenticazione, profilo, creazione/gestione uscite, elenco con filtri, richiesta/annullamento partecipazione, accettazione/rifiuto e conferma dell’uscita) sono implementati in `web-app/`, collegati al progetto Supabase dedicato `EscoAPesca Beta` e pubblicati su `app.escoapesca.it`. Dettagli privati, dashboard completa delle partecipazioni, feedback, amministrazione e notifiche utente non sono ancora implementati.
+Il deploy pubblico comprende landing, privacy e termini su GitHub Pages. `web-app/` contiene autenticazione, profilo, uscite, richieste/conferma, dettagli privati, dashboard, feedback, amministrazione, inviti e notifiche. La presenza delle funzioni e lo stato storico di pubblicazione non attestano che tutte siano verificate in produzione.
 
 La landing va mantenuta separata dalla futura applicazione Beta: non deve diventare il contenitore della logica autenticata né dei dati privati degli spot.
 
-La SPA usa un adattatore vinext minimale per il runtime Sites, mantenendo invariati componenti e flussi React esistenti. Le variabili `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` sono configurate sull'hosting; Site URL e Redirect URLs sono allineati in Supabase Auth al dominio personalizzato.
+La SPA usa un adattatore vinext per il runtime Sites, con una pagina server dedicata ai link pubblici. Le variabili `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` e gli URL Auth vanno verificati nell'ambiente di destinazione prima del rilascio.
 
 ### Record DNS OVH attivi per la SPA
 

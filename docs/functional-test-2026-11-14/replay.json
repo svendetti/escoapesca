@@ -1,0 +1,242 @@
+[
+  {
+    "file": "database\\migrations\\001_beta_core.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\002_beta_security_and_metrics.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\003_beta_relational_invariants.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\004_beta_indexes_and_rls_performance.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\005_supabase_auth_and_profile.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\006_supabase_advisor_hardening.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\007_profile_rpc_private_boundary.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\008_trip_creation_rls.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\009_trip_management_rls.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\010_trip_discovery.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\011_trip_participation_requests.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\012_trip_participation_management.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\013_trip_private_details_access.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\014_trip_select_policy_consolidation.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\015_notifications_and_discovery_filters.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\016_notification_user_policy_fix.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\017_my_trips_dashboard.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\018_trip_feedback_workflow.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\019_fix_trip_feedback_conflict.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\020_admin_dashboard.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\021_admin_operational_metrics.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\022_public_trip_page.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\023_requester_mini_profiles.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\024_consolidate_trip_participant_select_policy.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\025_participation_request_message.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\026_fix_trip_participant_rls_recursion.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\027_grant_trip_organizer_policy_helper.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\028_email_delivery_outbox.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\029_email_outbox_recipient_index.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\030_feedback_prompt_scheduler.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\031_security_gate_hardening.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\032_admin_operational_reset.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\033_fix_admin_operational_reset.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829104956_admin_delete_disabled_user.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161250_trip_invitations.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161251_web_push_delivery.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161252_invitation_notification_and_push_cron.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161253_keep_trip_invitations_in_app_and_push.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161254_push_vapid_vault_config.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161255_push_and_invitation_indexes.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161256_pause_push_cron_until_worker_authorized.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829161257_activate_push_cron.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829184601_trip_archiving_and_moderation.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829190840_trip_archiving_indexes.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260829203547_fix_fishing_trip_select_policy.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20260830150612_fluid_trip_experience.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20261115083444_fix_trip_group_query.sql",
+    "passed": true,
+    "error": null
+  },
+  {
+    "file": "database\\migrations\\20261115084645_push_recipient_boundary.sql",
+    "passed": true,
+    "error": null
+  }
+]

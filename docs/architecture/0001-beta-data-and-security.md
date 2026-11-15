@@ -4,6 +4,8 @@
 - Data: 13 agosto 2026
 - Ambito: solo STEP 2, nessuna interfaccia o autenticazione implementata
 
+Nota di contesto, 14 novembre 2026: questa ADR descrive la decisione iniziale. L'implementazione successiva usa Supabase Auth, `app_users.id = auth.users.id`, `auth.uid()`, RLS e RPC; i riferimenti sotto a `app.current_user_id` e alla scelta futura del provider sono storici. Consultare [OPERATIONS](../../database/OPERATIONS.md) e il [rapporto corrente](../PROJECT_REVIEW_2026-11-14.md).
+
 ## Contesto
 
 Il repository contiene una landing statica e non dispone di backend, autenticazione o database. La Beta deve misurare uscite reali fra persone che non si conoscevano prima, mantenendo il punto preciso delle uscite protette fuori da qualunque superficie pubblica.

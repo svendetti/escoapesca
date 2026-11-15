@@ -1,0 +1,14 @@
+[
+  {
+    "test": "active group",
+    "status": 200,
+    "rows": 2,
+    "passed": true
+  },
+  {
+    "test": "disabled group",
+    "status": 403,
+    "code": "42501",
+    "passed": true
+  }
+]

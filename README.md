@@ -2,16 +2,20 @@
 
 ## Stato del repository
 
+Stato corrente e limiti di rilascio: [consolidamento del 15 novembre 2026](docs/RELEASE_STATUS_2026-11-15.md). I rapporti PROJECT_REVIEW e FUNCTIONAL_QA restano evidenze storiche; il collaudo dell'interfaccia nel browser è ancora bloccato e il prodotto non è attestato pronto per un lancio più ampio.
+
 Questo repository contiene la landing pubblica e l’applicazione web della Beta Lazio.
 
 - La landing statica resta pubblicata su `www.escoapesca.it` tramite GitHub Pages.
 - I materiali in `social-launch-kit` e `social-calendar` supportano l'acquisizione dei primi utenti.
-- Gli STEP 3–7 della Beta sono implementati in `web-app/`: registrazione, login, recupero password, profilo pescatore, creazione/gestione delle uscite, elenco con filtri, richieste di partecipazione, decisione dell’organizzatore e conferma.
+- `web-app/` contiene autenticazione, profilo pescatore, uscite con ricerca/richieste/conferma, dettagli privati, storico, feedback, notifiche, inviti e amministrazione. Non tutte queste funzioni sono collaudate dall'inizio alla fine.
 - L’app è collegata al progetto Supabase dedicato `EscoAPesca Beta` ed è pubblicata su `app.escoapesca.it`; la landing indirizza registrazione, accesso, ricerca e creazione verso l’app.
 - Le dipendenze locali in `.tools` servono esclusivamente alla generazione dei contenuti media e non fanno parte dello stack applicativo.
 - Il modello dati Supabase/PostgreSQL e l'ordine delle migrazioni sono documentati in `database/OPERATIONS.md`.
 
 La metrica primaria della Beta è il numero di uscite reali organizzate tra pescatori che non si conoscevano prima tramite EscoAPesca.
+
+Stato verificato, problemi, interventi e priorità: [rapporto tecnico del 14 novembre 2026](docs/PROJECT_REVIEW_2026-11-14.md). La documentazione storica di deploy non costituisce una verifica corrente di produzione. Per avviare l'app consultare [web-app/README.md](web-app/README.md).
 
 ## Ottimizzazione SEO e prestazioni
 
@@ -31,7 +35,7 @@ I Core Web Vitals reali devono essere misurati nuovamente dopo il deploy HTTPS, 
 
 ## Identità visiva
 
-La landing utilizza il marchio EscoAPesca v1: pesce geometrico, correnti interne e amo chartreuse. Le versioni vettoriali per sfondo scuro, chiaro e icona sono disponibili nella cartella `outputs/escoapesca-brand` insieme alla guida d’uso.
+La landing utilizza il marchio EscoAPesca v1: pesce geometrico, correnti interne e amo chartreuse. Gli asset applicativi tracciati sono in `assets/` e `web-app/public/`.
 
 ## Revisione UI/UX Pro Max
 
