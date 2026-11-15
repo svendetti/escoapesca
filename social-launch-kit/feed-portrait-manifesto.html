@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EscoAPesca - Feed Portrait</title>
+  <style>
+    :root {
+      --bg: #020812;
+      --ink: #f0fffb;
+      --muted: #9cb7b6;
+      --aqua: #68ffe7;
+      --lime: #d8ff5f;
+      --glass: rgba(5, 22, 36, .74);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .post {
+      position: relative;
+      width: 1080px;
+      height: 1350px;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 72% 20%, rgba(104,255,231,.20), transparent 31%),
+        radial-gradient(circle at 20% 88%, rgba(47,143,255,.18), transparent 34%),
+        linear-gradient(155deg, #041523 0%, #020812 60%, #061827 100%);
+    }
+
+    .post::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      z-index: -3;
+      background:
+        linear-gradient(110deg, transparent 0 18%, rgba(104,255,231,.14) 18.5%, transparent 19.2% 42%, rgba(47,143,255,.10) 42.5%, transparent 43.2%),
+        repeating-linear-gradient(165deg, rgba(255,255,255,.028) 0 1px, transparent 1px 98px);
+      transform: rotate(-7deg);
+    }
+
+    .post::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(2, 8, 18, .08), rgba(2, 8, 18, .72)),
+        repeating-radial-gradient(circle at 50% 42%, rgba(104,255,231,.08) 0 1px, transparent 1px 94px);
+    }
+
+    .brand {
+      position: absolute;
+      top: 70px;
+      left: 70px;
+      right: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand img {
+      width: 74px;
+      height: 74px;
+      filter: drop-shadow(0 0 24px rgba(104,255,231,.35));
+    }
+
+    .brand-name {
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .brand-name span { color: var(--lime); }
+
+    .badge {
+      padding: 13px 18px;
+      border: 1px solid rgba(104,255,231,.28);
+      border-radius: 999px;
+      color: var(--aqua);
+      background: rgba(3,20,33,.72);
+      font-size: 18px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .sonar {
+      position: absolute;
+      right: -150px;
+      top: 360px;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: repeating-radial-gradient(circle, rgba(104,255,231,.13) 0 1px, transparent 1px 92px);
+      opacity: .8;
+    }
+
+    .sonar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 22deg, transparent 0deg, rgba(104,255,231,.28) 42deg, transparent 86deg);
+      mix-blend-mode: screen;
+    }
+
+    .fish {
+      position: absolute;
+      right: -120px;
+      bottom: 40px;
+      width: 520px;
+      height: 520px;
+      opacity: .13;
+      transform: rotate(-11deg);
+      filter: drop-shadow(0 0 44px rgba(104,255,231,.24));
+    }
+
+    .copy {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      top: 290px;
+    }
+
+    .kicker {
+      width: fit-content;
+      margin-bottom: 30px;
+      padding: 13px 18px;
+      border-left: 5px solid var(--lime);
+      color: var(--aqua);
+      background: rgba(2,8,18,.58);
+      font-size: 24px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: 87px;
+      line-height: .98;
+      font-weight: 950;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    h1 span {
+      color: var(--lime);
+      text-shadow: 0 0 24px rgba(216,255,95,.20);
+    }
+
+    .sub {
+      max-width: 830px;
+      margin: 36px 0 0;
+      color: #d7f3ee;
+      font-size: 38px;
+      line-height: 1.16;
+      font-weight: 850;
+      text-wrap: balance;
+    }
+
+    .match {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      bottom: 172px;
+      display: grid;
+      gap: 16px;
+      padding: 24px;
+      border: 1px solid rgba(104,255,231,.22);
+      border-radius: 28px;
+      background: var(--glass);
+      box-shadow: 0 24px 80px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.035);
+    }
+
+    .match-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--aqua);
+      font-size: 20px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .match-top b { color: var(--lime); }
+
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .chip {
+      padding: 18px 14px;
+      border: 1px solid rgba(104,255,231,.22);
+      border-radius: 18px;
+      color: var(--ink);
+      background: rgba(4, 26, 42, .74);
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .footer {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      bottom: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer strong {
+      display: block;
+      font-size: 33px;
+      line-height: 1.04;
+      font-weight: 950;
+    }
+
+    .footer span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 21px;
+      font-weight: 780;
+    }
+
+    .button {
+      flex: 0 0 auto;
+      padding: 22px 28px;
+      border-radius: 999px;
+      color: #031421;
+      background: var(--lime);
+      font-size: 22px;
+      font-weight: 950;
+      text-transform: uppercase;
+      box-shadow: 0 0 42px rgba(216,255,95,.24);
+    }
+  </style>
+</head>
+<body>
+  <main class="post">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="../logo-escoapesca.svg" alt="">
+        <div class="brand-name">EscoAPesca<span>.</span></div>
+      </div>
+      <div class="badge">Beta Lazio</div>
+    </div>
+
+    <div class="sonar" aria-hidden="true"></div>
+    <img class="fish" src="../logo-escoapesca.svg" alt="">
+
+    <section class="copy">
+      <div class="kicker">Non è solo pescare</div>
+      <h1>È trovare <span>la persona giusta</span> con cui uscire.</h1>
+      <p class="sub">Zona, tecnica, livello e disponibilità. Partiamo dal Lazio e testiamo gruppi veri.</p>
+    </section>
+
+    <section class="match">
+      <div class="match-top">
+        <span>Match intelligente</span>
+        <b>3 segnali</b>
+      </div>
+      <div class="chips">
+        <div class="chip">Zona</div>
+        <div class="chip">Tecnica</div>
+        <div class="chip">Livello</div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div>
+        <strong>Candidati alla beta</strong>
+        <span>Link in bio - escoapesca.it</span>
+      </div>
+      <div class="button">Entra</div>
+    </section>
+  </main>
+</body>
+</html>

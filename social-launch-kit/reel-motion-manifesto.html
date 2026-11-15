@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EscoAPesca - Reel Motion Manifesto</title>
+  <style>
+    :root {
+      --bg: #020812;
+      --deep: #031421;
+      --ink: #effffb;
+      --muted: #9cb7b6;
+      --aqua: #68ffe7;
+      --blue: #2f8fff;
+      --lime: #d8ff5f;
+      --glass: rgba(5, 22, 36, .72);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100vw, 1080px);
+      height: min(100vh, 1920px);
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(104,255,231,.18), transparent 28%),
+        radial-gradient(circle at 80% 82%, rgba(47,143,255,.20), transparent 30%),
+        linear-gradient(180deg, #031a29 0%, #020812 55%, #02060d 100%);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      z-index: -3;
+      background:
+        linear-gradient(110deg, transparent 0 17%, rgba(104,255,231,.18) 17.3%, transparent 18.1% 42%, rgba(47,143,255,.11) 42.3%, transparent 43.1%),
+        repeating-linear-gradient(168deg, rgba(255,255,255,.035) 0 1px, transparent 1px 118px);
+      transform: rotate(-8deg);
+      animation: drift 11s ease-in-out infinite alternate;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(2,8,18,.04), rgba(2,8,18,.88)),
+        repeating-radial-gradient(circle at 50% 45%, rgba(104,255,231,.10) 0 1px, transparent 1px 116px);
+    }
+
+    .brand {
+      position: absolute;
+      top: 76px;
+      left: 64px;
+      right: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      z-index: 5;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 78px;
+      height: 78px;
+      filter: drop-shadow(0 0 24px rgba(104,255,231,.35));
+    }
+
+    .brand-name {
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .brand-name span {
+      color: var(--lime);
+    }
+
+    .live {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 17px;
+      border: 1px solid rgba(104,255,231,.25);
+      border-radius: 999px;
+      color: var(--aqua);
+      background: rgba(3,20,33,.72);
+      font-size: 17px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .live i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 18px var(--lime);
+    }
+
+    .sonar {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      width: 760px;
+      height: 760px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      opacity: .75;
+    }
+
+    .ring {
+      position: absolute;
+      inset: calc(var(--i) * 88px);
+      border: 1px solid rgba(104,255,231,.16);
+      border-radius: 50%;
+      animation: breathe 4.8s ease-in-out infinite;
+      animation-delay: calc(var(--i) * -.5s);
+    }
+
+    .sweep {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(104,255,231,.0) 0deg, rgba(104,255,231,.30) 34deg, rgba(104,255,231,.0) 78deg);
+      mix-blend-mode: screen;
+      animation: rotate 5.6s linear infinite;
+      filter: blur(.5px);
+    }
+
+    .fish-mark {
+      position: absolute;
+      right: -150px;
+      bottom: 130px;
+      width: 690px;
+      height: 690px;
+      opacity: .14;
+      transform: rotate(-12deg);
+      filter: drop-shadow(0 0 42px rgba(104,255,231,.32));
+      animation: floatFish 6s ease-in-out infinite alternate;
+    }
+
+    .bubble {
+      position: absolute;
+      left: var(--x);
+      bottom: -80px;
+      width: var(--s);
+      height: var(--s);
+      border: 1px solid rgba(104,255,231,.28);
+      border-radius: 50%;
+      opacity: .6;
+      animation: bubbleUp var(--d) ease-in infinite;
+      animation-delay: var(--delay);
+    }
+
+    .copy {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      top: 300px;
+      z-index: 4;
+    }
+
+    .kicker {
+      width: fit-content;
+      margin-bottom: 32px;
+      padding: 13px 18px;
+      border-left: 5px solid var(--lime);
+      color: var(--aqua);
+      background: rgba(2,8,18,.56);
+      font-size: 23px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .headline {
+      margin: 0;
+      max-width: 880px;
+      font-size: 93px;
+      line-height: .98;
+      font-weight: 950;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .headline span {
+      color: var(--lime);
+      text-shadow: 0 0 24px rgba(216,255,95,.20);
+    }
+
+    .sub {
+      max-width: 790px;
+      margin: 36px 0 0;
+      color: #d7f3ee;
+      font-size: 38px;
+      line-height: 1.15;
+      font-weight: 800;
+      text-wrap: balance;
+    }
+
+    .match-panel {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      bottom: 440px;
+      z-index: 4;
+      display: grid;
+      gap: 16px;
+      padding: 24px;
+      border: 1px solid rgba(104,255,231,.20);
+      border-radius: 30px;
+      background: var(--glass);
+      box-shadow: 0 24px 80px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.035);
+      backdrop-filter: blur(18px);
+    }
+
+    .match-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--aqua);
+      font-size: 20px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .match-title b {
+      color: var(--lime);
+    }
+
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .chip {
+      padding: 18px 14px;
+      border: 1px solid rgba(104,255,231,.22);
+      border-radius: 18px;
+      color: var(--ink);
+      background: rgba(4, 26, 42, .74);
+      text-align: center;
+      font-size: 27px;
+      font-weight: 900;
+    }
+
+    .cta {
+      position: absolute;
+      left: 64px;
+      right: 230px;
+      bottom: 265px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 24px;
+    }
+
+    .cta strong {
+      display: block;
+      color: var(--ink);
+      font-size: 34px;
+      line-height: 1.05;
+      font-weight: 950;
+    }
+
+    .cta span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 21px;
+      font-weight: 780;
+    }
+
+    .button {
+      flex: 0 0 auto;
+      padding: 22px 28px;
+      border-radius: 999px;
+      color: #031421;
+      background: var(--lime);
+      box-shadow: 0 0 42px rgba(216,255,95,.24);
+      font-size: 22px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes drift {
+      to { transform: rotate(-8deg) translate3d(-34px, 28px, 0); }
+    }
+
+    @keyframes breathe {
+      50% {
+        border-color: rgba(216,255,95,.22);
+        transform: scale(1.025);
+      }
+    }
+
+    @keyframes floatFish {
+      to { transform: rotate(-9deg) translate3d(-18px, -32px, 0); }
+    }
+
+    @keyframes bubbleUp {
+      0% { transform: translate3d(0, 0, 0) scale(.7); opacity: 0; }
+      18% { opacity: .6; }
+      100% { transform: translate3d(36px, -1600px, 0) scale(1.2); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Reel EscoAPesca beta Lazio">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="../logo-escoapesca.svg" alt="">
+        <div class="brand-name">EscoAPesca<span>.</span></div>
+      </div>
+      <div class="live"><i></i> Beta Lazio</div>
+    </div>
+
+    <div class="sonar" aria-hidden="true">
+      <div class="sweep"></div>
+      <div class="ring" style="--i:0"></div>
+      <div class="ring" style="--i:1"></div>
+      <div class="ring" style="--i:2"></div>
+      <div class="ring" style="--i:3"></div>
+    </div>
+
+    <img class="fish-mark" src="../logo-escoapesca.svg" alt="">
+
+    <span class="bubble" style="--x:9%;--s:14px;--d:8s;--delay:-2s"></span>
+    <span class="bubble" style="--x:24%;--s:9px;--d:7s;--delay:-4s"></span>
+    <span class="bubble" style="--x:58%;--s:18px;--d:9s;--delay:-1s"></span>
+    <span class="bubble" style="--x:82%;--s:11px;--d:7.5s;--delay:-5s"></span>
+
+    <section class="copy">
+      <div class="kicker">Non è solo pescare</div>
+      <h1 class="headline">È trovare <span>la persona giusta</span> con cui uscire.</h1>
+      <p class="sub">Zona, tecnica, livello e disponibilità. Partiamo dal Lazio e testiamo gruppi veri.</p>
+    </section>
+
+    <section class="match-panel">
+      <div class="match-title">
+        <span>Match intelligente</span>
+        <b>3 segnali</b>
+      </div>
+      <div class="chips">
+        <div class="chip">Zona</div>
+        <div class="chip">Tecnica</div>
+        <div class="chip">Livello</div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div>
+        <strong>Candidati alla beta</strong>
+        <span>Link in bio - escoapesca.it</span>
+      </div>
+      <div class="button">Entra</div>
+    </section>
+  </main>
+</body>
+</html>
