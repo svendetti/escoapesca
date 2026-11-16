@@ -48,7 +48,7 @@ node --test supabase/functions/process-email-outbox/email-content.test.mjs supab
 
 Gli script Python sono statici; i test Node non inviano notifiche. I contratti SQL vanno eseguiti su un database Supabase isolato secondo `database/OPERATIONS.md`, non sui dati della Beta attiva.
 
-La CI `Verify application` esegue installazione da lockfile, test frontend, build e controlli Python/Node su Node 22. Il replay SQL e il ciclo Auth/API sono separati, documentati nel tooling locale. La CI non pubblica l'app; GitHub Pages pubblica automaticamente la landing dalla root di `main`.
+La CI `Verify application` esegue installazione da lockfile, test frontend, build e controlli Python/Node su Node 22/Linux. Un job Windows separato verifica installazione e regressione degli asset statici con percorsi nativi. Il replay SQL e il ciclo Auth/API sono separati, documentati nel tooling locale. La CI non pubblica l'app; GitHub Pages pubblica automaticamente la landing dalla root di `main`.
 
 ### Server Node su Windows
 

@@ -9,9 +9,17 @@ riprodotto nella cache statica di vinext 0.0.50 su Windows: lookup URL assente,
 lookup con backslash presente per lo stesso file. Il launcher Node ora normalizza
 le chiavi solo su Windows. I 106 test frontend e due nuovi test Node passano;
 questi ultimi verificano anche MIME/contenuto JS e CSS e manifest non esposto.
-Il difetto di serving è corretto e verificato a livello server; l'effettivo
-avvio nel browser dopo la correzione e il ciclo UI completo restano da confermare.
+Il difetto di serving è corretto e verificato a livello server. L'utente ha
+successivamente confermato l'avvio in Chrome con «ora va»; questa è una conferma
+manuale dell'avvio desktop, non del ciclo UI completo o dell'emulazione mobile.
 La build superata in precedenza non aveva rilevato questo errore di runtime.
+La CI aggiunge un job nativo `windows-static-assets` per installazione pulita e
+regressione del serving su Windows; il job Linux continua a verificare test e build.
+Nel tentativo successivo il browser integrato risulta indisponibile con
+`Trusted RPC service is not configured: browser`; anche lo skill browser indicato
+dalla sessione è assente dal filesystem. Questo è un ostacolo dello strumento,
+distinto dal precedente diniego di policy e dall'errore MIME corretto. Nessun
+collaudo UI automatico o screenshot successivo alla riparazione viene attestato.
 
 Backend e build verificati localmente; **interfaccia non ancora collaudata nel browser** per il diniego già registrato in [FUNCTIONAL_QA](FUNCTIONAL_QA_2026-11-15.md). Non si dichiara il prodotto completamente funzionante o pronto. Il nuovo incarico non autorizza ad aggirare il gate del browser con altre superfici. Restano necessari accesso consentito all'origine locale, collaudo desktop/emulazione mobile e prova distinta su dispositivi reali.
 
@@ -40,7 +48,8 @@ Backend e build verificati localmente; **interfaccia non ancora collaudata nel b
 | Rifiuto e annullamento | Verificato API locale | Rifiuto, ritiro richiesta e annullamento di uscita aperta. Nessuna nuova semantica introdotta dopo conferma |
 | Cambio account e push pendenti | Verificato nel backend | Coda non reclamata per nuovo proprietario dello stesso endpoint; prova locale senza invio. Browser storage e ricezione fisica non verificati |
 | Revoca account | Verificato per spot e gruppo | Dettagli non leggibili e diniego 403/42501 al gruppo. Non equivale a invalidazione immediata universale di ogni JWT |
-| UI desktop/mobile e accessibilità | Bloccato/non verificato | Nessun nuovo screenshot; nessuna prova di screen reader o telefono reale |
+| Avvio home desktop | Confermato dall'utente | Chrome locale dopo la correzione MIME; nessuna verifica autonoma del rendering completo |
+| Ciclo UI, mobile e accessibilità | Bloccato/non verificato | Browser automatico indisponibile; nessuna prova di screen reader, emulazione mobile o telefono reale |
 | Provider email/push esterni | Non verificato | Nessun servizio di produzione usato, segreto importato o invio reale |
 | Audit dipendenze | Tre moderate residue | [Snapshot finale](review-2026-11-14/audit-final.json); catena vinext/OG/Satori. Nessuna high/critical al controllo; nessun ImageResponse con input utente individuato. Esposizione non attestata assente |
 
@@ -60,4 +69,4 @@ Il primo run Linux ha rilevato due dipendenze opzionali peer `@emnapi` assenti d
 
 Per installazione e app: [web-app/README](../web-app/README.md). Per database, account sintetici, conferma API, prove concorrenti e server locale senza configurazioni di produzione: [tooling isolato](../tools/functional-test/README.md). Le sole variabili browser sono `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`; secret provider e service role non devono essere inseriti nel frontend o committati.
 
-L'intervento indispensabile per completare il collaudo dell'interfaccia è consentire realmente l'accesso dell'app browser all'origine locale nelle sue impostazioni/policy. Il consenso scritto precedente non ha superato il gate. In seguito vanno verificati tutti i flussi dalla UI, stati rete/errore e dispositivi; gli esiti automatici qui sopra non sostituiscono quella verifica. Eventuali deploy dell'app, applicazione delle migrazioni a produzione e modifiche infrastrutturali richiedono un incarico distinto.
+L'intervento indispensabile per completare il collaudo autonomo dell'interfaccia è ripristinare il collegamento del browser integrato e il relativo skill. Se ricompare il precedente gate di policy, occorrerà anche consentire effettivamente l'origine locale; il consenso scritto non lo aveva superato. In seguito vanno verificati tutti i flussi dalla UI, stati rete/errore e dispositivi; gli esiti automatici qui sopra non sostituiscono quella verifica. Eventuali deploy dell'app, applicazione delle migrazioni a produzione e modifiche infrastrutturali richiedono un incarico distinto.
