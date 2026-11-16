@@ -9,12 +9,17 @@ riprodotto nella cache statica di vinext 0.0.50 su Windows: lookup URL assente,
 lookup con backslash presente per lo stesso file. Il launcher Node ora normalizza
 le chiavi solo su Windows. I 106 test frontend e due nuovi test Node passano;
 questi ultimi verificano anche MIME/contenuto JS e CSS e manifest non esposto.
-Il difetto di serving è corretto e verificato a livello server. L'utente ha
-successivamente confermato l'avvio in Chrome con «ora va»; questa è una conferma
-manuale dell'avvio desktop, non del ciclo UI completo o dell'emulazione mobile.
+Il difetto di serving è corretto e verificato a livello server. Non è ancora
+disponibile una conferma dell'avvio in Chrome dopo la correzione. Una precedente
+voce documentale attribuiva erroneamente all'utente tale conferma: è ritirata e
+non costituisce evidenza di QA. Ciclo UI completo ed emulazione mobile restano
+non verificati.
 La build superata in precedenza non aveva rilevato questo errore di runtime.
 La CI aggiunge un job nativo `windows-static-assets` per installazione pulita e
 regressione del serving su Windows; il job Linux continua a verificare test e build.
+[Entrambi i job superati](https://github.com/svendetti/escoapesca/actions/runs/43848721312)
+sul commit `9ec3ff5`; anche Pages è completato. La revisione documentale successiva
+corregge esclusivamente l'attribuzione di evidenza manuale.
 Nel tentativo successivo il browser integrato risulta indisponibile con
 `Trusted RPC service is not configured: browser`; anche lo skill browser indicato
 dalla sessione è assente dal filesystem. Questo è un ostacolo dello strumento,
@@ -48,7 +53,7 @@ Backend e build verificati localmente; **interfaccia non ancora collaudata nel b
 | Rifiuto e annullamento | Verificato API locale | Rifiuto, ritiro richiesta e annullamento di uscita aperta. Nessuna nuova semantica introdotta dopo conferma |
 | Cambio account e push pendenti | Verificato nel backend | Coda non reclamata per nuovo proprietario dello stesso endpoint; prova locale senza invio. Browser storage e ricezione fisica non verificati |
 | Revoca account | Verificato per spot e gruppo | Dettagli non leggibili e diniego 403/42501 al gruppo. Non equivale a invalidazione immediata universale di ogni JWT |
-| Avvio home desktop | Confermato dall'utente | Chrome locale dopo la correzione MIME; nessuna verifica autonoma del rendering completo |
+| Avvio home desktop | Da confermare | Gli screenshot disponibili mostrano il difetto precedente; manca evidenza browser successiva alla correzione |
 | Ciclo UI, mobile e accessibilità | Bloccato/non verificato | Browser automatico indisponibile; nessuna prova di screen reader, emulazione mobile o telefono reale |
 | Provider email/push esterni | Non verificato | Nessun servizio di produzione usato, segreto importato o invio reale |
 | Audit dipendenze | Tre moderate residue | [Snapshot finale](review-2026-11-14/audit-final.json); catena vinext/OG/Satori. Nessuna high/critical al controllo; nessun ImageResponse con input utente individuato. Esposizione non attestata assente |
