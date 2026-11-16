@@ -2,6 +2,17 @@
 
 ## Stato del prodotto
 
+**Aggiornamento 16 novembre:** gli screenshot forniti dall'utente in Chrome
+dimostrano che l'avvio della UI locale falliva: i moduli JavaScript ricevevano
+HTML (`Failed to load module script`, MIME `text/html`). Il difetto è stato
+riprodotto nella cache statica di vinext 0.0.50 su Windows: lookup URL assente,
+lookup con backslash presente per lo stesso file. Il launcher Node ora normalizza
+le chiavi solo su Windows. I 106 test frontend e due nuovi test Node passano;
+questi ultimi verificano anche MIME/contenuto JS e CSS e manifest non esposto.
+Il difetto di serving è corretto e verificato a livello server; l'effettivo
+avvio nel browser dopo la correzione e il ciclo UI completo restano da confermare.
+La build superata in precedenza non aveva rilevato questo errore di runtime.
+
 Backend e build verificati localmente; **interfaccia non ancora collaudata nel browser** per il diniego già registrato in [FUNCTIONAL_QA](FUNCTIONAL_QA_2026-11-15.md). Non si dichiara il prodotto completamente funzionante o pronto. Il nuovo incarico non autorizza ad aggirare il gate del browser con altre superfici. Restano necessari accesso consentito all'origine locale, collaudo desktop/emulazione mobile e prova distinta su dispositivi reali.
 
 ## Lavoro consolidato

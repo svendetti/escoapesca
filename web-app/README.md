@@ -35,7 +35,7 @@ La pubblicazione richiede il worker server e la configurazione runtime `VITE_SUP
 Per lo smoke test locale della build con configurazione runtime esplicita:
 
 ```powershell
-node --env-file=.env.local node_modules/vinext/dist/cli.js start --port 3001
+node --env-file=.env.local scripts/start.mjs start --port 3001
 ```
 
 Controlli aggiuntivi dalla root:
@@ -49,3 +49,14 @@ node --test supabase/functions/process-email-outbox/email-content.test.mjs supab
 Gli script Python sono statici; i test Node non inviano notifiche. I contratti SQL vanno eseguiti su un database Supabase isolato secondo `database/OPERATIONS.md`, non sui dati della Beta attiva.
 
 La CI `Verify application` esegue installazione da lockfile, test frontend, build e controlli Python/Node su Node 22. Il replay SQL e il ciclo Auth/API sono separati, documentati nel tooling locale. La CI non pubblica l'app; GitHub Pages pubblica automaticamente la landing dalla root di `main`.
+
+### Server Node su Windows
+
+Usare `npm.cmd start` o il tooling isolato, che passano da `scripts/start.mjs`.
+vinext 0.0.50 registra nella cache statica percorsi con backslash su Windows:
+gli URL `/assets/...` non vengono trovati e il catch-all restituisce HTML invece
+di JavaScript/CSS, lasciando la pagina su «Caricamento EscoAPesca…».
+Il launcher normalizza le sole chiavi della cache, senza modificare `node_modules`
+o il worker Cloudflare. Su altri sistemi non interviene. È una compatibilità
+temporanea da rivalutare all'aggiornamento di vinext; il test Node incluso in
+`npm test` verifica MIME, contenuto degli asset e protezione del manifest.
