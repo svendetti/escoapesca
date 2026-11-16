@@ -42,4 +42,21 @@ Per aprire la build collegata esclusivamente a questo backend:
 python tools/functional-test/serve.py
 ```
 
+Per un telefono nella stessa Wi-Fi, trovare l'IPv4 privata del PC con
+`Get-NetIPConfiguration` e avviare ad esempio:
+
+```powershell
+python tools/functional-test/serve.py --lan-host 192.168.0.19
+```
+
+Aprire `http://192.168.0.19:3000` dal telefono. L'indirizzo può cambiare: il launcher
+accetta solo IPv4 RFC1918 effettivamente assegnate al PC e usa sempre lo stack
+Supabase locale. Non modifica `.env.local`, firewall, router o servizi remoti.
+Il PC deve restare acceso e le porte 3000/54321 devono essere raggiungibili sulla
+rete privata. Usare gli account sintetici già confermati; gli URL di conferma
+email di questa configurazione restano orientati al browser del PC.
+HTTP sulla LAN serve al collaudo di interfaccia e flussi; non verifica le funzioni
+che richiedono un contesto sicuro, come service worker, PWA e Web Push. Non esporre
+questo ambiente su Internet e non usarlo con dati o credenziali reali.
+
 La build e il server ricevono solo le variabili pubbliche locali, senza modificare `.env.local`. Il server usa la porta 3000. Non sono avviati worker email/push esterni. La subscription sintetica serve solo a verificare il claim della coda; nessuna consegna Web Push è effettuata.

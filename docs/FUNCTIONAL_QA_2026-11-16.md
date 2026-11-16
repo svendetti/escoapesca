@@ -1,5 +1,18 @@
 # Collaudo assistito e dettaglio compatto — 16 novembre 2026
 
+## Preparazione prova su telefono nella LAN
+
+Il launcher supporta `--lan-host`: usa l'IPv4 del PC per il solo endpoint browser
+del backend sintetico. La configurazione CLI resta obbligatoriamente loopback;
+l'indirizzo alternativo deve appartenere a RFC1918 ed essere assegnato a
+un'interfaccia locale. Verificati rifiuto di IP pubblico, IP documentale, IP
+privato non assegnato e stringa invalida (tutti exit 2). Build LAN e server
+avviati; `.env.local`, firewall e router non modificati.
+
+Accesso da telefono, flussi touch e layout restano da confermare dall'utente.
+La LAN HTTP non verifica PWA/service worker/push. Usare gli account sintetici
+già confermati; nessuna modifica agli URL Auth o ai provider di produzione.
+
 ## Iterazione successiva: navigazione mobile e inviti dedicati
 
 Implementata su richiesta la barra inferiore a cinque tab sotto 900px:
