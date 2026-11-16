@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import vinext from "vinext";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 import { sites } from "./build/sites-vite-plugin.ts";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
@@ -41,7 +42,8 @@ export default defineConfig(async () => {
       __APP_VERSION__: JSON.stringify(packageJson.version),
       __APP_COMMIT__: JSON.stringify(releaseCommit()),
     },
-    plugins: [
+    // Unit tests exercise the SPA components without vinext's RSC/CJS transforms.
+    plugins: isTest ? [react()] : [
       vinext(),
       sites(),
       ...(cloudflare

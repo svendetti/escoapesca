@@ -3,13 +3,11 @@ import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripForm } from "../components/TripForm";
-import { TripInvitePanel } from "../components/TripInvitePanel";
-import { TripShareActions } from "../components/TripShareActions";
 import { useAuth } from "../contexts/AuthContext";
 import { readableError } from "../lib/errors";
 import { loadProfile } from "../lib/profile";
 import { createFishingTrip, loadFishingTechniques } from "../lib/trips";
-import { hasErrors, tripDateTimes, validateTrip } from "../lib/validation";
+import { hasErrors, validateTrip } from "../lib/validation";
 import { EMPTY_TRIP } from "../types/domain";
 import type { CatalogItem, FieldErrors, TripValues } from "../types/domain";
 
@@ -96,37 +94,15 @@ export function CreateTripPage() {
   }
 
   if (createdTrip) {
-    const createdTimes = tripDateTimes(values);
-    const techniqueName = techniques.find((item) => item.id === values.techniqueId)?.label
-      ?? "Pesca";
-    const invitePanelId = `invite-trip-${createdTrip.id}`;
     return (
       <section className="page-narrow auth-card center-card">
         <div className="success-mark" aria-hidden="true">✓</div>
         <h1>Uscita creata</h1>
         {notice && <Notice kind={notice.kind}>{notice.text}</Notice>}
         <p>I dettagli precisi di un’uscita protetta non sono salvati nella parte pubblica.</p>
-        {createdTimes && (
-          <section className="post-create-share">
-            <h2>Come vuoi invitare?</h2>
-            <p>Usa WhatsApp, copia il link oppure invita direttamente un utente EscoAPesca.</p>
-            <TripShareActions inviteTargetId={invitePanelId} data={{
-              tripId: createdTrip.id,
-              publicCode: createdTrip.publicCode,
-              title: values.title,
-              techniqueName,
-              publicZone: values.publicZone,
-              startsAt: createdTimes.startsAt.toISOString(),
-              endsAt: createdTimes.endsAt.toISOString(),
-              endPrecision: createdTimes.endPrecision,
-              availablePlaces: Math.max(values.maxParticipants - 1, 0),
-              tripType: values.tripType,
-            }} />
-          </section>
-        )}
-        <TripInvitePanel tripId={createdTrip.id} panelId={invitePanelId} />
         <div className="button-stack">
-          <Link className="button button-secondary" to={`/uscite/${createdTrip.id}`}>Vedi l’uscita</Link>
+          <Link className="button button-primary" to={`/uscite/${createdTrip.id}`}>Gestisci l’uscita</Link>
+          <Link className="button button-secondary" to={`/uscite/${createdTrip.id}/inviti`}>Invita e condividi</Link>
           <Link className="button button-secondary" to="/mie-uscite">Le mie uscite</Link>
           <button className="button button-secondary" type="button" onClick={() => {
             setValues({ ...EMPTY_TRIP });

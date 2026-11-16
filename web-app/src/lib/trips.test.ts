@@ -5,6 +5,7 @@ import {
   deleteFishingTripDraft,
   discoveryRpcArgs,
   loadDiscoverableTrips,
+  loadFishingTrip,
   loadMyHiddenTripIds,
   loadTripParticipationRequestSummary,
   loadTripParticipationRequests,
@@ -20,6 +21,20 @@ import type {
   FishingTripDiscovery,
   TripParticipationRequest,
 } from "../types/domain";
+
+describe("organizer workspace access", () => {
+  it("filters by both trip and organizer and rejects a missing owned row", async () => {
+    const query = {
+      select: vi.fn(), eq: vi.fn(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+    vi.mocked(requireSupabase).mockReturnValue({ from: vi.fn().mockReturnValue(query) } as never);
+    await expect(loadFishingTrip("organizer-1", "trip-1")).rejects.toThrow("non accessibile");
+    expect(query.eq.mock.calls).toEqual([["id", "trip-1"], ["organizer_user_id", "organizer-1"]]);
+  });
+});
 
 describe("discoveryRpcArgs", () => {
   it("invia filtri vuoti come null", () => {

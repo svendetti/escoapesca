@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Notice } from "../components/Notice";
 import { TripGroupPanel } from "../components/TripGroupPanel";
-import { TripInvitePanel } from "../components/TripInvitePanel";
-import { TripShareActions } from "../components/TripShareActions";
 import { TripRequestsPanel } from "../components/TripRequestsPanel";
 import { TripPrivateDetailsPanel } from "../components/TripPrivateDetailsPanel";
 import { useAuth } from "../contexts/AuthContext";
@@ -47,7 +45,6 @@ export function TripDetailPage() {
   const [cancelling, setCancelling] = useState(false);
   const [showDraftDeletion, setShowDraftDeletion] = useState(false);
   const [deletingDraft, setDeletingDraft] = useState(false);
-  const [showInviteSearch, setShowInviteSearch] = useState(false);
 
   useEffect(() => {
     if (!user || !tripId) return;
@@ -125,12 +122,6 @@ export function TripDetailPage() {
   const showShare = isOrganizer && shouldShowTripShare(trip);
   const canLeaveFeedback = hasSubmittedFeedback === false && shouldShowFeedbackPrompt(trip, hasSubmittedFeedback);
   const progressNotice = participationProgressNotice(participationStatus);
-  const invitePanelId = `invite-trip-${trip.id}`;
-  const inviteDisabledReason = canInvite
-    ? undefined
-    : trip.status === "open" && startsAt.getTime() <= Date.now()
-      ? "Gli inviti diretti si chiudono all'orario di inizio, perché dopo non è più possibile chiedere di partecipare."
-      : "Gli inviti diretti sono disponibili solo per uscite aperte prima dell'inizio.";
 
   return (
     <section className="page-wide trip-detail-page">
@@ -155,7 +146,14 @@ export function TripDetailPage() {
             <div><dt>Livello</dt><dd>{LEVEL_LABELS[trip.recommendedLevel]}</dd></div>
           </dl>
         </div>
-        {canManage && <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>}
+        {(canManage || (showShare && !trip.hiddenByAdminAt) || canInvite) && (
+        <div className="trip-detail-actions">
+          {canManage && <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>}
+          {((showShare && !trip.hiddenByAdminAt) || canInvite) && (
+            <Link className="button button-secondary" to={`/uscite/${trip.id}/inviti`}>Invita e condividi</Link>
+          )}
+        </div>
+        )}
       </div>
 
       {notice && <Notice kind="success">{notice}</Notice>}
@@ -236,42 +234,6 @@ export function TripDetailPage() {
           isOrganizer={isOrganizer}
           participationStatus={participationStatus}
         />
-      )}
-
-      {((showShare && !trip.hiddenByAdminAt) || canInvite) && (
-        <details className="trip-detail-card trip-detail-disclosure trip-invites-disclosure">
-          <summary>Invita e condividi</summary>
-          <div className="trip-disclosure-content">
-            {showShare && !trip.hiddenByAdminAt && (
-              <TripShareActions
-                compact
-                onInvite={() => setShowInviteSearch(true)}
-                inviteExpanded={showInviteSearch}
-                inviteTargetId={invitePanelId}
-                inviteDisabled={!canInvite}
-                inviteDisabledReason={inviteDisabledReason}
-                data={{
-                  tripId: trip.id,
-                  publicCode: trip.publicCode,
-                  title: trip.title,
-                  techniqueName: trip.techniqueName,
-                  publicZone: trip.publicZone,
-                  startsAt: trip.startsAt,
-                  endsAt: trip.endsAt,
-                  endPrecision: trip.endPrecision,
-                  availablePlaces: null,
-                  tripType: trip.tripType,
-                }}
-              />
-            )}
-            {canInvite && (
-              <div className="trip-invite-search" hidden={showShare && !trip.hiddenByAdminAt && !showInviteSearch}>
-                {showShare && !trip.hiddenByAdminAt && <button className="link-button trip-invite-close" type="button" onClick={() => { setShowInviteSearch(false); document.getElementById(`${invitePanelId}-trigger`)?.focus(); }}>Chiudi ricerca</button>}
-                <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />
-              </div>
-            )}
-          </div>
-        </details>
       )}
 
       {trip.status === "cancelled" && (

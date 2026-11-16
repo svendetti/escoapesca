@@ -518,7 +518,7 @@ main > * { animation: page-arrive .5s ease-out both; }
 .trip-data-list > div:last-child { border-bottom: 0; padding-bottom: 0; }
 .trip-data-list dt { color: var(--muted); font-size: .78rem; }
 .trip-data-list dd { margin: 0; }
-.trip-detail-page .trip-detail-hero > div { flex: 1; min-width: 0; }
+.trip-detail-page .trip-detail-hero > div:first-child { flex: 1; min-width: 0; }
 .trip-detail-page .trip-hero-facts { gap: .65rem 1.25rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1rem; }
 .trip-detail-page .trip-hero-facts > div { border: 0; min-width: 0; padding: 0; }
 .trip-detail-page .trip-hero-facts dd { font-size: .9rem; overflow-wrap: anywhere; }
@@ -537,10 +537,6 @@ main > * { animation: page-arrive .5s ease-out both; }
 .trip-disclosure-content > .private-details-card { background: none; border: 0; border-radius: 0; margin: 0; padding: 0; }
 .trip-private-disclosure .private-details-card > h2,
 .trip-private-disclosure .private-details-card > .eyebrow { display: none; }
-.trip-invites-disclosure .trip-invite-panel { margin-bottom: 0; }
-.trip-invite-search { border-top: 1px solid var(--line); margin-top: .75rem; padding-top: .5rem; }
-.trip-invite-close { min-height: 44px; }
-.trip-invite-search > .trip-invite-panel { border: 0; background: none; margin: 0; padding: .5rem 0 0; }
 .preserve-lines { white-space: pre-wrap; }
 .cancelled-summary { border-color: rgba(255,135,147,.28); }
 .danger-zone {
@@ -891,6 +887,61 @@ main > * { animation: page-arrive .5s ease-out both; }
 .organizer-identity-card { align-items: center; display: flex; gap: .8rem; }
 .organizer-identity-card > div { display: grid; gap: .12rem; }
 .organizer-identity-card small { color: var(--muted); }
+
+/* Compact app navigation. Keep desktop links and mobile tabs mutually exclusive. */
+.mobile-bottom-nav, .mobile-header-actions { display: none; }
+.skip-link { background: var(--signal); border-radius: 10px; color: #03101b; left: 1rem; padding: .8rem 1rem; position: fixed; top: .5rem; transform: translateY(-160%); z-index: 100; }
+.skip-link:focus { transform: translateY(0); }
+.trip-detail-actions { align-self: flex-start; display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: .5rem; }
+.trip-detail-actions .button { min-height: 44px; }
+.trip-invitations-page h1 { font-size: clamp(1.8rem, 6vw, 2.6rem); margin-bottom: .6rem; }
+.trip-task-context { color: var(--muted); margin: 0 0 1.2rem; }
+.trip-invitations-card .trip-invite-panel { background: none; border: 0; margin: 1rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--line); }
+
+@media (max-width: 899px) {
+  :root { --mobile-nav-height: 72px; }
+  html { scroll-padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 16px); }
+  .has-mobile-navigation { padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px)); }
+  .topbar .desktop-navigation { display: none; }
+  .topbar.authenticated { min-height: 64px; padding: .55rem .85rem; }
+  .topbar.authenticated .brand { font-size: 1rem; gap: .4rem; }
+  .topbar.authenticated .brand img { height: 32px; width: 32px; }
+  .topbar.authenticated .brand > span { display: inline-flex; }
+  .mobile-header-actions { align-items: center; display: flex; gap: .45rem; }
+  .mobile-create-link { align-items: center; background: var(--signal); border-radius: 999px; color: #0b1b14; display: inline-flex; font-size: .8rem; font-weight: 750; gap: .25rem; min-height: 44px; padding: .55rem .75rem; text-decoration: none; }
+  .mobile-account-menu { position: relative; }
+  .mobile-account-menu summary { align-items: center; border: 1px solid var(--line); border-radius: 50%; cursor: pointer; display: flex; height: 44px; justify-content: center; list-style: none; width: 44px; }
+  .mobile-account-menu summary::-webkit-details-marker { display: none; }
+  .mobile-account-menu summary img { filter: invert(1); }
+  .mobile-account-menu > div { background: #071b29; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 16px 48px #0008; display: grid; min-width: 190px; padding: .4rem; position: absolute; right: 0; top: calc(100% + .6rem); }
+  .mobile-account-menu > div a, .mobile-account-menu > div button { background: none; border: 0; border-radius: 10px; color: var(--ink); font: inherit; font-size: .9rem; min-height: 44px; padding: .75rem; text-align: left; text-decoration: none; }
+  .mobile-account-menu > div a:hover, .mobile-account-menu > div button:hover { background: var(--foam); }
+  .mobile-account-menu button:disabled { opacity: .5; }
+  .mobile-bottom-nav {
+    backdrop-filter: blur(22px);
+    background: rgba(3, 16, 27, .96);
+    border-top: 1px solid rgba(104, 245, 218, .2);
+    bottom: 0;
+    box-shadow: 0 -8px 32px #0003;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    left: 0;
+    min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+    padding: .4rem max(.35rem, env(safe-area-inset-right, 0px)) calc(.4rem + env(safe-area-inset-bottom, 0px)) max(.35rem, env(safe-area-inset-left, 0px));
+    position: fixed;
+    right: 0;
+    z-index: 40;
+  }
+  .mobile-bottom-nav > a { align-items: center; border: 1px solid transparent; border-radius: 14px; color: var(--muted); display: flex; flex-direction: column; font-size: .72rem; font-weight: 600; gap: .3rem; justify-content: center; min-height: 56px; min-width: 0; padding: .3rem .1rem; text-decoration: none; }
+  .mobile-nav-icon { display: inline-flex; position: relative; }
+  .mobile-nav-icon > img { filter: invert(1); opacity: .65; }
+  .mobile-bottom-nav > a.is-active { background: rgba(104, 245, 218, .09); border-color: rgba(104, 245, 218, .2); color: var(--ocean); }
+  .mobile-bottom-nav > a.is-active img { opacity: 1; }
+  .mobile-nav-badge { align-items: center; background: var(--signal); border: 2px solid #03101b; border-radius: 999px; color: #0b1b14; display: flex; font-size: .58rem; font-weight: 800; justify-content: center; min-height: 18px; min-width: 18px; padding: 0 .2rem; position: absolute; right: -13px; top: -7px; }
+  .mobile-bottom-nav > a:focus-visible, .mobile-header-actions a:focus-visible, .mobile-header-actions summary:focus-visible, .mobile-account-menu button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .has-mobile-navigation .sticky-save { background: linear-gradient(to top, #03101b 80%, transparent); bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px)); z-index: 5; }
+  .has-mobile-navigation :is(input, textarea, select, [id]) { scroll-margin-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 16px); }
+}
 .trip-group-panel > div:first-child p { color: var(--muted); margin-top: -.3rem; }
 .trip-group-list { display: grid; gap: .6rem; list-style: none; margin: 1rem 0 0; padding: 0; }
 .trip-group-list li { align-items: center; border-top: 1px solid var(--line); display: flex; gap: .75rem; padding-top: .65rem; }

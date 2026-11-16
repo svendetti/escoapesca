@@ -60,3 +60,21 @@ Il launcher normalizza le sole chiavi della cache, senza modificare `node_module
 o il worker Cloudflare. Su altri sistemi non interviene. È una compatibilità
 temporanea da rivalutare all'aggiornamento di vinext; il test Node incluso in
 `npm test` verifica MIME, contenuto degli asset e protezione del manifest.
+
+## Navigazione e gestione uscite
+
+Sotto 900px gli account attivi usano cinque destinazioni in basso: Home, Trova,
+Uscite, Avvisi, Profilo. Proponi resta nell'header; profilo, logout e accesso
+amministratore sono disponibili anche dal menu account. Desktop mantiene la
+navigazione orizzontale. Spazio inferiore, safe area e salvataggio sticky del
+profilo tengono conto della barra fissa; il comportamento su telefono resta da
+collaudare, inclusa la tastiera virtuale.
+
+Il dettaglio mantiene riepilogo, richieste, conferma, gruppo e punto d'incontro.
+Ricerca utenti e condivisione sono nella route `/uscite/:tripId/inviti`, protetta
+da AuthGuard e query sul proprietario. Modifica resta in `/uscite/:tripId/modifica`.
+Dopo creazione si può scegliere Gestisci l'uscita oppure Invita e condividi.
+
+Vitest usa il plugin React senza le trasformazioni RSC di vinext per verificare
+componenti e router reale. La build applicativa continua a usare vinext/Cloudflare.
+I test statici non sostituiscono il collaudo visivo o touch.

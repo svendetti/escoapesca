@@ -1,5 +1,32 @@
 # Collaudo assistito e dettaglio compatto — 16 novembre 2026
 
+## Iterazione successiva: navigazione mobile e inviti dedicati
+
+Implementata su richiesta la barra inferiore a cinque tab sotto 900px:
+Home/Trova/Uscite/Avvisi/Profilo. Icone Lucide con etichette visibili, stato
+attivo e badge accessibile. Header ridotto a brand, Proponi e menu account;
+desktop conserva i link. Previsti spazio inferiore, safe area e offset del
+salvataggio sticky del profilo. Le richieste restano nel dettaglio; inviti e
+condivisione sono in `/uscite/:tripId/inviti`. Dopo creazione, due azioni distinte
+portano a gestione e inviti. L'editor privato resta espandibile nel dettaglio.
+
+La route inviti usa AuthGuard e la query `loadFishingTrip(user.id, tripId)`,
+filtrata per organizzatore; test aggiunto per filtro e riga assente. I test col
+router reale verificano destinazioni, stato attivo nelle sottopagine e badge.
+I test del layout verificano menu assenti per ospiti/disabilitati e azioni per
+account attivi/admin. Totale: 117 test frontend, oltre a 2 Node sul serving Windows.
+
+Durante questi test, le trasformazioni vinext RSC sul router CommonJS causavano
+`ReferenceError: route is not defined`, mentre l'importazione Node riusciva.
+Vitest ora usa il plugin React; la build mantiene vinext/Cloudflare. Problema
+del percorso di test, non classificato come bug dimostrato della UI. Nessuna
+nuova dipendenza o aggiornamento pacchetti.
+
+Restano da verificare: rendering desktop e viewport 320/390/768px, menu account,
+ritorno dagli inviti, tastiera virtuale, safe area e salvataggio profilo su
+telefono reale. Il browser automatico resta indisponibile: nessun nuovo screenshot
+o misura di sovrapposizione è attestato dopo questi interventi.
+
 ## Evidenze ricevute dall'utente
 
 Il browser automatico resta indisponibile. Le verifiche seguenti derivano dai

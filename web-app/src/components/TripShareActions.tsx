@@ -12,16 +12,12 @@ export function TripShareActions({
   inviteDisabled = false,
   inviteDisabledReason,
   compact = false,
-  onInvite,
-  inviteExpanded,
 }: {
   data: TripShareData;
   inviteTargetId?: string;
   inviteDisabled?: boolean;
   inviteDisabledReason?: string;
   compact?: boolean;
-  onInvite?: () => void;
-  inviteExpanded?: boolean;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const inviteReasonId = inviteTargetId ? `${inviteTargetId}-disabled-reason` : undefined;
@@ -32,8 +28,6 @@ export function TripShareActions({
 
   function openInviteSearch() {
     if (!inviteTargetId || inviteDisabled) return;
-    onInvite?.();
-    // Wait for React to reveal the inline search before moving focus.
     window.requestAnimationFrame(() => {
       const target = document.getElementById(inviteTargetId);
       target?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -69,9 +63,7 @@ export function TripShareActions({
           disabled={inviteDisabled}
           type="button"
           aria-label={compact ? "Invita un utente EscoAPesca" : undefined}
-          aria-controls={inviteTargetId}
-          aria-expanded={inviteExpanded}
-          id={`${inviteTargetId}-trigger`}
+          aria-controls={inviteDisabled ? undefined : inviteTargetId}
           onClick={openInviteSearch}
         >
           {compact && <img src="/icons/lucide/user-round-plus.svg" width="20" height="20" alt="" aria-hidden="true" />}

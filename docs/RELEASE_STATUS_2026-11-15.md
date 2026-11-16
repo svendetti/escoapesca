@@ -2,6 +2,11 @@
 
 ## Stato del prodotto
 
+**Navigazione aggiornata:** barra mobile inferiore con cinque voci e pagina
+inviti dedicata; dettagli nel [collaudo del 16 novembre](FUNCTIONAL_QA_2026-11-16.md).
+Nuovi test per navigazione, badge, menu e filtro proprietario: 117 frontend più
+2 Node. Nuovo rendering, touch e telefono reale restano non verificati.
+
 **Collaudo assistito successivo del 16 novembre:** gli screenshot dell'utente
 confermano home autenticata, discovery dell'uscita manuale EP-E963E4481A,
 invio richiesta, notifica interna e richiesta ricevuta dall'organizzatore.
