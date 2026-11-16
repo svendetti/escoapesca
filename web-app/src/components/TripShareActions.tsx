@@ -11,11 +11,17 @@ export function TripShareActions({
   inviteTargetId,
   inviteDisabled = false,
   inviteDisabledReason,
+  compact = false,
+  onInvite,
+  inviteExpanded,
 }: {
   data: TripShareData;
   inviteTargetId?: string;
   inviteDisabled?: boolean;
   inviteDisabledReason?: string;
+  compact?: boolean;
+  onInvite?: () => void;
+  inviteExpanded?: boolean;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const inviteReasonId = inviteTargetId ? `${inviteTargetId}-disabled-reason` : undefined;
@@ -26,9 +32,13 @@ export function TripShareActions({
 
   function openInviteSearch() {
     if (!inviteTargetId || inviteDisabled) return;
-    const target = document.getElementById(inviteTargetId);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => target?.querySelector("input")?.focus(), 350);
+    onInvite?.();
+    // Wait for React to reveal the inline search before moving focus.
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById(inviteTargetId);
+      target?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      target?.querySelector("input")?.focus({ preventScroll: true });
+    });
   }
 
   const feedback = copyState === "copied"
@@ -38,16 +48,18 @@ export function TripShareActions({
       : "";
 
   return (
-    <div className="trip-share-actions">
+    <div className={`trip-share-actions${compact ? " trip-share-actions-compact" : ""}`}>
       <a
         className="button button-primary"
         href={whatsappShareUrl(data)}
         target="_blank"
         rel="noopener noreferrer"
       >
-        Condividi su WhatsApp
+        {compact && <img src="/icons/lucide/message-circle.svg" width="20" height="20" alt="" aria-hidden="true" />}
+        {compact ? "WhatsApp" : "Condividi su WhatsApp"}
       </a>
       <button className="button button-secondary" type="button" onClick={() => void copyLink()}>
+        {compact && <img src="/icons/lucide/copy.svg" width="20" height="20" alt="" aria-hidden="true" />}
         Copia link
       </button>
       {inviteTargetId && (
@@ -56,9 +68,14 @@ export function TripShareActions({
           className="button button-secondary trip-share-invite"
           disabled={inviteDisabled}
           type="button"
+          aria-label={compact ? "Invita un utente EscoAPesca" : undefined}
+          aria-controls={inviteTargetId}
+          aria-expanded={inviteExpanded}
+          id={`${inviteTargetId}-trigger`}
           onClick={openInviteSearch}
         >
-          Invita un utente EscoAPesca
+          {compact && <img src="/icons/lucide/user-round-plus.svg" width="20" height="20" alt="" aria-hidden="true" />}
+          {compact ? "Invita" : "Invita un utente EscoAPesca"}
         </button>
       )}
       {inviteDisabled && inviteDisabledReason && (

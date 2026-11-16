@@ -2,6 +2,13 @@
 
 ## Stato del prodotto
 
+**Collaudo assistito successivo del 16 novembre:** gli screenshot dell'utente
+confermano home autenticata, discovery dell'uscita manuale EP-E963E4481A,
+invio richiesta, notifica interna e richiesta ricevuta dall'organizzatore.
+Accettazione e conferma UI non sono ancora documentate. Il [rapporto aggiornato](FUNCTIONAL_QA_2026-11-16.md)
+separa queste evidenze dai precedenti test API e descrive la compattazione del
+dettaglio richiesta dall'utente, ancora da confrontare visivamente dopo il reload.
+
 **Aggiornamento 16 novembre:** gli screenshot forniti dall'utente in Chrome
 dimostrano che l'avvio della UI locale falliva: i moduli JavaScript ricevevano
 HTML (`Failed to load module script`, MIME `text/html`). Il difetto è stato
@@ -53,7 +60,7 @@ Backend e build verificati localmente; **interfaccia non ancora collaudata nel b
 | Rifiuto e annullamento | Verificato API locale | Rifiuto, ritiro richiesta e annullamento di uscita aperta. Nessuna nuova semantica introdotta dopo conferma |
 | Cambio account e push pendenti | Verificato nel backend | Coda non reclamata per nuovo proprietario dello stesso endpoint; prova locale senza invio. Browser storage e ricezione fisica non verificati |
 | Revoca account | Verificato per spot e gruppo | Dettagli non leggibili e diniego 403/42501 al gruppo. Non equivale a invalidazione immediata universale di ogni JWT |
-| Avvio home desktop | Da confermare | Gli screenshot disponibili mostrano il difetto precedente; manca evidenza browser successiva alla correzione |
+| Avvio home desktop | Verificato manualmente | Conferma dell'utente e screenshot successivi alla correzione MIME; vedere QA del 16 novembre |
 | Ciclo UI, mobile e accessibilità | Bloccato/non verificato | Browser automatico indisponibile; nessuna prova di screen reader, emulazione mobile o telefono reale |
 | Provider email/push esterni | Non verificato | Nessun servizio di produzione usato, segreto importato o invio reale |
 | Audit dipendenze | Tre moderate residue | [Snapshot finale](review-2026-11-14/audit-final.json); catena vinext/OG/Satori. Nessuna high/critical al controllo; nessun ImageResponse con input utente individuato. Esposizione non attestata assente |

@@ -47,6 +47,7 @@ export function TripDetailPage() {
   const [cancelling, setCancelling] = useState(false);
   const [showDraftDeletion, setShowDraftDeletion] = useState(false);
   const [deletingDraft, setDeletingDraft] = useState(false);
+  const [showInviteSearch, setShowInviteSearch] = useState(false);
 
   useEffect(() => {
     if (!user || !tripId) return;
@@ -146,6 +147,13 @@ export function TripDetailPage() {
           <span className="trip-code">{trip.publicCode}</span>
           <h1>{trip.title}</h1>
           <p>{formatTripSchedule(trip.startsAt, trip.endsAt, trip.endPrecision)}</p>
+          <dl className="trip-data-list trip-hero-facts" aria-label="Informazioni sull’uscita">
+            <div><dt>Tecnica</dt><dd>{trip.techniqueName}</dd></div>
+            <div><dt>Acqua</dt><dd>{trip.waterType === "sea" ? "Mare" : "Acqua dolce"}</dd></div>
+            <div><dt>Zona pubblica</dt><dd>{trip.publicZone} · {trip.provinceCode}</dd></div>
+            <div><dt>Partecipanti totali</dt><dd>{trip.maxParticipants}, organizzatore incluso</dd></div>
+            <div><dt>Livello</dt><dd>{LEVEL_LABELS[trip.recommendedLevel]}</dd></div>
+          </dl>
         </div>
         {canManage && <Link className="button button-primary" to={`/uscite/${trip.id}/modifica`}>Modifica</Link>}
       </div>
@@ -159,74 +167,6 @@ export function TripDetailPage() {
         </Notice>
       )}
 
-      {organizer && (
-        <section className="trip-detail-card organizer-identity-card">
-          {organizer.photoUrl ? (
-            <img src={organizer.photoUrl} alt={`Foto di ${organizer.displayName}`} />
-          ) : (
-            <span className="organizer-avatar-fallback" aria-hidden="true">
-              {organizer.displayName.charAt(0).toUpperCase()}
-            </span>
-          )}
-          <div><small>Organizza</small><strong>{isOrganizer ? "Tu" : organizer.displayName}</strong></div>
-        </section>
-      )}
-      {showShare && !trip.hiddenByAdminAt && (
-        <section className="trip-detail-card organizer-share">
-          <div>
-            <h2>Come vuoi invitare?</h2>
-            <p>WhatsApp e link funzionano anche fuori dalla piattaforma; quello diretto avvisa un utente EscoAPesca.</p>
-          </div>
-          <TripShareActions
-            inviteTargetId={invitePanelId}
-            inviteDisabled={!canInvite}
-            inviteDisabledReason={inviteDisabledReason}
-            data={{
-            tripId: trip.id,
-            publicCode: trip.publicCode,
-            title: trip.title,
-            techniqueName: trip.techniqueName,
-            publicZone: trip.publicZone,
-            startsAt: trip.startsAt,
-            endsAt: trip.endsAt,
-            endPrecision: trip.endPrecision,
-            availablePlaces: null,
-            tripType: trip.tripType,
-          }} />
-        </section>
-      )}
-
-      {canInvite && <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />}
-
-      {canLeaveFeedback && (
-        <section className="trip-detail-card">
-          <h2>L’uscita è terminata</h2>
-          <p>Dicci se si è svolta davvero: bastano pochi secondi e il risultato resta privato.</p>
-          <Link className="button button-primary" to={`/uscite/${trip.id}/feedback`}>Lascia il feedback</Link>
-        </section>
-      )}
-
-      <div className="trip-detail-grid">
-        <section className="trip-detail-card">
-          <h2>Informazioni</h2>
-          <dl className="trip-data-list">
-            <div><dt>Tecnica</dt><dd>{trip.techniqueName}</dd></div>
-            <div><dt>Acqua</dt><dd>{trip.waterType === "sea" ? "Mare" : "Acqua dolce"}</dd></div>
-            <div><dt>Zona pubblica</dt><dd>{trip.publicZone} · {trip.provinceCode}</dd></div>
-            <div><dt>Partecipanti totali</dt><dd>{trip.maxParticipants}, organizzatore incluso</dd></div>
-            <div><dt>Livello</dt><dd>{LEVEL_LABELS[trip.recommendedLevel]}</dd></div>
-          </dl>
-        </section>
-
-        {(trip.description || trip.gearNotes) && (
-          <section className="trip-detail-card">
-            <h2>Informazioni utili</h2>
-            {trip.description && <p className="preserve-lines">{trip.description}</p>}
-            {trip.gearNotes && <p className="preserve-lines">{trip.gearNotes}</p>}
-          </section>
-        )}
-      </div>
-
       {isOrganizer ? (
         <TripRequestsPanel
           trip={trip}
@@ -237,6 +177,35 @@ export function TripDetailPage() {
       ) : progressNotice ? (
         <Notice kind={progressNotice.kind}>{progressNotice.message}</Notice>
       ) : null}
+
+      {!isOrganizer && organizer && (
+        <section className="trip-detail-card organizer-identity-card">
+          {organizer.photoUrl ? (
+            <img src={organizer.photoUrl} alt={`Foto di ${organizer.displayName}`} />
+          ) : (
+            <span className="organizer-avatar-fallback" aria-hidden="true">
+              {organizer.displayName.charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div><small>Organizza</small><strong>{organizer.displayName}</strong></div>
+        </section>
+      )}
+
+      {canLeaveFeedback && (
+        <section className="trip-detail-card">
+          <h2>L’uscita è terminata</h2>
+          <p>Dicci se si è svolta davvero: bastano pochi secondi e il risultato resta privato.</p>
+          <Link className="button button-primary" to={`/uscite/${trip.id}/feedback`}>Lascia il feedback</Link>
+        </section>
+      )}
+
+      {(trip.description || trip.gearNotes) && (
+        <section className="trip-detail-card trip-useful-info">
+          <h2>Informazioni utili</h2>
+          {trip.description && <p className="preserve-lines">{trip.description}</p>}
+          {trip.gearNotes && <p className="preserve-lines">{trip.gearNotes}</p>}
+        </section>
+      )}
 
       <TripGroupPanel
         tripId={trip.id}
@@ -250,11 +219,60 @@ export function TripDetailPage() {
           <p className="preserve-lines">{trip.publicMeetingPoint}</p>
         </section>
       ) : null}
-      <TripPrivateDetailsPanel
-        trip={trip}
-        isOrganizer={isOrganizer}
-        participationStatus={participationStatus}
-      />
+      {isOrganizer ? (
+        <details className="trip-detail-card trip-detail-disclosure trip-private-disclosure">
+          <summary>Punto d’incontro e indicazioni private</summary>
+          <div className="trip-disclosure-content">
+            <TripPrivateDetailsPanel
+              trip={trip}
+              isOrganizer={isOrganizer}
+              participationStatus={participationStatus}
+            />
+          </div>
+        </details>
+      ) : (
+        <TripPrivateDetailsPanel
+          trip={trip}
+          isOrganizer={isOrganizer}
+          participationStatus={participationStatus}
+        />
+      )}
+
+      {((showShare && !trip.hiddenByAdminAt) || canInvite) && (
+        <details className="trip-detail-card trip-detail-disclosure trip-invites-disclosure">
+          <summary>Invita e condividi</summary>
+          <div className="trip-disclosure-content">
+            {showShare && !trip.hiddenByAdminAt && (
+              <TripShareActions
+                compact
+                onInvite={() => setShowInviteSearch(true)}
+                inviteExpanded={showInviteSearch}
+                inviteTargetId={invitePanelId}
+                inviteDisabled={!canInvite}
+                inviteDisabledReason={inviteDisabledReason}
+                data={{
+                  tripId: trip.id,
+                  publicCode: trip.publicCode,
+                  title: trip.title,
+                  techniqueName: trip.techniqueName,
+                  publicZone: trip.publicZone,
+                  startsAt: trip.startsAt,
+                  endsAt: trip.endsAt,
+                  endPrecision: trip.endPrecision,
+                  availablePlaces: null,
+                  tripType: trip.tripType,
+                }}
+              />
+            )}
+            {canInvite && (
+              <div className="trip-invite-search" hidden={showShare && !trip.hiddenByAdminAt && !showInviteSearch}>
+                {showShare && !trip.hiddenByAdminAt && <button className="link-button trip-invite-close" type="button" onClick={() => { setShowInviteSearch(false); document.getElementById(`${invitePanelId}-trigger`)?.focus(); }}>Chiudi ricerca</button>}
+                <TripInvitePanel tripId={trip.id} panelId={invitePanelId} />
+              </div>
+            )}
+          </div>
+        </details>
+      )}
 
       {trip.status === "cancelled" && (
         <section className="trip-detail-card cancelled-summary">
