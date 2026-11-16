@@ -18,6 +18,7 @@ import { ProfilePage } from "./views/ProfilePage";
 import { RegisterPage } from "./views/RegisterPage";
 import { TripDetailPage } from "./views/TripDetailPage";
 import { TripInvitationsPage } from "./views/TripInvitationsPage";
+import { TripPreviewPage } from "./views/TripPreviewPage";
 import { TripDiscoveryPage } from "./views/TripDiscoveryPage";
 import { TripFeedbackPage } from "./views/TripFeedbackPage";
 import { WelcomePage } from "./views/WelcomePage";
@@ -44,6 +45,7 @@ export function App() {
             <Route path="uscite/:tripId" element={<AuthGuard><TripDetailPage /></AuthGuard>} />
             <Route path="uscite/:tripId/modifica" element={<AuthGuard><EditTripPage /></AuthGuard>} />
             <Route path="uscite/:tripId/inviti" element={<AuthGuard><TripInvitationsPage /></AuthGuard>} />
+            <Route path="uscite/:tripId/scheda" element={<AuthGuard><TripPreviewPage /></AuthGuard>} />
             <Route path="uscite/:tripId/feedback" element={<AuthGuard><TripFeedbackPage /></AuthGuard>} />
             <Route path="admin" element={<AuthGuard><AdminGuard><AdminPage /></AdminGuard></AuthGuard>} />
             <Route path="u/:tripId" element={<PublicTripRedirect />} />

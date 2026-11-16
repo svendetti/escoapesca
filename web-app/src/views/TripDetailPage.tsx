@@ -11,6 +11,7 @@ import { loadMyTripParticipations } from "../lib/myTrips";
 import { participationProgressNotice } from "../lib/participationProgress";
 import { canInviteToTrip, shouldShowFeedbackPrompt, shouldShowTripShare } from "../lib/tripPresentation";
 import { formatTripSchedule } from "../lib/tripExperience";
+import { tripPreviewPath } from "../lib/tripPreview";
 import {
   cancelFishingTrip,
   deleteFishingTripDraft,
@@ -108,7 +109,7 @@ export function TripDetailPage() {
       <section className="page-narrow auth-card center-card">
         <h1>Uscita non disponibile</h1>
         <Notice kind="error">{error}</Notice>
-        <a className="button button-secondary" href={`/u/${encodeURIComponent(tripId)}`}>Apri la pagina pubblica</a>
+        <Link className="button button-secondary" to={tripPreviewPath(tripId)}>Apri la scheda dell’uscita</Link>
         <Link className="button button-secondary" to="/mie-uscite">Torna alle mie uscite</Link>
       </section>
     );
@@ -125,9 +126,7 @@ export function TripDetailPage() {
 
   return (
     <section className="page-wide trip-detail-page">
-      <Link className="back-link" to={isOrganizer ? "/mie-uscite" : "/trova-uscita"}>
-        ← {isOrganizer ? "Le mie uscite" : "Trova un’uscita"}
-      </Link>
+      <Link className="back-link" to="/mie-uscite">← Le mie uscite</Link>
 
       <div className="trip-detail-hero">
         <div>

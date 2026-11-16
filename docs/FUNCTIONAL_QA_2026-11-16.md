@@ -1,5 +1,40 @@
 # Collaudo assistito e dettaglio compatto — 16 novembre 2026
 
+## Correzione collegamenti e permanenza nell'app
+
+L'utente ha segnalato da mobile la scomparsa del menu aprendo i dettagli da
+Uscite. Il codice indirizzava richieste `requested`/`accepted` a `/u/:tripId`,
+pagina pubblica server separata da AppLayout. Il comportamento era stato scelto
+per non tentare la lettura della riga privata prima della conferma, ma faceva
+perdere la navigazione dell'app.
+
+Ora `/uscite/:tripId/scheda` è una route autenticata dentro AppLayout, alimentata
+esclusivamente da `get_public_fishing_trip`. Riusa la proiezione pubblica
+esplicita e il controllo di partecipazione esistente, con lo stesso client
+Supabase. Non interroga i dettagli privati né amplia RLS. L'accesso al dettaglio
+completo resta riservato al flusso già autorizzato; il ritorno dopo completamento
+profilo dalla scheda interna usa la medesima route interna.
+
+| Collegamento controllato | Risultato |
+| --- | --- |
+| Uscite, richieste inviate/accettate | Corretto: scheda interna con menu |
+| Home, prossima uscita e accettazione | Corretto: stessa destinazione interna |
+| Avvisi: accettazione, invito, modifica | Corretti: scheda interna prima della conferma |
+| Dettaglio non accessibile, apertura scheda alternativa | Corretto: fallback interno, senza uscita dall'app |
+| Dettaglio partecipante, ritorno | Reso coerente con il workspace Le mie uscite |
+| Organizzatore, confermati, modifica, inviti e feedback | Route interne preservate; controllate definizioni e destinazioni, non nuovo ciclo UI |
+| Condivisione WhatsApp, copia link e pagina pubblica | `/u/:tripId` preservato intenzionalmente per condivisione esterna; non è la scheda autenticata |
+| Privacy/Termini, conferma email dell'ambiente locale | Destinazioni esterne/di test intenzionali; nessuna modifica ai provider o agli URL Auth |
+
+124 test frontend superati, inclusi mapping dei link, tab Uscite attivo nella
+nuova sottopagina, gestione RPC senza righe/errori e proiezione che esclude campi
+privati anche se aggiunti alla risposta sintetica. Passano anche i 2 test Node
+del serving e la build. Questi esiti non attestano una nuova prova sul telefono:
+resta necessario riaprire Uscite dalla versione aggiornata e ripercorrere i link.
+
+La pagina pubblica aperta in precedenza rimane pubblica al semplice reload.
+Per il retest partire da `/mie-uscite`, non dal vecchio URL `/u/...`.
+
 ## Preparazione prova su telefono nella LAN
 
 Il launcher supporta `--lan-host`: usa l'IPv4 del PC per il solo endpoint browser

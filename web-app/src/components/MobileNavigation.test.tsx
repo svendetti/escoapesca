@@ -10,7 +10,7 @@ function render(path: string, unreadCount = 0) {
 }
 
 describe("mobile app navigation", () => {
-  it.each(["/mie-uscite", "/crea-uscita", "/uscite/test", "/uscite/test/inviti", "/uscite/test/modifica"])(
+  it.each(["/mie-uscite", "/crea-uscita", "/uscite/test", "/uscite/test/inviti", "/uscite/test/modifica", "/uscite/test/scheda"])(
     "keeps the Uscite tab active at %s, including deep links", (path) => {
       const html = render(path);
       expect(html.match(/aria-current="page"/g)).toHaveLength(1);

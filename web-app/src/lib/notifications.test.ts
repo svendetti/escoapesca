@@ -35,12 +35,12 @@ describe("notificationCopy", () => {
     const copy = notificationCopy(notification("participation_accepted"));
     expect(copy.title).toContain("in attesa di conferma");
     expect(copy.message).toContain("deve ancora confermare");
-    expect(copy.target).toBe("/u/trip-1");
+    expect(copy.target).toBe("/uscite/trip-1/scheda");
   });
 
   it("porta inviti e modifiche alla pagina accessibile prima della conferma", () => {
-    expect(notificationCopy(notification("trip_invitation_sent")).target).toBe("/u/trip-1");
-    expect(notificationCopy(notification("trip_updated")).target).toBe("/u/trip-1");
+    expect(notificationCopy(notification("trip_invitation_sent")).target).toBe("/uscite/trip-1/scheda");
+    expect(notificationCopy(notification("trip_updated")).target).toBe("/uscite/trip-1/scheda");
   });
 
   it("spiega oscuramento e ripristino senza dichiarare l’identità verificata", () => {

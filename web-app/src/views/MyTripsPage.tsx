@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { loadMyTripFeedback } from "../lib/feedback";
 import { readableError } from "../lib/errors";
 import { formatTripSchedule } from "../lib/tripExperience";
+import { tripPreviewPath } from "../lib/tripPreview";
 import {
   canLeaveTripFeedback,
   dashboardTripBucket,
@@ -205,7 +206,7 @@ function canOpenDetails(trip: DashboardTrip) {
 function cardDestination(trip: DashboardTrip) {
   if (canLeaveFeedback(trip)) return `/uscite/${trip.id}/feedback`;
   if (canOpenDetails(trip)) return `/uscite/${trip.id}`;
-  if (trip.role === "participant" && ["requested", "accepted"].includes(trip.participationStatus ?? "")) return `/u/${trip.id}`;
+  if (trip.role === "participant" && ["requested", "accepted"].includes(trip.participationStatus ?? "")) return tripPreviewPath(trip.id);
   return null;
 }
 

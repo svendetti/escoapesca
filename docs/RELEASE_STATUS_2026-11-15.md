@@ -2,6 +2,12 @@
 
 ## Stato del prodotto
 
+**Collegamenti interni corretti:** richieste in attesa/accettate e avvisi prima
+della conferma ora aprono `/uscite/:tripId/scheda` dentro la navigazione dell'app,
+usando solo dati pubblici. Audit delle altre destinazioni e limiti nel
+[collaudo aggiornato](FUNCTIONAL_QA_2026-11-16.md). Totale corrente: 124 test
+frontend più 2 Node; retest dei collegamenti sul telefono ancora richiesto.
+
 **Navigazione aggiornata:** barra mobile inferiore con cinque voci e pagina
 inviti dedicata; dettagli nel [collaudo del 16 novembre](FUNCTIONAL_QA_2026-11-16.md).
 Nuovi test per navigazione, badge, menu e filtro proprietario: 117 frontend più

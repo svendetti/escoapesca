@@ -1,5 +1,7 @@
 import {
   canRequestPublicTrip,
+  mapPublicTrip,
+  type PublicTripRow,
   publicTripPhase,
   publicTripShareDescription,
   type PublicFishingTrip,
@@ -12,27 +14,6 @@ export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: { tripId: string } | Promise<{ tripId: string }>;
-};
-
-type PublicTripRow = {
-  id: string;
-  public_code: string;
-  title: string;
-  technique_name: string;
-  water_type: PublicFishingTrip["waterType"];
-  starts_at: string;
-  ends_at: string;
-  end_precision: PublicFishingTrip["endPrecision"];
-  province_code: string;
-  province_name: string;
-  public_zone: string;
-  public_meeting_point: string | null;
-  max_participants: number;
-  available_places: number | null;
-  recommended_level: PublicFishingTrip["recommendedLevel"];
-  description: string;
-  trip_type: PublicFishingTrip["tripType"];
-  status: PublicFishingTrip["status"];
 };
 
 const APP_ORIGIN = "https://app.escoapesca.it";
@@ -57,29 +38,6 @@ function runtimeConfig() {
   return {
     supabaseUrl: process.env.VITE_SUPABASE_URL?.trim() ?? "",
     supabasePublishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ?? "",
-  };
-}
-
-function mapPublicTrip(row: PublicTripRow): PublicFishingTrip {
-  return {
-    id: row.id,
-    publicCode: row.public_code,
-    title: row.title,
-    techniqueName: row.technique_name,
-    waterType: row.water_type,
-    startsAt: row.starts_at,
-    endsAt: row.ends_at,
-    endPrecision: row.end_precision,
-    provinceCode: row.province_code,
-    provinceName: row.province_name,
-    publicZone: row.public_zone,
-    publicMeetingPoint: row.public_meeting_point,
-    maxParticipants: row.max_participants,
-    availablePlaces: row.available_places,
-    recommendedLevel: row.recommended_level,
-    description: row.description,
-    tripType: row.trip_type,
-    status: row.status,
   };
 }
 

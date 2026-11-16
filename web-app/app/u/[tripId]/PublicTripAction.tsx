@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { rememberReturnPath, withReturnPath } from "../../../src/lib/returnPath";
 import { MAX_REQUEST_MESSAGE_LENGTH } from "../../../src/lib/participationRequest";
@@ -19,25 +19,29 @@ const STATUS_COPY: Partial<Record<ActionMode, string>> = {
 
 export function PublicTripAction({
   tripId,
-  supabaseUrl,
-  supabasePublishableKey,
+  supabaseUrl = "",
+  supabasePublishableKey = "",
   canRequest = true,
+  clientOverride,
+  returnPath,
 }: {
   tripId: string;
-  supabaseUrl: string;
-  supabasePublishableKey: string;
+  supabaseUrl?: string;
+  supabasePublishableKey?: string;
   canRequest?: boolean;
+  clientOverride?: SupabaseClient;
+  returnPath?: string;
 }) {
   const [mode, setMode] = useState<ActionMode>("loading");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const returnTarget = `/u/${tripId}`;
+  const returnTarget = returnPath ?? `/u/${tripId}`;
   const client = useMemo(
-    () => supabaseUrl && supabasePublishableKey
+    () => clientOverride ?? (supabaseUrl && supabasePublishableKey
       ? createClient(supabaseUrl, supabasePublishableKey)
-      : null,
-    [supabasePublishableKey, supabaseUrl],
+      : null),
+    [clientOverride, supabasePublishableKey, supabaseUrl],
   );
 
   useEffect(() => {

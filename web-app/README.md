@@ -78,3 +78,10 @@ Dopo creazione si può scegliere Gestisci l'uscita oppure Invita e condividi.
 Vitest usa il plugin React senza le trasformazioni RSC di vinext per verificare
 componenti e router reale. La build applicativa continua a usare vinext/Cloudflare.
 I test statici non sostituiscono il collaudo visivo o touch.
+
+La route `/uscite/:tripId/scheda` mostra informazioni pubbliche e stato della
+partecipazione senza uscire dall'app; è usata per richieste in attesa, accettazioni
+e inviti. Usa la RPC pubblica, non i dettagli privati. I link di condivisione
+esterna restano `/u/:tripId`; il dettaglio completo resta `/uscite/:tripId` con
+le autorizzazioni esistenti. Anche il ritorno dal profilo conserva la route
+interna quando si parte dalla scheda autenticata.

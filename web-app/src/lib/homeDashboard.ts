@@ -1,4 +1,5 @@
 import { canLeaveTripFeedback } from "./myTrips";
+import { tripDetailsPath, tripPreviewPath } from "./tripPreview";
 import type { FishingTripParticipation } from "./myTrips";
 import type {
   AppNotification,
@@ -87,14 +88,7 @@ function futureTrip(trip: HomeTrip, now: number) {
 }
 
 export function homeTripDestination(trip: HomeTrip) {
-  if (trip.role === "organizer") return `/uscite/${trip.id}`;
-  if (
-    ["confirmed", "completed"].includes(trip.status)
-    && ["confirmed", "completed"].includes(trip.participationStatus ?? "")
-  ) {
-    return `/uscite/${trip.id}`;
-  }
-  return `/u/${trip.id}`;
+  return tripDetailsPath(trip);
 }
 
 function notificationAction(notification: AppNotification): HomeAction | null {
@@ -113,7 +107,7 @@ function notificationAction(notification: AppNotification): HomeAction | null {
     case "trip_private_details_updated":
       return { key: `notification-${notification.id}`, priority: 5, tripId: notification.tripId, title: "Dettagli dell’incontro disponibili", description: "Apri l’uscita per controllare il punto d’incontro.", to: tripPath };
     case "participation_accepted":
-      return { key: `notification-${notification.id}`, priority: 6, tripId: notification.tripId, title: "La tua richiesta è stata accettata", description: "Attendi la conferma definitiva dell’organizzatore.", to: notification.tripId ? `/u/${notification.tripId}` : "/notifiche" };
+      return { key: `notification-${notification.id}`, priority: 6, tripId: notification.tripId, title: "La tua richiesta è stata accettata", description: "Attendi la conferma definitiva dell’organizzatore.", to: notification.tripId ? tripPreviewPath(notification.tripId) : "/notifiche" };
     default:
       return null;
   }
